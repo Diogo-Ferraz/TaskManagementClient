@@ -1,0 +1,47 @@
+<div class="flex align-items-center justify-content-center min-h-screen surface-100">
+  <div class="col-12 md:col-6 lg:col-4">
+    <p-card header="Login" class="p-shadow-4">
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+        <div class="p-fluid">
+          <div class="field">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              type="text"
+              pInputText
+              placeholder="Enter your username"
+              formControlName="username"
+            />
+            <small *ngIf="f['username']?.touched && f['username']?.invalid" class="p-error">
+              Username is required.
+            </small>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              pInputText
+              placeholder="Enter your password"
+              formControlName="password"
+            />
+            <small *ngIf="f['password']?.touched && f['password']?.invalid" class="p-error">
+              Password is required.
+            </small>
+          </div>
+
+          <p *ngIf="errorMessage" class="p-error">{{ errorMessage }}</p>
+
+          <p-button
+            label="Login"
+            class="mt-3"
+            icon="pi pi-sign-in"
+            [disabled]="!isFormValid"
+            type="submit"
+          ></p-button>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>
