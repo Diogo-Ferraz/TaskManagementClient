@@ -25,6 +25,7 @@ export class AppMenuComponent {
         items: [
           { label: 'All Projects', icon: 'pi pi-fw pi-list', routerLink: ['/projects'] },
           { label: 'Create Project', icon: 'pi pi-fw pi-plus', routerLink: ['/projects/create'] },
+          { label: 'Kanban Board', icon: 'pi pi-fw pi-th-large', routerLink: ['/projects/kanban'] },
           { label: 'Archived Projects', icon: 'pi pi-fw pi-folder', routerLink: ['/projects/archived'] }
         ]
       },

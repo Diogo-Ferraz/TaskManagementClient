@@ -10,6 +10,12 @@ import { AvatarGroupModule } from 'primeng/avatargroup';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { TableModule } from 'primeng/table';
+import { DropdownModule } from 'primeng/dropdown';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { TagModule } from 'primeng/tag';
+import { SliderModule } from 'primeng/slider';
 
 @NgModule({
   exports: [
@@ -24,7 +30,17 @@ import { InputSwitchModule } from 'primeng/inputswitch';
     AvatarGroupModule,
     IconFieldModule,
     InputIconModule,
-    InputSwitchModule
+    InputSwitchModule,
+    TableModule,
+    InputTextModule,
+    TagModule, 
+    DropdownModule,
+    MultiSelectModule,
+    ProgressBarModule,
+    SliderModule,
+    IconFieldModule,
+    InputIconModule,
+    MultiSelectModule
   ],
 })
 export class SharedModule {}
