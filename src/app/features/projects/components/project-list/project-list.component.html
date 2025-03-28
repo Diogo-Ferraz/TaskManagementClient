@@ -1,0 +1,22 @@
+@if (projects.length > 0) {
+    @for (project of projects; track project.id) {
+      <div class="project">
+        <h2>{{ project.name }}</h2>
+        <p>{{ project.description }}</p>
+        
+        @if (project.taskItems && project.taskItems.length > 0) {
+          <div class="tasks">
+            @for (task of project.taskItems; track task.id) {
+              <div class="task">
+                <span>{{ task.title }} - {{ task.status }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p>No tasks for this project</p>
+        }
+      </div>
+    }
+  } @else {
+    <p>No projects found</p>
+  }

@@ -1,0 +1,16 @@
+::ng-deep .custom-card .p-card-body {
+    padding: 2rem;
+}
+
+::ng-deep .custom-card .p-card-content {
+    padding: 0;
+}
+
+.text-muted-color {
+    color: #64748b;
+}
+
+.text-surface-900 {
+    --tw-text-opacity: 1;
+    color: color-mix(in srgb, var(--surface-900) calc(100%* var(--tw-text-opacity, 1)), transparent);
+}

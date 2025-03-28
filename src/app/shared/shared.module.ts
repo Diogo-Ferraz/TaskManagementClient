@@ -4,6 +4,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MenuModule } from 'primeng/menu';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputSwitchModule } from 'primeng/inputswitch';
 
 @NgModule({
   exports: [
@@ -13,6 +19,12 @@ import { CommonModule } from '@angular/common';
     ButtonModule,
     FormsModule,
     ReactiveFormsModule,
+    MenuModule,
+    AvatarModule,
+    AvatarGroupModule,
+    IconFieldModule,
+    InputIconModule,
+    InputSwitchModule
   ],
 })
 export class SharedModule {}

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home-login',
@@ -13,7 +14,7 @@ export class HomeLoginComponent {
   loginForm: FormGroup;
   errorMessage: string = '';
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private router: Router) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
@@ -34,6 +35,7 @@ export class HomeLoginComponent {
     if (username === 'admin' && password === 'admin') {
       this.errorMessage = '';
       alert('Login successful');
+      this.router.navigate(['/projects']);
     } else {
       this.errorMessage = 'Invalid credentials. Please try again.';
     }

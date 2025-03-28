@@ -1,0 +1,14 @@
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { StyleClassModule } from 'primeng/styleclass';
+
+@Component({
+  selector: 'app-topbar',
+  standalone: true,
+  imports: [CommonModule, StyleClassModule],
+  templateUrl: './app-topbar.component.html',
+  styleUrl: './app-topbar.component.scss'
+})
+export class AppTopbarComponent {
+
+}
