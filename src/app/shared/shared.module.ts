@@ -16,6 +16,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TagModule } from 'primeng/tag';
 import { SliderModule } from 'primeng/slider';
+import { ChipModule } from 'primeng/chip';
+import { DragDropModule } from 'primeng/dragdrop';
 
 @NgModule({
   exports: [
@@ -40,7 +42,9 @@ import { SliderModule } from 'primeng/slider';
     SliderModule,
     IconFieldModule,
     InputIconModule,
-    MultiSelectModule
+    MultiSelectModule,
+    ChipModule,
+    DragDropModule
   ],
 })
 export class SharedModule {}

@@ -1,0 +1,53 @@
+::ng-deep .custom-card .p-card-body {
+    padding: 0 2rem 2rem 2rem;
+}
+
+::ng-deep .custom-card .p-card-content {
+    padding: 0;
+}
+
+.card {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--card-shadow);
+}
+
+.column-header {
+    padding: 2rem;
+}
+
+.drag-card {
+    display: flex;
+    border-radius: var(--border-radius);
+    border: 1px solid lightgrey;
+    padding: 1rem;
+    --tw-bg-opacity: 1;
+    background-color: 
+    color-mix(in srgb, var(--surface-0) calc(100%* var(--tw-bg-opacity, 1)), transparent);
+    gap: 2rem;
+    flex-direction: column;
+    cursor: pointer;
+    width: 100%;
+}
+
+.text-surface-900 {
+    --tw-text-opacity: 1;
+    color: color-mix(in srgb, var(--surface-900) calc(100%* var(--tw-text-opacity, 1)), transparent);
+}
+
+:host ::ng-deep {
+    .drop-column {
+        border: 1px solid transparent;
+        transition: border-color .2s;
+    
+        &.p-draggable-enter {
+            border-color: var(--primary-color); 
+        }
+    }
+
+    [pDraggable] {
+        cursor: move;
+    }
+}
