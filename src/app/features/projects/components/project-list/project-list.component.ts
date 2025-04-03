@@ -24,6 +24,8 @@ export class ProjectListComponent implements OnInit {
 
   searchValue: string | undefined;
 
+  selectedProducts!: any[] | null;
+
   constructor(private projectService: ProjectService) { }
 
   ngOnInit() {
@@ -99,5 +101,9 @@ export class ProjectListComponent implements OnInit {
 
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+  }
+
+  exportCSV(table: Table) {
+    table.exportCSV();
   }
 }

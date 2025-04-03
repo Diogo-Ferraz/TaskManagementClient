@@ -1,0 +1,67 @@
+:host ::ng-deep .custom-card .p-card-body {
+    padding: 1.5rem;
+}
+
+:host ::ng-deep .custom-card .p-card-content {
+    padding: 0;
+}
+
+.line-through {
+    text-decoration: line-through;
+}
+
+label.cursor-pointer {
+    cursor: pointer;
+}
+
+ul>li:hover {
+    background-color: var(--surface-hover);
+}
+
+.surface-border {
+    border-color: var(--surface-border) !important;
+}
+
+.text-color-secondary {
+    color: var(--text-color-secondary) !important;
+}
+
+:host ::ng-deep .p-avatar.bg-primary-lighten {
+    background-color: var(--primary-100);
+}
+
+:host ::ng-deep .p-avatar.text-primary-darken {
+    color: var(--primary-700);
+}
+
+:host ::ng-deep .p-avatar.bg-gray-200 {
+    background-color: var(--surface-200);
+}
+
+:host ::ng-deep .p-avatar.text-gray-700 {
+    color: var(--surface-700);
+}
+
+.white-space-nowrap {
+    white-space: nowrap;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.text-overflow-ellipsis {
+    text-overflow: ellipsis;
+}
+
+.p-button.p-button-icon-only {
+    flex-shrink: 0;
+}
+
+:host ::ng-deep .p-tag.text-xs {
+    font-size: 0.75rem;
+}
+
+.min-w-0 {
+    min-width: 0;
+}

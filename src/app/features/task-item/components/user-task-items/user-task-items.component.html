@@ -1,0 +1,115 @@
+<div class="grid">
+    <div class="col-12">
+        <p-card header="My Tasks" styleClass="custom-card">
+
+            <div *ngIf="isLoading" class="flex justify-content-center align-items-center py-5">
+                <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+                <span class="ml-2">Loading tasks...</span>
+            </div>
+
+            <ng-container *ngIf="!isLoading">
+                <div class="font-semibold text-lg mt-5 mb-3 py-3 border-bottom-1 surface-border">Pending ({{
+                    getPendingTasks().length }})</div>
+                <ul class="list-none p-0 m-0">
+                    <li *ngFor="let task of getPendingTasks(); trackBy: taskTrackBy"
+                        class="flex align-items-center py-3 px-2 border-bottom-1 surface-border flex-wrap gap-3">
+
+                        <p-checkbox [ngModel]="task.status === TaskStatus.Done" (ngModelChange)="onTaskCheck(task)"
+                            [inputId]="'task_'+task.id" [binary]="true">
+                        </p-checkbox>
+
+                        <div class="flex-1 flex flex-column gap-1 min-w-0">
+                            <label [for]="'task_'+task.id"
+                                class="font-medium cursor-pointer hover:text-primary white-space-nowrap overflow-hidden text-overflow-ellipsis"
+                                [pTooltip]="task.title" tooltipPosition="top"
+                                [ngClass]="{'line-through text-color-secondary': task.status === TaskStatus.Done}">
+                                {{ task.title }}
+                            </label>
+                            <small *ngIf="task.dueDate" class="text-sm text-color-secondary">
+                                Due: {{ task.dueDate | date:'MMM d, y' }}
+                                <i *ngIf="isOverdue(task.dueDate)"
+                                    class="pi pi-exclamation-triangle ml-1 text-orange-500" pTooltip="Overdue"
+                                    tooltipPosition="top"></i>
+                            </small>
+                        </div>
+
+                        <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"
+                            class="ml-auto md:ml-0 px-2 py-1 text-xs"> 
+                        </p-tag>
+
+                        <div class="flex align-items-center gap-2" [pTooltip]="task.assignedUserName"
+                            tooltipPosition="top">
+                            <p-avatar [label]="getInitials(task.assignedUserName)" shape="circle"
+                                styleClass="bg-primary-lighten text-primary-darken">
+                            </p-avatar>
+                        </div>
+
+
+                        <div class="flex align-items-center">
+                            <p-button icon="pi pi-pencil"
+                                styleClass="p-button-text p-button-rounded p-button-plain mr-1" (click)="editTask(task)"
+                                pTooltip="Edit Task" tooltipPosition="top">
+                            </p-button>
+                            <p-button icon="pi pi-trash"
+                                styleClass="p-button-text p-button-rounded p-button-plain p-button-danger"
+                                (click)="deleteTask(task)" pTooltip="Delete Task" tooltipPosition="top">
+                            </p-button>
+                        </div>
+                    </li>
+                    <li *ngIf="!isLoading && getPendingTasks().length === 0" class="py-3 px-2 text-color-secondary">
+                        No pending tasks.
+                    </li>
+                </ul>
+
+                <div class="font-semibold text-lg mt-5 mb-3 py-3 border-bottom-1 surface-border">Done ({{
+                    getDoneTasks().length }})</div>
+                <ul class="list-none p-0 m-0">
+                    <li *ngFor="let task of getDoneTasks(); trackBy: taskTrackBy"
+                        class="flex align-items-center py-3 px-2 border-bottom-1 surface-border flex-wrap gap-3">
+
+                        <p-checkbox [ngModel]="task.status === TaskStatus.Done" (ngModelChange)="onTaskCheck(task)"
+                            [inputId]="'task_'+task.id" [binary]="true">
+                        </p-checkbox>
+
+                        <div class="flex-1 flex flex-column gap-1 min-w-0">
+                            <label [for]="'task_'+task.id"
+                                class="font-medium cursor-pointer hover:text-primary white-space-nowrap overflow-hidden text-overflow-ellipsis line-through text-color-secondary"
+                                [pTooltip]="task.title" tooltipPosition="top">
+                                {{ task.title }}
+                            </label>
+                            <small *ngIf="task.dueDate" class="text-sm text-color-secondary">
+                                Due: {{ task.dueDate | date:'MMM d, y' }}
+                            </small>
+                        </div>
+
+                        <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"
+                            class="ml-auto md:ml-0 px-2 py-1 text-xs">
+                        </p-tag>
+
+                        <div class="flex align-items-center gap-2" [pTooltip]="task.assignedUserName"
+                            tooltipPosition="top">
+                            <p-avatar [label]="getInitials(task.assignedUserName)" shape="circle"
+                                styleClass="bg-gray-200 text-gray-700">
+                            </p-avatar>
+                        </div>
+
+                        <div class="flex align-items-center">
+                            <p-button icon="pi pi-pencil"
+                                styleClass="p-button-text p-button-rounded p-button-plain mr-1" (click)="editTask(task)"
+                                pTooltip="Edit Task" tooltipPosition="top">
+                            </p-button>
+                            <p-button icon="pi pi-trash"
+                                styleClass="p-button-text p-button-rounded p-button-plain p-button-danger"
+                                (click)="deleteTask(task)" pTooltip="Delete Task" tooltipPosition="top">
+                            </p-button>
+                        </div>
+                    </li>
+                    <li *ngIf="!isLoading && getDoneTasks().length === 0" class="py-3 px-2 text-color-secondary">
+                        No tasks completed yet.
+                    </li>
+                </ul>
+            </ng-container>
+
+        </p-card>
+    </div>
+</div>

@@ -18,6 +18,12 @@ import { TagModule } from 'primeng/tag';
 import { SliderModule } from 'primeng/slider';
 import { ChipModule } from 'primeng/chip';
 import { DragDropModule } from 'primeng/dragdrop';
+import { ToolbarModule } from 'primeng/toolbar';
+import { CheckboxModule } from 'primeng/checkbox';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { RippleModule } from 'primeng/ripple';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @NgModule({
   exports: [
@@ -44,7 +50,13 @@ import { DragDropModule } from 'primeng/dragdrop';
     InputIconModule,
     MultiSelectModule,
     ChipModule,
-    DragDropModule
+    DragDropModule,
+    ToolbarModule,
+    CheckboxModule,
+    TooltipModule,
+    ProgressSpinnerModule,
+    RippleModule,
+    SkeletonModule
   ],
 })
 export class SharedModule {}

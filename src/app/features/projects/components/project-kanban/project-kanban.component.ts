@@ -106,7 +106,8 @@ export class ProjectKanbanComponent {
       name: 'New Task',
       description: 'Add description here',
       status: status,
-      createdOn: new Date()
+      createdOn: new Date(),
+      assignee: 'John Doe'
     };
 
     this.todos.push(newTask);
