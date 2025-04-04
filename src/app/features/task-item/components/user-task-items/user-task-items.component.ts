@@ -25,16 +25,20 @@ export class UserTaskItemsComponent implements OnInit {
     this.loadTasks();
   }
 
-  async loadTasks(): Promise<void> {
+  loadTasks(): void {
     this.isLoading = true;
-    try {
-      this.tasks = await this.taskItemService.getTasks();
-    } catch (error) {
-      console.error("Error loading tasks:", error);
-      // TODO: Add user-friendly error handling (e.g., Toast message)
-    } finally {
-      this.isLoading = false;
-    }
+    this.taskItemService.getTasks().subscribe({
+      next: (tasks) => {
+        this.tasks = tasks;
+      },
+      error: (error) => {
+        console.error("Error loading tasks:", error);
+        // TODO: Add user-friendly error handling
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
   }
 
   getPendingTasks(): TaskItemDto[] {

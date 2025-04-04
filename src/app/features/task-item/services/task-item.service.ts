@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Observable, of, delay } from 'rxjs';
 
 export enum TaskStatus {
   Todo = 0,
@@ -55,29 +56,54 @@ export class TaskItemService {
     });
   }
 
-  async getTasks(): Promise<TaskItemDto[]> {
+  getTasks(projectId?: string): Observable<TaskItemDto[]> {
     console.log('TaskItemService: Fetching tasks...');
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const tasks = this.generateDummyTaskItems();
+    const tasks = this.generateDummyTaskItems(projectId);
     console.log('TaskItemService: Fetched tasks:', tasks);
-    return tasks;
+    return of(tasks).pipe(delay(300)); // Return Observable<TaskItemDto[]>
   }
 
-  async updateTaskStatus(taskId: string, newStatus: TaskStatus): Promise<TaskItemDto | null> {
+  getAllTasks(): Observable<TaskItemDto[]> {
+    console.log('TaskItemService: Fetching ALL tasks...');
+    const tasks1 = this.generateDummyTaskItems('dummy-proj-1', 5);
+    const tasks2 = this.generateDummyTaskItems('dummy-proj-2', 8);
+    const allTasks = [...tasks1, ...tasks2];
+    console.log('TaskItemService: Fetched ALL tasks:', allTasks);
+    return of(allTasks).pipe(delay(400));
+  }
+
+  updateTaskStatus(taskId: string, newStatus: TaskStatus): Observable<TaskItemDto | null> {
     console.log(`TaskItemService: Updating task ${taskId} to status ${TaskStatus[newStatus]}`);
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return { id: taskId, status: newStatus } as TaskItemDto;
+    return of({ id: taskId, status: newStatus } as TaskItemDto).pipe(delay(100));
   }
 
-  async deleteTask(taskId: string): Promise<boolean> {
+  deleteTask(taskId: string): Observable<boolean> {
     console.log(`TaskItemService: Deleting task ${taskId}`);
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return true;
+    return of(true).pipe(delay(100));
   }
 
-  async updateTask(task: TaskItemDto): Promise<TaskItemDto | null> {
+  updateTask(task: TaskItemDto): Observable<TaskItemDto | null> {
     console.log(`TaskItemService: Updating task ${task.id}`, task);
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return task;
+    return of(task).pipe(delay(100));
+  }
+
+  createTask(taskData: Partial<TaskItemDto>): Observable<TaskItemDto> {
+    console.log(`TaskItemService: Creating task`, taskData);
+    const newTask: TaskItemDto = {
+      id: crypto.randomUUID(),
+      title: taskData.title || 'New Task',
+      description: taskData.description || '',
+      status: taskData.status ?? TaskStatus.Todo,
+      dueDate: taskData.dueDate,
+      projectId: taskData.projectId || 'unknown-project',
+      projectName: taskData.projectName || 'Unknown Project',
+      assignedUserId: taskData.assignedUserId || 'unassigned',
+      assignedUserName: taskData.assignedUserName || 'Unassigned',
+      createdAt: new Date(),
+      createdBy: 'Current User',
+      lastModifiedAt: new Date(),
+      lastModifiedBy: 'Current User'
+    };
+    return of(newTask).pipe(delay(200));
   }
 }

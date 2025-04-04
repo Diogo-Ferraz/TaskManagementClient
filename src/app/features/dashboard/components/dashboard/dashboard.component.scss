@@ -1,16 +1,82 @@
-::ng-deep .custom-card .p-card-body {
-    padding: 2rem;
-}
+$md: 768px; 
+$lg: 992px;
 
-::ng-deep .custom-card .p-card-content {
-    padding: 0;
-}
+$grid-gap: 2rem;
 
-.text-muted-color {
-    color: #64748b;
-}
+:host {
+    .dashboard-grid-container {
+        display: grid;
+        gap: $grid-gap;
+    }
 
-.text-surface-900 {
-    --tw-text-opacity: 1;
-    color: color-mix(in srgb, var(--surface-900) calc(100%* var(--tw-text-opacity, 1)), transparent);
+    .dashboard-row {
+        display: grid;
+        gap: $grid-gap;
+    }
+
+    .dashboard-row-1 {
+        grid-template-columns: 1fr; 
+
+        @media (min-width: $md) {
+            grid-template-columns: repeat(2, 1fr); 
+        }
+
+        @media (min-width: $lg) {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    .dashboard-row-2 {
+        grid-template-columns: 1fr;
+
+        @media (min-width: $md) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .dashboard-row-3 {
+        grid-template-columns: 1fr;
+    }
+
+    p-card {
+        display: flex; 
+        flex-direction: column;
+        height: 100%;
+    }
+
+    ::ng-deep .p-card {
+        .p-card-body {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            padding: $grid-gap;
+        }
+        .p-card-content {
+           flex-grow: 1;
+           padding: 0;
+
+           &.center-chart-content {
+               display: flex;
+               justify-content: center;
+               align-items: center;
+           }
+        }
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+    }
+
+    ::ng-deep .p-progressbar {
+        height: 0.5rem; 
+        background-color: var(--surface-border, #dee2e6); 
+        .p-progressbar-value {
+           background: var(--primary-color);
+        }
+    }
+    
+    .text-muted-color {
+        color: var(--text-color-secondary, #6c757d);
+    }
 }
