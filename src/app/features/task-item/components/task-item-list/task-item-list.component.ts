@@ -29,6 +29,7 @@ export class TaskItemListComponent implements OnInit {
   showStatusDropdown: boolean = false;
 
   statusOptions: StatusOption[] = [];
+  userOptions: any[] = [];
 
   currentUserId: string = 'current-user-123';
   currentUserName: string = 'Me';
@@ -36,6 +37,8 @@ export class TaskItemListComponent implements OnInit {
   globalFilterValue: string = '';
 
   @ViewChild('dt') dt: Table | undefined;
+
+  searchValue: string | undefined;
 
   public TaskStatus = TaskStatus;
 
@@ -48,6 +51,19 @@ export class TaskItemListComponent implements OnInit {
   ngOnInit(): void {
     this.loadProjects();
     this.prepareStatusOptions();
+
+    this.userOptions = [
+      { name: 'Amy Elsner', image: 'amyelsner.png' },
+      { name: 'Anna Fali', image: 'annafali.png' },
+      { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
+      { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
+      { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
+      { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
+      { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
+      { name: 'Onyama Limba', image: 'onyamalimba.png' },
+      { name: 'Stephen Shaw', image: 'stephenshaw.png' },
+      { name: 'Xuxue Feng', image: 'xuxuefeng.png' }
+    ];
   }
 
   prepareStatusOptions(): void {
@@ -211,10 +227,13 @@ export class TaskItemListComponent implements OnInit {
     return name.split(' ').map(n => n[0]).filter((_, i, arr) => i === 0 || i === arr.length - 1).join('').toUpperCase();
   }
 
-  applyFilterGlobal(event: Event) {
-    const filterValue = (event.target as HTMLInputElement)?.value;
-    this.globalFilterValue = filterValue;
-    this.dt?.filterGlobal(filterValue, 'contains');
+  onGlobalFilter(table: Table, event: Event) {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+  }
+
+  clear(table: Table) {
+    table.clear();
+    this.searchValue = ''
   }
 
   isAssignedToMe(task: TaskItemDto): boolean {
@@ -223,13 +242,6 @@ export class TaskItemListComponent implements OnInit {
 
   isUnassigned(task: TaskItemDto): boolean {
     return !task.assignedUserId || task.assignedUserId.trim() === '';
-  }
-
-  refreshTasks() {
-    if (this.selectedProject) {
-      console.log("Refreshing tasks for project:", this.selectedProject.name);
-      this.loadTasksForSelectedProject();
-    }
   }
 
   async deleteTask(task: TaskItemDto): Promise<void> {
@@ -254,5 +266,9 @@ export class TaskItemListComponent implements OnInit {
       }
       // Add Toast error
     }
+  }
+
+  exportCSV(table: Table) {
+    table.exportCSV();
   }
 }

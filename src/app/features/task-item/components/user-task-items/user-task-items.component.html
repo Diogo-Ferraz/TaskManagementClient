@@ -37,9 +37,9 @@
                             class="ml-auto md:ml-0 px-2 py-1 text-xs"> 
                         </p-tag>
 
-                        <div class="flex align-items-center gap-2" [pTooltip]="task.assignedUserName"
+                        <div class="flex align-items-center gap-2" [pTooltip]="'Created by ' + task.createdBy"
                             tooltipPosition="top">
-                            <p-avatar [label]="getInitials(task.assignedUserName)" shape="circle"
+                            <p-avatar [label]="getInitials(task.createdBy)" shape="circle"
                                 styleClass="bg-primary-lighten text-primary-darken">
                             </p-avatar>
                         </div>
@@ -86,9 +86,9 @@
                             class="ml-auto md:ml-0 px-2 py-1 text-xs">
                         </p-tag>
 
-                        <div class="flex align-items-center gap-2" [pTooltip]="task.assignedUserName"
+                        <div class="flex align-items-center gap-2" [pTooltip]="'Created by ' + task.createdBy"
                             tooltipPosition="top">
-                            <p-avatar [label]="getInitials(task.assignedUserName)" shape="circle"
+                            <p-avatar [label]="getInitials(task.createdBy)" shape="circle"
                                 styleClass="bg-gray-200 text-gray-700">
                             </p-avatar>
                         </div>

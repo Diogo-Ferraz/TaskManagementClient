@@ -16,10 +16,6 @@
    padding: 0; 
 }
 
-:host ::ng-deep .crud-toolbar {
-  background-color: transparent;
-}
-
 :host ::ng-deep .p-inputtext-sm {
   font-size: 0.875rem;
 }
@@ -104,7 +100,6 @@
 }
 
 :host ::ng-deep .p-paginator {
-  background: transparent;
   border: none;
   padding: 1rem 0;
 }
