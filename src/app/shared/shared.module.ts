@@ -25,6 +25,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { RippleModule } from 'primeng/ripple';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
+import { CalendarModule } from 'primeng/calendar';
 
 @NgModule({
   exports: [
@@ -58,7 +59,8 @@ import { ToastModule } from 'primeng/toast';
     ProgressSpinnerModule,
     RippleModule,
     SkeletonModule,
-    ToastModule
+    ToastModule,
+    CalendarModule
   ],
 })
 export class SharedModule {}
