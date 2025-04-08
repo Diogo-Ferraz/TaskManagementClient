@@ -47,9 +47,9 @@
             </ul>
         </p-card>
 
-        <p-card header="Task Status Overview" class="h-full flex flex-column align-items-center">
+        <p-card header="Task Status Overview" class="h-full w-full flex flex-column align-items-center">
              <ng-template pTemplate="content">
-                <p-chart type="doughnut" [data]="taskStatusChartData" [options]="taskStatusChartOptions" height="200px" width="700px"></p-chart> 
+                <p-chart type="doughnut" [data]="taskStatusChartData" [options]="taskStatusChartOptions" height="200px" class="flex justify-content-center"></p-chart> 
              </ng-template>
         </p-card>
     </div>

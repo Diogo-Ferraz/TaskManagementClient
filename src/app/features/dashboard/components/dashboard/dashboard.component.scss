@@ -45,6 +45,7 @@ $grid-gap: 2rem;
     }
 
     ::ng-deep .p-card {
+        width: 100%;
         .p-card-body {
             display: flex;
             flex-direction: column;
