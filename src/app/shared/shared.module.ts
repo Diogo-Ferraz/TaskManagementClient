@@ -24,6 +24,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { RippleModule } from 'primeng/ripple';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ToastModule } from 'primeng/toast';
 
 @NgModule({
   exports: [
@@ -56,7 +57,8 @@ import { SkeletonModule } from 'primeng/skeleton';
     TooltipModule,
     ProgressSpinnerModule,
     RippleModule,
-    SkeletonModule
+    SkeletonModule,
+    ToastModule
   ],
 })
 export class SharedModule {}
