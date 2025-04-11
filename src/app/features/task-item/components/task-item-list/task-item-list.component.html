@@ -15,7 +15,7 @@
           strokeWidth="6"></p-progressSpinner>
       </div>
       <button pButton pRipple label="Export" icon="pi pi-upload"
-        class="p-button-outlined p-button-secondary p-button-sm"
+        class="p-button-outlined p-button-secondary"
         (onClick)="exportCSV(dt)"></button>
     </div>
   </ng-template>
@@ -23,8 +23,7 @@
 
 <p-table #dt [value]="tasks" dataKey="id" [loading]="isLoadingTasks" [rows]="10" [paginator]="true"
   [globalFilterFields]="['title', 'description', 'assignedUserName', 'statusName']"
-  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} tasks" [showCurrentPageReport]="true"
-  paginatorPosition="bottom" [rowsPerPageOptions]="[10, 25, 50]" [tableStyle]="{ 'min-width': '70rem' }">
+  paginatorPosition="bottom" [rowsPerPageOptions]="[10, 25, 50]">
   <ng-template pTemplate="caption">
     <div class="flex">
       <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" />
@@ -57,13 +56,13 @@
           </p-columnFilter>
         </div>
       </th>
-      <th style="min-width:8rem">
+      <th style="min-width:10rem">
         <div class="flex align-items-center">
           Created At
           <p-columnFilter type="date" field="createdAt" display="menu" />
         </div>
       </th>
-      <th style="min-width:8rem">
+      <th style="min-width:10rem">
         <div class="flex align-items-center">
           Due Date
           <p-columnFilter type="date" field="dueDate" display="menu" />
@@ -94,7 +93,7 @@
           </p-columnFilter>
         </div>
       </th>
-      <th style="width: 8rem" class="text-center"></th>
+      <th style="width: 12rem" class="text-center"></th>
     </tr>
   </ng-template>
 
@@ -109,7 +108,7 @@
       <td>
         <span class="p-column-title">Status</span>
         <p-tag *ngIf="!(showStatusDropdown && isAssignedToMe(task))" [value]="getStatusName(task.status)"
-          [severity]="getTagSeverity(task.status)" styleClass="status-tag"
+          [severity]="getTagSeverity(task.status)"
           [pTooltip]="isUnassigned(task) ? 'Task is unassigned' : 'Assigned to ' + task.assignedUserName"
           tooltipPosition="top" #tagElement
           [ngClass]="{'cursor-pointer hover:opacity-80': isAssignedToMe(task)}">
@@ -120,12 +119,10 @@
           (onChange)="onStatusChange(task); showStatusDropdown = !showStatusDropdown" appendTo="body"
           [showClear]="false">
           <ng-template pTemplate="selectedItem">
-            <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"
-              styleClass="status-tag-option"></p-tag>
+            <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"></p-tag>
           </ng-template>
           <ng-template let-option pTemplate="item">
-            <p-tag [value]="option.label" [severity]="getTagSeverity(option.value)"
-              styleClass="status-tag-option"></p-tag>
+            <p-tag [value]="option.label" [severity]="getTagSeverity(option.value)"></p-tag>
           </ng-template>
         </p-dropdown>
       </td>

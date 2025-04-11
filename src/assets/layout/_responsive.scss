@@ -76,14 +76,14 @@
 
         .layout-sidebar {
             transform: translateX(-100%);
-            left: 0;
-            top: 0;
-            height: 100vh;
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
+            left: 0 !important;
+            top: 0 !important;
+            height: 100vh !important;
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
             transition:
                 transform 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99),
-                left 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99);
+                left 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99) !important;
         }
 
         .layout-mask {

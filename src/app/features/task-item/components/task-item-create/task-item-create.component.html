@@ -1,79 +1,58 @@
 <p-card header="Create New Task">
     <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
 
-        <div class="field mb-4">
-            <label for="title" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Task Title</label>
-            <input id="title" type="text" pInputText formControlName="title" class="w-full" [ngClass]="{'ng-invalid ng-dirty': isInvalid('title')}" />
-            <small *ngIf="isInvalid('title')" class="p-error block mt-1">
+        <div class="field">
+            <label for="title">Task Title</label>
+            <input id="title" type="text" pInputText formControlName="title" class="w-full" placeholder="Title"
+                [ngClass]="{'ng-invalid ng-dirty': isInvalid('title')}" />
+            <small *ngIf="isInvalid('title')" class="p-error">
                 Task title is required.
             </small>
         </div>
 
-        <div class="field mb-4">
-            <label for="projectId" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Project</label>
-            <p-dropdown 
-                id="projectId" 
-                formControlName="projectId" 
-                [options]="projectOptions" 
-                placeholder="Select a Project" 
-                optionLabel="name" 
-                optionValue="value" 
-                styleClass="w-full"
-                [filter]="projectOptions.length > 10" 
-                [showClear]="true"
+        <div class="field">
+            <label for="projectId">Project</label>
+            <p-dropdown id="projectId" formControlName="projectId" [options]="projectOptions"
+                placeholder="Select a Project" optionLabel="name" optionValue="value" styleClass="w-full"
+                [filter]="projectOptions.length > 10" [showClear]="true"
                 [ngClass]="{'ng-invalid ng-dirty': isInvalid('projectId')}">
             </p-dropdown>
-             <small *ngIf="isInvalid('projectId')" class="p-error block mt-1">
+            <small *ngIf="isInvalid('projectId')" class="p-error">
                 Project selection is required.
             </small>
         </div>
 
-        <div class="field mb-4">
-            <label for="status" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Status</label>
-            <p-dropdown 
-                id="status" 
-                formControlName="status" 
-                [options]="statusOptions" 
-                placeholder="Select Status" 
-                optionLabel="name" 
-                optionValue="value" 
-                styleClass="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': isInvalid('status')}">
-            </p-dropdown>
-            <small *ngIf="isInvalid('status')" class="p-error block mt-1">
-                Status is required.
-            </small>
-        </div>
-        
-         <div class="field mb-4">
-            <label for="dueDate" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Due Date (Optional)</label>
-            <p-calendar 
-                id="dueDate" 
-                formControlName="dueDate" 
-                styleClass="w-full" 
-                [showIcon]="true"
-                dateFormat="yy-mm-dd">
-            </p-calendar>
+        <div class="flex flex-column md:flex-row gap-3">
+            <div class="field w-full md:w-6 mb-0">
+                <label for="status">Status</label>
+                <p-dropdown id="status" formControlName="status" [options]="statusOptions" placeholder="Select Status"
+                    optionLabel="name" optionValue="value" styleClass="w-full"
+                    [ngClass]="{'ng-invalid ng-dirty': isInvalid('status')}">
+                </p-dropdown>
+                <small *ngIf="isInvalid('status')" class="p-error">
+                    Status is required.
+                </small>
+            </div>
+
+            <div class="field w-full md:w-6">
+                <label for="dueDate">Due Date (Optional)</label>
+                <p-calendar id="dueDate" formControlName="dueDate" styleClass="w-full" [showIcon]="true"
+                    dateFormat="yy-mm-dd" placeholder="Due Date">
+                </p-calendar>
+            </div>
         </div>
 
-        <div class="field mb-4">
-            <label for="description" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Description</label>
-            <textarea id="description" pInputTextarea formControlName="description" class="w-full" [rows]="5"></textarea>
+        <div class="field">
+            <label for="description">Description</label>
+            <textarea id="description" pInputTextarea formControlName="description" class="w-full"
+                [rows]="5"></textarea>
         </div>
 
         <div class="flex justify-content-end gap-2">
-            <p-button 
-                label="Cancel" 
-                icon="pi pi-times" 
-                styleClass="p-button-secondary" 
-                (click)="cancel()"
+            <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-secondary" (click)="cancel()"
                 [disabled]="isLoading">
             </p-button>
-            <p-button 
-                type="submit" 
-                label="Create Task" 
-                icon="pi pi-check"
-                [loading]="isLoading"
+            <p-button type="submit" label="Create Task" icon="pi pi-check" [loading]="isLoading"
                 [disabled]="!taskForm.valid || isLoading">
             </p-button>
         </div>
