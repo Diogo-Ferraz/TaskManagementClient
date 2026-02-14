@@ -7,14 +7,19 @@ import { TaskItemListComponent } from './features/task-item/components/task-item
 import { UserTaskItemsComponent } from './features/task-item/components/user-task-items/user-task-items.component';
 import { ProjectCreateComponent } from './features/projects/components/project-create/project-create.component';
 import { TaskItemCreateComponent } from './features/task-item/components/task-item-create/task-item-create.component';
+import { authGuard } from './core/auth/guards/auth.guard';
+import { AuthCallbackComponent } from './features/login/components/auth-callback/auth-callback.component';
+import { LandingPageComponent } from './features/landing/components/landing-page/landing-page.component';
 
 export const routes: Routes = [
-  { path: '', component: DashboardComponent },
-  { path: 'projects', component: ProjectListComponent },
-  { path: 'projects/kanban', component: ProjectKanbanComponent },
-  { path: 'projects/create', component: ProjectCreateComponent },
-  { path: 'tasks', component: TaskItemListComponent },
-  { path: 'tasks/create', component: TaskItemCreateComponent },
-  { path: 'tasks/my-tasks', component: UserTaskItemsComponent },
+  { path: '', component: LandingPageComponent },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'projects', component: ProjectListComponent, canActivate: [authGuard] },
+  { path: 'projects/kanban', component: ProjectKanbanComponent, canActivate: [authGuard] },
+  { path: 'projects/create', component: ProjectCreateComponent, canActivate: [authGuard] },
+  { path: 'tasks', component: TaskItemListComponent, canActivate: [authGuard] },
+  { path: 'tasks/create', component: TaskItemCreateComponent, canActivate: [authGuard] },
+  { path: 'tasks/my-tasks', component: UserTaskItemsComponent, canActivate: [authGuard] },
   { path: 'login', component: HomeLoginComponent },
+  { path: 'callback', component: AuthCallbackComponent },
 ];

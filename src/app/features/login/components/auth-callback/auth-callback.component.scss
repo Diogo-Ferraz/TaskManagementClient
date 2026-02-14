@@ -1,0 +1,22 @@
+.auth-callback-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-callback-card {
+  width: min(480px, 92vw);
+  padding: 2rem;
+  border-radius: 12px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+}
+
+.auth-callback-error {
+  color: var(--red-500);
+}
+
+.retry-button {
+  margin-top: 1rem;
+}

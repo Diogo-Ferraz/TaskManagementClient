@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HomeLoginComponent } from './home-login.component';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 describe('HomeLoginComponent', () => {
   let component: HomeLoginComponent;
@@ -8,7 +9,15 @@ describe('HomeLoginComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HomeLoginComponent]
+      imports: [HomeLoginComponent],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: {
+            startLoginRedirect: jasmine.createSpy('startLoginRedirect').and.resolveTo()
+          }
+        }
+      ]
     })
     .compileComponents();
 
