@@ -2,10 +2,10 @@ import { HttpParams } from '@angular/common/http';
 
 export type QueryValue = string | number | boolean | Date | null | undefined;
 
-export function buildHttpParams(query: Record<string, QueryValue>): HttpParams {
+export function buildHttpParams(query: object): HttpParams {
   let params = new HttpParams();
 
-  for (const [key, value] of Object.entries(query)) {
+  for (const [key, value] of Object.entries(query as Record<string, QueryValue>)) {
     if (value === null || value === undefined) {
       continue;
     }

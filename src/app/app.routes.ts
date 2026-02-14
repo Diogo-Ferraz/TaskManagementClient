@@ -10,6 +10,7 @@ import { TaskItemCreateComponent } from './features/task-item/components/task-it
 import { authGuard } from './core/auth/guards/auth.guard';
 import { AuthCallbackComponent } from './features/login/components/auth-callback/auth-callback.component';
 import { LandingPageComponent } from './features/landing/components/landing-page/landing-page.component';
+import { NotFoundComponent } from './features/errors/components/not-found/not-found.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -22,4 +23,6 @@ export const routes: Routes = [
   { path: 'tasks/my-tasks', component: UserTaskItemsComponent, canActivate: [authGuard] },
   { path: 'login', component: HomeLoginComponent },
   { path: 'callback', component: AuthCallbackComponent },
+  { path: 'not-found', component: NotFoundComponent },
+  { path: '**', component: NotFoundComponent }
 ];

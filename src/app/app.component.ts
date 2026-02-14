@@ -97,7 +97,10 @@ export class AppComponent {
 
   get isAuthRoute(): boolean {
     const currentUrl = this.router.url;
-    return currentUrl === '/' || currentUrl.startsWith('/login') || currentUrl.startsWith('/callback');
+    return currentUrl === '/' ||
+      currentUrl.startsWith('/login') ||
+      currentUrl.startsWith('/callback') ||
+      currentUrl.startsWith('/not-found');
   }
 
   ngOnDestroy() {

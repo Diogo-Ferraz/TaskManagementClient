@@ -1,12 +1,17 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { forkJoin, Subject } from 'rxjs';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { SharedModule } from '../../../../shared/shared.module';
-import { TaskItemService, TaskItemDto, TaskStatus } from '../../../task-item/services/task-item.service';
-import { ProjectService, ProjectDto } from '../../../projects/services/project.service';
 import { ChartModule } from 'primeng/chart';
 import { MessagesModule } from 'primeng/messages';
 import { Message } from 'primeng/api';
+import { DashboardApiClient } from '../../../../core/api/clients/dashboard-api.client';
+import { ActivityApiClient } from '../../../../core/api/clients/activity-api.client';
+import { DashboardSummaryDto } from '../../../../core/api/models/dashboard.model';
+import { ActivityLogDto } from '../../../../core/api/models/activity.model';
+import { ActivityType } from '../../../../core/api/models/activity-type.enum';
+import { ActivityHubRealtimeService } from '../../../../core/realtime/activity-hub-realtime.service';
+import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 
 interface DashboardCard {
   title: string;
@@ -14,15 +19,7 @@ interface DashboardCard {
   icon: string;
   iconColor: string;
   bgColor: string;
-  description?: string;
-  stat?: string;
-}
-
-interface ProjectCompletionStat {
-  id: string;
-  name: string;
-  percentage: number;
-  taskCount: number;
+  description: string;
 }
 
 interface RecentActivity {
@@ -31,6 +28,7 @@ interface RecentActivity {
   bgColor: string;
   summary: string;
   time: string;
+  rawEvent: ActivityLogDto;
 }
 
 @Component({
@@ -41,31 +39,30 @@ interface RecentActivity {
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  private readonly dashboardApiClient = inject(DashboardApiClient);
+  private readonly activityApiClient = inject(ActivityApiClient);
+  private readonly activityHubRealtimeService = inject(ActivityHubRealtimeService);
 
   dashboardCards: DashboardCard[] = [];
   isLoading = true;
   errorMessages: Message[] = [];
-
-  projectCompletionStats: ProjectCompletionStat[] = [];
   recentActivities: RecentActivity[] = [];
+  activityEvents: ActivityLogDto[] = [];
+  activityHistoryLimit = 25;
 
   taskStatusChartData: any;
   taskStatusChartOptions: any;
 
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private projectService: ProjectService,
-    private taskItemService: TaskItemService
-  ) { }
-
   ngOnInit(): void {
-    this.loadDashboardData();
     this.initializeChartOptions();
-    this.loadMockActivities();
+    this.loadDashboardData();
+    this.subscribeToLiveActivity();
   }
 
   ngOnDestroy(): void {
+    this.activityHubRealtimeService.disconnect();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -73,21 +70,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loadDashboardData(): void {
     this.isLoading = true;
     this.errorMessages = [];
-    this.projectCompletionStats = [];
-
     forkJoin({
-      projects: this.projectService.getUserProjects(),
-      tasks: this.taskItemService.getAllTasks()
+      summary: this.dashboardApiClient.getSummary(),
+      activity: this.activityApiClient.getFeed({
+        page: 1,
+        pageSize: this.activityHistoryLimit
+      })
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({ projects, tasks }) => {
-          this.calculateDashboardStats(projects, tasks);
-          this.prepareChartData(tasks);
+        next: ({ summary, activity }) => {
+          this.dashboardCards = this.mapDashboardCards(summary);
+          this.activityEvents = activity;
+          this.recentActivities = activity.map((event) => this.mapRecentActivity(event));
+          this.prepareChartData(activity);
           this.isLoading = false;
+          void this.activityHubRealtimeService.connect();
         },
-        error: (err) => {
-          console.error('Error loading dashboard data:', err);
+        error: () => {
           this.errorMessages = [{ severity: 'error', summary: 'Error', detail: 'Could not fetch dashboard information.' }];
           this.isLoading = false;
           this.dashboardCards = this.getDefaultCards();
@@ -95,40 +95,49 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
   }
 
-  calculateDashboardStats(projects: ProjectDto[], tasks: TaskItemDto[]): void {
-    const totalProjects = projects.length;
-    const totalTasks = tasks.length;
-    const tasksInProgress = tasks.filter(t => t.status === TaskStatus.InProgress).length;
-    const tasksDone = tasks.filter(t => t.status === TaskStatus.Done).length;
-
-    this.dashboardCards = [
-      { title: 'Total Projects', value: totalProjects, icon: 'pi pi-folder-open', iconColor: 'text-primary', bgColor: 'bg-blue-100', description: 'Active projects' },
-      { title: 'Total Tasks', value: totalTasks, icon: 'pi pi-th-large', iconColor: 'text-teal-500', bgColor: 'bg-teal-100 dark:bg-teal-400/10', description: 'Across all projects' },
-      { title: 'Tasks In Progress', value: tasksInProgress, icon: 'pi pi-spinner-dotted', iconColor: 'text-orange-500', bgColor: 'bg-orange-100 dark:bg-orange-400/10', description: 'Currently active' },
-      { title: 'Completed Tasks', value: tasksDone, icon: 'pi pi-check-circle', iconColor: 'text-green-500', bgColor: 'bg-green-100 dark:bg-green-400/10', description: 'Finished work' }
+  private mapDashboardCards(summary: DashboardSummaryDto): DashboardCard[] {
+    return [
+      {
+        title: 'Assigned Tasks',
+        value: summary.assignedTasksCount,
+        icon: 'pi pi-user-edit',
+        iconColor: 'text-blue-500',
+        bgColor: 'bg-blue-100',
+        description: 'Tasks currently assigned to you'
+      },
+      {
+        title: 'Closed This Week',
+        value: summary.tasksClosedThisWeekCount,
+        icon: 'pi pi-check-circle',
+        iconColor: 'text-green-500',
+        bgColor: 'bg-green-100',
+        description: 'Tasks completed in the current week'
+      },
+      {
+        title: 'Projects Count',
+        value: summary.projectsCount,
+        icon: 'pi pi-folder-open',
+        iconColor: 'text-purple-500',
+        bgColor: 'bg-purple-100',
+        description: 'Projects visible in your scope'
+      },
+      {
+        title: 'Overdue Assigned',
+        value: summary.overdueAssignedTasksCount,
+        icon: 'pi pi-exclamation-triangle',
+        iconColor: 'text-orange-500',
+        bgColor: 'bg-orange-100',
+        description: 'Assigned tasks past due date'
+      }
     ];
-
-    this.projectCompletionStats = projects.map(project => {
-      const projectTasks = tasks.filter(task => task.projectId === project.id);
-      const totalProjectTasks = projectTasks.length;
-      const completedProjectTasks = projectTasks.filter(task => task.status === TaskStatus.Done).length;
-      const percentage = totalProjectTasks > 0 ? Math.round((completedProjectTasks / totalProjectTasks) * 100) : 0;
-
-      return {
-        id: project.id,
-        name: project.name,
-        percentage: percentage,
-        taskCount: totalProjectTasks
-      };
-    }).sort((a, b) => b.percentage - a.percentage);
   }
 
   getDefaultCards(): DashboardCard[] {
     return [
-      { title: 'Total Projects', value: '-', icon: 'pi pi-folder-open', iconColor: 'text-gray-500', bgColor: 'bg-gray-100' },
-      { title: 'Total Tasks', value: '-', icon: 'pi pi-th-large', iconColor: 'text-gray-500', bgColor: 'bg-gray-100' },
-      { title: 'Tasks In Progress', value: '-', icon: 'pi pi-spinner', iconColor: 'text-gray-500', bgColor: 'bg-gray-100' },
-      { title: 'Completed Tasks', value: '-', icon: 'pi pi-check-circle', iconColor: 'text-gray-500', bgColor: 'bg-gray-100' },
+      { title: 'Assigned Tasks', value: '-', icon: 'pi pi-user-edit', iconColor: 'text-gray-500', bgColor: 'bg-gray-100', description: '-' },
+      { title: 'Closed This Week', value: '-', icon: 'pi pi-check-circle', iconColor: 'text-gray-500', bgColor: 'bg-gray-100', description: '-' },
+      { title: 'Projects Count', value: '-', icon: 'pi pi-folder-open', iconColor: 'text-gray-500', bgColor: 'bg-gray-100', description: '-' },
+      { title: 'Overdue Assigned', value: '-', icon: 'pi pi-exclamation-triangle', iconColor: 'text-gray-500', bgColor: 'bg-gray-100', description: '-' }
     ];
   }
 
@@ -150,47 +159,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
   }
 
-  prepareChartData(tasks: TaskItemDto[]): void {
-    const statusCounts = {
-      [TaskStatus.Todo]: 0,
-      [TaskStatus.InProgress]: 0,
-      [TaskStatus.Done]: 0,
-      [TaskStatus.Blocked]: 0
-    };
+  prepareChartData(activityEvents: ActivityLogDto[]): void {
+    const countsByType = new Map<ActivityType, number>();
+    for (const event of activityEvents) {
+      const current = countsByType.get(event.type) ?? 0;
+      countsByType.set(event.type, current + 1);
+    }
 
-    tasks.forEach(task => {
-      if (statusCounts.hasOwnProperty(task.status)) {
-        statusCounts[task.status]++;
-      }
-    });
-
-    const todoColor = '#94A3B8';
-    const inProgressColor = '#F59E0B';
-    const doneColor = '#10B981';
-    const blockedColor = '#EF4444';
+    const labels: string[] = [];
+    const values: number[] = [];
+    for (const [type, count] of countsByType.entries()) {
+      labels.push(ActivityType[type]);
+      values.push(count);
+    }
 
     this.taskStatusChartData = {
-      labels: ['To Do', 'In Progress', 'Done', 'Blocked'],
+      labels,
       datasets: [
         {
-          data: [
-            statusCounts[TaskStatus.Todo],
-            statusCounts[TaskStatus.InProgress],
-            statusCounts[TaskStatus.Done],
-            statusCounts[TaskStatus.Blocked]
-          ],
-          backgroundColor: [
-            todoColor,
-            inProgressColor,
-            doneColor,
-            blockedColor
-          ],
-          hoverBackgroundColor: [
-            '#64748B',
-            '#D97706',
-            '#059669',
-            '#DC2626'
-          ],
+          data: values,
+          backgroundColor: ['#64748B', '#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#14B8A6', '#EC4899', '#0EA5E9'],
+          hoverBackgroundColor: ['#475569', '#2563EB', '#7C3AED', '#059669', '#D97706', '#DC2626', '#0D9488', '#DB2777', '#0284C7'],
           borderColor: document.documentElement.style.getPropertyValue('--surface-ground') || '#ffffff',
           borderWidth: 1
         }
@@ -198,43 +187,154 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
   }
 
-  loadMockActivities(): void {
-    this.recentActivities = [
-      {
-        icon: 'pi pi-check',
-        iconColor: 'text-green-500',
-        bgColor: 'bg-green-100 dark:bg-green-900/40',
-        summary: `User <strong>Alice</strong> completed task <i>"Deploy Feature X"</i>`,
-        time: '1h ago'
-      },
-      {
-        icon: 'pi pi-plus',
-        iconColor: 'text-blue-500',
-        bgColor: 'bg-blue-100 dark:bg-blue-900/40',
-        summary: `New project <strong>"Website Redesign"</strong> created`,
-        time: '4h ago'
-      },
-      {
-        icon: 'pi pi-comment',
-        iconColor: 'text-orange-500',
-        bgColor: 'bg-orange-100 dark:bg-orange-900/40',
-        summary: `<strong>Bob</strong> commented on task <i>"Fix Login Bug"</i>`,
-        time: 'Yesterday'
-      },
-      {
-        icon: 'pi pi-user-plus',
-        iconColor: 'text-purple-500',
-        bgColor: 'bg-purple-100 dark:bg-purple-900/40',
-        summary: `<strong>Charlie</strong> was assigned to project <strong>"API Development"</strong>`,
-        time: '2 days ago'
-      },
-      {
-        icon: 'pi pi-exclamation-triangle',
-        iconColor: 'text-red-500',
-        bgColor: 'bg-red-100 dark:bg-red-900/40',
-        summary: `Task <i>"Update Dependencies"</i> is now <strong>Blocked</strong>`,
-        time: '3 days ago'
-      }
-    ];
+  private subscribeToLiveActivity(): void {
+    this.activityHubRealtimeService
+      .activityCreated$()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        const mappedEvent = this.mapRecentActivity(event);
+        this.activityEvents = [event, ...this.activityEvents].slice(0, this.activityHistoryLimit);
+        this.recentActivities = [mappedEvent, ...this.recentActivities].slice(0, this.activityHistoryLimit);
+        this.prepareChartData(this.activityEvents);
+      });
+  }
+
+  private mapRecentActivity(activity: ActivityLogDto): RecentActivity {
+    const summary = this.createActivitySummary(activity);
+    return {
+      icon: this.getActivityIcon(activity.type),
+      iconColor: this.getActivityIconColor(activity.type),
+      bgColor: this.getActivityBackgroundColor(activity.type),
+      summary,
+      time: this.formatRelativeTime(activity.occurredAt),
+      rawEvent: activity
+    };
+  }
+
+  private createActivitySummary(activity: ActivityLogDto): string {
+    const actor = this.escapeText(activity.actorDisplayName || 'Someone');
+
+    switch (activity.type) {
+      case ActivityType.ProjectCreated:
+        return `<strong>${actor}</strong> created project <strong>${this.escapeText(activity.projectName ?? '')}</strong>`;
+      case ActivityType.ProjectRenamed:
+        return `<strong>${actor}</strong> renamed project from <i>${this.escapeText(activity.oldValue ?? '')}</i> to <i>${this.escapeText(activity.newValue ?? '')}</i>`;
+      case ActivityType.ProjectDeleted:
+        return `<strong>${actor}</strong> deleted project <strong>${this.escapeText(activity.projectName ?? '')}</strong>`;
+      case ActivityType.TaskCreated:
+        return `<strong>${actor}</strong> created task <i>${this.escapeText(activity.taskTitle ?? '')}</i>`;
+      case ActivityType.TaskStatusChanged:
+        return `<strong>${actor}</strong> changed task status from <i>${this.escapeText(this.formatTaskStatus(activity.oldStatus))}</i> to <i>${this.escapeText(this.formatTaskStatus(activity.newStatus))}</i>`;
+      case ActivityType.TaskRenamed:
+        return `<strong>${actor}</strong> renamed task from <i>${this.escapeText(activity.oldValue ?? '')}</i> to <i>${this.escapeText(activity.newValue ?? '')}</i>`;
+      case ActivityType.TaskDeleted:
+        return `<strong>${actor}</strong> deleted task <i>${this.escapeText(activity.taskTitle ?? '')}</i>`;
+      case ActivityType.TaskAssigneeChanged:
+        return `<strong>${actor}</strong> reassigned task from <i>${this.escapeText(activity.oldValue ?? 'Unassigned')}</i> to <i>${this.escapeText(activity.newValue ?? 'Unassigned')}</i>`;
+      case ActivityType.TaskDueDateChanged:
+        return `<strong>${actor}</strong> changed due date from <i>${this.escapeText(activity.oldValue ?? 'None')}</i> to <i>${this.escapeText(activity.newValue ?? 'None')}</i>`;
+      default:
+        return `<strong>${actor}</strong> performed an update`;
+    }
+  }
+
+  private getActivityIcon(type: ActivityType): string {
+    switch (type) {
+      case ActivityType.ProjectCreated:
+      case ActivityType.TaskCreated:
+        return 'pi pi-plus';
+      case ActivityType.TaskStatusChanged:
+        return 'pi pi-sync';
+      case ActivityType.TaskDeleted:
+      case ActivityType.ProjectDeleted:
+        return 'pi pi-trash';
+      case ActivityType.TaskAssigneeChanged:
+        return 'pi pi-user-edit';
+      case ActivityType.TaskDueDateChanged:
+        return 'pi pi-calendar';
+      case ActivityType.ProjectRenamed:
+      case ActivityType.TaskRenamed:
+        return 'pi pi-pencil';
+      default:
+        return 'pi pi-bolt';
+    }
+  }
+
+  private getActivityIconColor(type: ActivityType): string {
+    switch (type) {
+      case ActivityType.ProjectDeleted:
+      case ActivityType.TaskDeleted:
+        return 'text-red-500';
+      case ActivityType.TaskStatusChanged:
+        return 'text-orange-500';
+      case ActivityType.TaskCreated:
+      case ActivityType.ProjectCreated:
+        return 'text-green-500';
+      default:
+        return 'text-blue-500';
+    }
+  }
+
+  private getActivityBackgroundColor(type: ActivityType): string {
+    switch (type) {
+      case ActivityType.ProjectDeleted:
+      case ActivityType.TaskDeleted:
+        return 'bg-red-100';
+      case ActivityType.TaskStatusChanged:
+        return 'bg-orange-100';
+      case ActivityType.TaskCreated:
+      case ActivityType.ProjectCreated:
+        return 'bg-green-100';
+      default:
+        return 'bg-blue-100';
+    }
+  }
+
+  private formatRelativeTime(value: string): string {
+    const date = new Date(value);
+    const diffSeconds = Math.max(1, Math.floor((Date.now() - date.getTime()) / 1000));
+
+    if (diffSeconds < 60) {
+      return `${diffSeconds}s ago`;
+    }
+
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    if (diffMinutes < 60) {
+      return `${diffMinutes}m ago`;
+    }
+
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    }
+
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
+  }
+
+  private formatTaskStatus(status?: TaskStatus | null): string {
+    if (status === null || status === undefined) {
+      return 'Unknown';
+    }
+
+    switch (status) {
+      case TaskStatus.Todo:
+        return 'Todo';
+      case TaskStatus.InProgress:
+        return 'In Progress';
+      case TaskStatus.Done:
+        return 'Done';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  private escapeText(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 }

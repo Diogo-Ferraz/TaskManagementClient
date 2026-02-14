@@ -1,0 +1,41 @@
+.not-found {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: radial-gradient(circle at 15% 15%, var(--primary-100), transparent 45%),
+    radial-gradient(circle at 85% 85%, var(--blue-100), transparent 50%),
+    var(--surface-ground);
+}
+
+.not-found__card {
+  width: min(560px, 100%);
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  border: 1px solid var(--surface-border);
+  background: color-mix(in srgb, var(--surface-card) 96%, white);
+  text-align: center;
+}
+
+.not-found__code {
+  margin: 0 0 0.5rem;
+  font-size: clamp(3rem, 9vw, 5rem);
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.not-found h1 {
+  margin: 0;
+}
+
+.not-found p {
+  color: var(--text-color-secondary);
+}
+
+.not-found__actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
