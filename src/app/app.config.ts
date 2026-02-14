@@ -5,6 +5,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { MessageService } from 'primeng/api';
+import { environment } from '../environments/environment';
+import { APP_ENVIRONMENT } from './core/config/app-environment.token';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -12,5 +14,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     provideAnimations(),
-    MessageService]
+    MessageService,
+    {
+      provide: APP_ENVIRONMENT,
+      useValue: environment
+    }
+  ]
 };

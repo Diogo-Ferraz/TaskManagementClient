@@ -14,16 +14,12 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'TaskManagementClient' title`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('TaskManagementClient');
-  });
-
-  it('should render title', () => {
+  it('should render the main layout shell', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, TaskManagementClient');
+    expect(compiled.querySelector('app-topbar')).toBeTruthy();
+    expect(compiled.querySelector('app-sidebar')).toBeTruthy();
+    expect(compiled.querySelector('app-footer')).toBeTruthy();
   });
 });
