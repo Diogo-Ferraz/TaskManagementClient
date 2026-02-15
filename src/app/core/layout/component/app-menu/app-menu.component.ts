@@ -52,6 +52,7 @@ export class AppMenuComponent {
         label: 'Reports',
         icon: 'pi pi-fw pi-chart-line',
         items: [
+          { label: 'Search & Filters', icon: 'pi pi-fw pi-search', routerLink: ['/search'] },
           { label: 'Project Reports', icon: 'pi pi-fw pi-folder-open', routerLink: ['/reports/projects'] },
           { label: 'Task Reports', icon: 'pi pi-fw pi-check-square', routerLink: ['/reports/tasks'] },
           { label: 'User Activity', icon: 'pi pi-fw pi-clock', routerLink: ['/reports/activity'] }

@@ -11,6 +11,7 @@ import { authGuard } from './core/auth/guards/auth.guard';
 import { AuthCallbackComponent } from './features/login/components/auth-callback/auth-callback.component';
 import { LandingPageComponent } from './features/landing/components/landing-page/landing-page.component';
 import { NotFoundComponent } from './features/errors/components/not-found/not-found.component';
+import { SearchFiltersComponent } from './features/search/components/search-filters/search-filters.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: 'projects/kanban', component: ProjectKanbanComponent, canActivate: [authGuard] },
   { path: 'projects/create', component: ProjectCreateComponent, canActivate: [authGuard] },
   { path: 'tasks', component: TaskItemListComponent, canActivate: [authGuard] },
+  { path: 'search', component: SearchFiltersComponent, canActivate: [authGuard] },
   { path: 'tasks/create', component: TaskItemCreateComponent, canActivate: [authGuard] },
   { path: 'tasks/my-tasks', component: UserTaskItemsComponent, canActivate: [authGuard] },
   { path: 'login', component: HomeLoginComponent },
