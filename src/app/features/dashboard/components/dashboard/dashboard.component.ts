@@ -11,7 +11,10 @@ import { DashboardSummaryDto } from '../../../../core/api/models/dashboard.model
 import { ActivityLogDto } from '../../../../core/api/models/activity.model';
 import { ActivityType } from '../../../../core/api/models/activity-type.enum';
 import { ActivityHubRealtimeService } from '../../../../core/realtime/activity-hub-realtime.service';
-import { TaskStatus } from '../../../../core/api/models/task-status.enum';
+import {
+  mapActivityToRecentActivity,
+  RecentActivityViewModel
+} from '../../presenters/dashboard-activity.presenter';
 
 interface DashboardCard {
   title: string;
@@ -20,15 +23,6 @@ interface DashboardCard {
   iconColor: string;
   bgColor: string;
   description: string;
-}
-
-interface RecentActivity {
-  icon: string;
-  iconColor: string;
-  bgColor: string;
-  summary: string;
-  time: string;
-  rawEvent: ActivityLogDto;
 }
 
 @Component({
@@ -46,7 +40,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   dashboardCards: DashboardCard[] = [];
   isLoading = true;
   errorMessages: Message[] = [];
-  recentActivities: RecentActivity[] = [];
+  recentActivities: RecentActivityViewModel[] = [];
   activityEvents: ActivityLogDto[] = [];
   activityHistoryLimit = 25;
 
@@ -82,7 +76,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: ({ summary, activity }) => {
           this.dashboardCards = this.mapDashboardCards(summary);
           this.activityEvents = activity;
-          this.recentActivities = activity.map((event) => this.mapRecentActivity(event));
+          this.recentActivities = activity.map((event) => mapActivityToRecentActivity(event));
           this.prepareChartData(activity);
           this.isLoading = false;
           void this.activityHubRealtimeService.connect();
@@ -192,149 +186,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .activityCreated$()
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
-        const mappedEvent = this.mapRecentActivity(event);
+        const mappedEvent = mapActivityToRecentActivity(event);
         this.activityEvents = [event, ...this.activityEvents].slice(0, this.activityHistoryLimit);
         this.recentActivities = [mappedEvent, ...this.recentActivities].slice(0, this.activityHistoryLimit);
         this.prepareChartData(this.activityEvents);
       });
-  }
-
-  private mapRecentActivity(activity: ActivityLogDto): RecentActivity {
-    const summary = this.createActivitySummary(activity);
-    return {
-      icon: this.getActivityIcon(activity.type),
-      iconColor: this.getActivityIconColor(activity.type),
-      bgColor: this.getActivityBackgroundColor(activity.type),
-      summary,
-      time: this.formatRelativeTime(activity.occurredAt),
-      rawEvent: activity
-    };
-  }
-
-  private createActivitySummary(activity: ActivityLogDto): string {
-    const actor = this.escapeText(activity.actorDisplayName || 'Someone');
-
-    switch (activity.type) {
-      case ActivityType.ProjectCreated:
-        return `<strong>${actor}</strong> created project <strong>${this.escapeText(activity.projectName ?? '')}</strong>`;
-      case ActivityType.ProjectRenamed:
-        return `<strong>${actor}</strong> renamed project from <i>${this.escapeText(activity.oldValue ?? '')}</i> to <i>${this.escapeText(activity.newValue ?? '')}</i>`;
-      case ActivityType.ProjectDeleted:
-        return `<strong>${actor}</strong> deleted project <strong>${this.escapeText(activity.projectName ?? '')}</strong>`;
-      case ActivityType.TaskCreated:
-        return `<strong>${actor}</strong> created task <i>${this.escapeText(activity.taskTitle ?? '')}</i>`;
-      case ActivityType.TaskStatusChanged:
-        return `<strong>${actor}</strong> changed task status from <i>${this.escapeText(this.formatTaskStatus(activity.oldStatus))}</i> to <i>${this.escapeText(this.formatTaskStatus(activity.newStatus))}</i>`;
-      case ActivityType.TaskRenamed:
-        return `<strong>${actor}</strong> renamed task from <i>${this.escapeText(activity.oldValue ?? '')}</i> to <i>${this.escapeText(activity.newValue ?? '')}</i>`;
-      case ActivityType.TaskDeleted:
-        return `<strong>${actor}</strong> deleted task <i>${this.escapeText(activity.taskTitle ?? '')}</i>`;
-      case ActivityType.TaskAssigneeChanged:
-        return `<strong>${actor}</strong> reassigned task from <i>${this.escapeText(activity.oldValue ?? 'Unassigned')}</i> to <i>${this.escapeText(activity.newValue ?? 'Unassigned')}</i>`;
-      case ActivityType.TaskDueDateChanged:
-        return `<strong>${actor}</strong> changed due date from <i>${this.escapeText(activity.oldValue ?? 'None')}</i> to <i>${this.escapeText(activity.newValue ?? 'None')}</i>`;
-      default:
-        return `<strong>${actor}</strong> performed an update`;
-    }
-  }
-
-  private getActivityIcon(type: ActivityType): string {
-    switch (type) {
-      case ActivityType.ProjectCreated:
-      case ActivityType.TaskCreated:
-        return 'pi pi-plus';
-      case ActivityType.TaskStatusChanged:
-        return 'pi pi-sync';
-      case ActivityType.TaskDeleted:
-      case ActivityType.ProjectDeleted:
-        return 'pi pi-trash';
-      case ActivityType.TaskAssigneeChanged:
-        return 'pi pi-user-edit';
-      case ActivityType.TaskDueDateChanged:
-        return 'pi pi-calendar';
-      case ActivityType.ProjectRenamed:
-      case ActivityType.TaskRenamed:
-        return 'pi pi-pencil';
-      default:
-        return 'pi pi-bolt';
-    }
-  }
-
-  private getActivityIconColor(type: ActivityType): string {
-    switch (type) {
-      case ActivityType.ProjectDeleted:
-      case ActivityType.TaskDeleted:
-        return 'text-red-500';
-      case ActivityType.TaskStatusChanged:
-        return 'text-orange-500';
-      case ActivityType.TaskCreated:
-      case ActivityType.ProjectCreated:
-        return 'text-green-500';
-      default:
-        return 'text-blue-500';
-    }
-  }
-
-  private getActivityBackgroundColor(type: ActivityType): string {
-    switch (type) {
-      case ActivityType.ProjectDeleted:
-      case ActivityType.TaskDeleted:
-        return 'bg-red-100';
-      case ActivityType.TaskStatusChanged:
-        return 'bg-orange-100';
-      case ActivityType.TaskCreated:
-      case ActivityType.ProjectCreated:
-        return 'bg-green-100';
-      default:
-        return 'bg-blue-100';
-    }
-  }
-
-  private formatRelativeTime(value: string): string {
-    const date = new Date(value);
-    const diffSeconds = Math.max(1, Math.floor((Date.now() - date.getTime()) / 1000));
-
-    if (diffSeconds < 60) {
-      return `${diffSeconds}s ago`;
-    }
-
-    const diffMinutes = Math.floor(diffSeconds / 60);
-    if (diffMinutes < 60) {
-      return `${diffMinutes}m ago`;
-    }
-
-    const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) {
-      return `${diffHours}h ago`;
-    }
-
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d ago`;
-  }
-
-  private formatTaskStatus(status?: TaskStatus | null): string {
-    if (status === null || status === undefined) {
-      return 'Unknown';
-    }
-
-    switch (status) {
-      case TaskStatus.Todo:
-        return 'Todo';
-      case TaskStatus.InProgress:
-        return 'In Progress';
-      case TaskStatus.Done:
-        return 'Done';
-      default:
-        return 'Unknown';
-    }
-  }
-
-  private escapeText(value: string): string {
-    return value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
   }
 }
