@@ -1,0 +1,56 @@
+<section class="docs-page">
+  <div class="docs-hero">
+    <div class="docs-hero__content">
+      <p class="docs-kicker">Project Documentation</p>
+      <h1>Task Management Platform</h1>
+      <p>
+        A Jira-style product showcase focused on clean architecture, secure auth, and production-minded Angular UX.
+        This page explains the purpose, decisions, and delivery direction behind the platform.
+      </p>
+    </div>
+  </div>
+
+  <div class="docs-grid docs-grid--equal">
+    <p-card header="Project Purpose" styleClass="docs-card docs-card--highlight">
+      <p>
+        Build a practical collaboration workspace where teams can plan, execute, and track work using boards,
+        role-aware capabilities, and a live activity feed.
+      </p>
+      <p>
+        The frontend intentionally demonstrates maintainability and UI quality while proving real backend integration,
+        not a disconnected mock-only demo.
+      </p>
+    </p-card>
+
+    <p-card header="Tech Stack" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of techStack">{{ item }}</li>
+      </ul>
+    </p-card>
+
+    <p-card header="Current Feature Highlights" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of highlights">{{ item }}</li>
+      </ul>
+    </p-card>
+
+    <p-card header="Engineering Principles" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of principles">{{ item }}</li>
+      </ul>
+    </p-card>
+  </div>
+
+  <p-card header="Architecture Notes" styleClass="docs-card">
+    <div class="notes">
+      <p>
+        The backend is built as a reusable template with Vertical Slice Architecture and OpenIddict-based auth.
+        The SPA is structured to map directly onto that backend contract so adding features remains predictable.
+      </p>
+      <p>
+        Real-time changes are delivered through SignalR; error handling follows RFC7807 Problem Details; and key screens
+        include meaningful fallback states for local UI development and demos.
+      </p>
+    </div>
+  </p-card>
+</section>

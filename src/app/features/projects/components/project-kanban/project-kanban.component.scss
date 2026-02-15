@@ -28,6 +28,12 @@
     gap: 0.35rem;
 }
 
+.kanban-toolbar__picker-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .kanban-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -126,9 +132,9 @@
 }
 
 .kanban-error {
-    border: 1px solid color-mix(in srgb, var(--red-500) 40%, transparent);
-    background: color-mix(in srgb, var(--red-100) 70%, transparent);
-    color: var(--red-700);
+    border: 1px solid color-mix(in srgb, var(--orange-500) 40%, transparent);
+    background: color-mix(in srgb, var(--orange-100) 70%, transparent);
+    color: var(--orange-700);
     border-radius: 8px;
     padding: 0.75rem 1rem;
 }

@@ -1,0 +1,98 @@
+<section class="calendar-page">
+  <p-card styleClass="calendar-hero">
+    <div class="calendar-hero__content">
+      <div>
+        <p class="calendar-kicker">Planning</p>
+        <h1>My Due Date Calendar</h1>
+        <p>
+          Track your assigned tasks by due date, grouped by project color. Select a day to inspect tasks
+          and jump directly into project context.
+        </p>
+      </div>
+      <div class="calendar-hero__actions">
+        <p-tag *ngIf="isPreviewMode" severity="warning" value="Preview mode"></p-tag>
+        <button pButton type="button" icon="pi pi-refresh" label="Reload" (click)="reload()"></button>
+      </div>
+    </div>
+  </p-card>
+
+  <div *ngIf="loadError" class="calendar-warning">{{ loadError }}</div>
+
+  <div class="calendar-layout">
+    <p-card styleClass="calendar-main-card">
+      <ng-template pTemplate="content">
+        <div *ngIf="isLoading" class="calendar-skeleton">
+          <p-skeleton height="2rem" width="14rem"></p-skeleton>
+          <p-skeleton height="28rem"></p-skeleton>
+        </div>
+
+        <div *ngIf="!isLoading" class="calendar-wrapper">
+          <p-calendar
+            [inline]="true"
+            [showWeek]="true"
+            [monthNavigator]="true"
+            [yearNavigator]="true"
+            yearRange="2020:2035"
+            [(ngModel)]="selectedDate"
+            (onSelect)="onDateSelected($event)">
+            <ng-template pTemplate="date" let-date>
+              <div class="calendar-day">
+                <span>{{ date.day }}</span>
+                <span class="calendar-markers" *ngIf="getDayMarkers(date).length > 0">
+                  <span
+                    *ngFor="let marker of getDayMarkers(date) | slice:0:4"
+                    class="calendar-marker"
+                    [style.backgroundColor]="marker.color">
+                  </span>
+                </span>
+              </div>
+            </ng-template>
+          </p-calendar>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <p-card styleClass="calendar-side-card" [header]="selectedDateLabel">
+      <ng-template pTemplate="content">
+        <div *ngIf="isLoading" class="calendar-side-loading">
+          <p-skeleton height="1rem" width="70%"></p-skeleton>
+          <p-skeleton height="4.5rem"></p-skeleton>
+          <p-skeleton height="4.5rem"></p-skeleton>
+        </div>
+
+        <ng-container *ngIf="!isLoading">
+          <div class="legend" *ngIf="legendItems.length > 0">
+            <h4>Project legend</h4>
+            <div class="legend-items">
+              <div class="legend-item" *ngFor="let item of legendItems">
+                <span class="legend-color" [style.backgroundColor]="item.color"></span>
+                <span>{{ item.projectName }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="task-list">
+            <article class="task-card" *ngFor="let task of tasksForSelectedDate">
+              <div class="task-card__header">
+                <strong>{{ task.title }}</strong>
+                <span class="task-card__project">{{ task.projectName }}</span>
+              </div>
+              <p class="task-card__desc">{{ task.description || 'No description provided.' }}</p>
+              <div class="task-card__actions">
+                <span class="task-card__meta">
+                  <i class="pi pi-user"></i>
+                  {{ task.assignedUserName || 'Unassigned' }}
+                </span>
+                <button pButton type="button" size="small" icon="pi pi-arrow-right" label="Go to task" (click)="openTaskContext(task)"></button>
+              </div>
+            </article>
+
+            <div *ngIf="tasksForSelectedDate.length === 0" class="calendar-empty">
+              No due tasks on this day.
+            </div>
+          </div>
+        </ng-container>
+      </ng-template>
+    </p-card>
+  </div>
+</section>

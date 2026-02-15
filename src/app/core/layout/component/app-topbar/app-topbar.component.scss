@@ -58,6 +58,11 @@
             display: none;
         }
 
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
         &.layout-topbar-action-highlight {
             background-color: var(--primary-color);
             color: var(--primary-contrast-color);

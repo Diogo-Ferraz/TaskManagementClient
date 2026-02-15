@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { AppTopbarComponent } from './app-topbar.component';
 import { AuthService } from '../../../auth/services/auth.service';
@@ -13,6 +14,7 @@ describe('AppTopbarComponent', () => {
       imports: [AppTopbarComponent],
       providers: [
         provideRouter([]),
+        provideNoopAnimations(),
         {
           provide: AuthService,
           useValue: {

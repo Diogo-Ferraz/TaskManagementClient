@@ -28,7 +28,7 @@
     <div class="layout-topbar-actions">
         <div class="layout-config-menu">
             <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
-                <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+                <i [ngClass]="{ 'pi ': true, 'pi-sun': layoutService.isDarkTheme(), 'pi-moon': !layoutService.isDarkTheme() }"></i>
             </button>
         </div>
 
@@ -38,17 +38,9 @@
 
         <div class="layout-topbar-menu hidden lg:block">
             <div class="layout-topbar-menu-content">
-                <button type="button" class="layout-topbar-action">
+                <button type="button" class="layout-topbar-action" routerLink="/calendar">
                     <i class="pi pi-calendar"></i>
-                    <span>Calendar</span>
-                </button>
-                <button type="button" class="layout-topbar-action">
-                    <i class="pi pi-inbox"></i>
-                    <span>Messages</span>
-                </button>
-                <button type="button" class="layout-topbar-action">
-                    <i class="pi pi-user"></i>
-                    <span>Profile</span>
+                    <span>Due Dates</span>
                 </button>
                 <button *ngIf="authService.isAuthenticated(); else signInButton" type="button" class="layout-topbar-action" (click)="signOut()">
                     <i class="pi pi-sign-out"></i>

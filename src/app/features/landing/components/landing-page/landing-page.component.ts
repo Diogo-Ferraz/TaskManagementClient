@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 
@@ -12,6 +12,9 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
 })
 export class LandingPageComponent {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  readonly isDebugEntryEnabled = this.authService.canStartDebugSession;
 
   signIn(): void {
     void this.authService.startLoginRedirect();
@@ -19,5 +22,10 @@ export class LandingPageComponent {
 
   register(): void {
     this.authService.openRegisterPage();
+  }
+
+  startDebugMode(): void {
+    this.authService.startDebugSession();
+    void this.router.navigate(['/dashboard']);
   }
 }

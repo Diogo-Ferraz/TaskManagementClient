@@ -8,6 +8,8 @@ import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.
 import { MessageService } from 'primeng/api';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import { TaskItemDto } from '../../../../core/api/models/task-item.model';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 
 describe('ProjectKanbanComponent', () => {
   let component: ProjectKanbanComponent;
@@ -68,6 +70,18 @@ describe('ProjectKanbanComponent', () => {
         {
           provide: MessageService,
           useClass: MessageService
+        },
+        {
+          provide: AuthService,
+          useValue: {
+            authSession: () => ({ isDebugSession: false })
+          }
+        },
+        {
+          provide: APP_ENVIRONMENT,
+          useValue: {
+            production: true
+          }
         }
       ]
     })

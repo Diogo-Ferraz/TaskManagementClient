@@ -4,6 +4,7 @@ export interface AuthSession {
   tokenType: string;
   scope?: string;
   expiresAtUtcMs: number;
+  isDebugSession?: boolean;
 }
 
 export interface TokenResponse {

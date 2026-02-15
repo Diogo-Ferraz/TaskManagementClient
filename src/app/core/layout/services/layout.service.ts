@@ -26,6 +26,10 @@ interface MenuChangeEvent {
   providedIn: 'root'
 })
 export class LayoutService {
+  private readonly themeStorageKey = 'task_management.theme.mode';
+  private readonly themeLinkId = 'app-theme';
+  private readonly darkThemeHref = 'assets/themes/aura-dark-blue/theme.css';
+
   _config: layoutConfig = {
     preset: 'Aura',
     primary: 'light-blue',
@@ -62,7 +66,7 @@ export class LayoutService {
 
   overlayOpen$ = this.overlayOpen.asObservable();
 
-  theme = computed(() => (this.layoutConfig()?.darkTheme ? 'light' : 'dark'));
+  theme = computed(() => (this.layoutConfig()?.darkTheme ? 'dark' : 'light'));
 
   isSidebarActive = computed(() => this.layoutState().overlayMenuActive || this.layoutState().staticMenuMobileActive);
 
@@ -79,6 +83,12 @@ export class LayoutService {
   private initialized = false;
 
   constructor() {
+    const savedThemeMode = this.readSavedThemeMode();
+    if (savedThemeMode) {
+      this._config.darkTheme = savedThemeMode === 'dark';
+      this.layoutConfig.set({ ...this._config });
+    }
+
     effect(() => {
       const config = this.layoutConfig();
       if (config) {
@@ -96,6 +106,8 @@ export class LayoutService {
 
       this.handleDarkModeTransition(config);
     });
+
+    this.toggleDarkMode(this.layoutConfig());
   }
 
   private handleDarkModeTransition(config: layoutConfig): void {
@@ -126,6 +138,9 @@ export class LayoutService {
     } else {
       document.documentElement.classList.remove('app-dark');
     }
+
+    this.toggleDarkThemeStylesheet(!!_config.darkTheme);
+    this.persistThemeMode(_config.darkTheme ? 'dark' : 'light');
   }
 
   private onTransitionEnd() {
@@ -174,5 +189,39 @@ export class LayoutService {
 
   reset() {
     this.resetSource.next(true);
+  }
+
+  private toggleDarkThemeStylesheet(enableDarkTheme: boolean): void {
+    const existingLink = document.getElementById(this.themeLinkId) as HTMLLinkElement | null;
+    if (enableDarkTheme) {
+      if (existingLink) {
+        existingLink.setAttribute('href', this.darkThemeHref);
+        return;
+      }
+
+      const link = document.createElement('link');
+      link.id = this.themeLinkId;
+      link.rel = 'stylesheet';
+      link.href = this.darkThemeHref;
+      document.head.appendChild(link);
+      return;
+    }
+
+    if (existingLink) {
+      existingLink.remove();
+    }
+  }
+
+  private persistThemeMode(mode: 'light' | 'dark'): void {
+    localStorage.setItem(this.themeStorageKey, mode);
+  }
+
+  private readSavedThemeMode(): 'light' | 'dark' | null {
+    const value = localStorage.getItem(this.themeStorageKey);
+    if (value === 'light' || value === 'dark') {
+      return value;
+    }
+
+    return null;
   }
 }

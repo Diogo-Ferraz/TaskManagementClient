@@ -5,6 +5,7 @@ import { DashboardComponent } from './dashboard.component';
 import { DashboardApiClient } from '../../../../core/api/clients/dashboard-api.client';
 import { ActivityApiClient } from '../../../../core/api/clients/activity-api.client';
 import { ActivityHubRealtimeService } from '../../../../core/realtime/activity-hub-realtime.service';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
@@ -38,6 +39,12 @@ describe('DashboardComponent', () => {
             connect: () => Promise.resolve(),
             disconnect: () => Promise.resolve(),
             activityCreated$: () => of()
+          }
+        },
+        {
+          provide: AuthService,
+          useValue: {
+            authSession: () => ({ isDebugSession: false })
           }
         }
       ]

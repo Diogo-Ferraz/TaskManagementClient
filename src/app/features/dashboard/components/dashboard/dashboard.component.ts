@@ -11,6 +11,8 @@ import { DashboardSummaryDto } from '../../../../core/api/models/dashboard.model
 import { ActivityLogDto } from '../../../../core/api/models/activity.model';
 import { ActivityType } from '../../../../core/api/models/activity-type.enum';
 import { ActivityHubRealtimeService } from '../../../../core/realtime/activity-hub-realtime.service';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import {
   mapActivityToRecentActivity,
   RecentActivityViewModel
@@ -36,9 +38,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private readonly dashboardApiClient = inject(DashboardApiClient);
   private readonly activityApiClient = inject(ActivityApiClient);
   private readonly activityHubRealtimeService = inject(ActivityHubRealtimeService);
+  private readonly authService = inject(AuthService);
 
   dashboardCards: DashboardCard[] = [];
   isLoading = true;
+  isPreviewMode = false;
   errorMessages: Message[] = [];
   recentActivities: RecentActivityViewModel[] = [];
   activityEvents: ActivityLogDto[] = [];
@@ -63,6 +67,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   loadDashboardData(): void {
     this.isLoading = true;
+    this.isPreviewMode = false;
     this.errorMessages = [];
     forkJoin({
       summary: this.dashboardApiClient.getSummary(),
@@ -82,9 +87,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
           void this.activityHubRealtimeService.connect();
         },
         error: () => {
-          this.errorMessages = [{ severity: 'error', summary: 'Error', detail: 'Could not fetch dashboard information.' }];
+          const isDebugSession = this.authService.authSession()?.isDebugSession;
+          this.errorMessages = [
+            {
+              severity: isDebugSession ? 'warn' : 'error',
+              summary: isDebugSession ? 'Preview mode' : 'Error',
+              detail: isDebugSession
+                ? 'Backend unavailable. Showing preview dashboard content.'
+                : 'Could not fetch dashboard information.'
+            }
+          ];
+
+          if (isDebugSession) {
+            this.isPreviewMode = true;
+            this.dashboardCards = this.getPreviewCards();
+            this.activityEvents = this.createPreviewActivity();
+            this.recentActivities = this.activityEvents.map((event) => mapActivityToRecentActivity(event));
+            this.prepareChartData(this.activityEvents);
+          } else {
+            this.dashboardCards = this.getDefaultCards();
+            this.activityEvents = [];
+            this.recentActivities = [];
+            this.prepareChartData([]);
+          }
+
           this.isLoading = false;
-          this.dashboardCards = this.getDefaultCards();
         }
       });
   }
@@ -135,6 +162,43 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ];
   }
 
+  getPreviewCards(): DashboardCard[] {
+    return [
+      {
+        title: 'Assigned Tasks',
+        value: 9,
+        icon: 'pi pi-user-edit',
+        iconColor: 'text-blue-500',
+        bgColor: 'bg-blue-100',
+        description: 'Preview data for UI validation'
+      },
+      {
+        title: 'Closed This Week',
+        value: 6,
+        icon: 'pi pi-check-circle',
+        iconColor: 'text-green-500',
+        bgColor: 'bg-green-100',
+        description: 'Preview data for UI validation'
+      },
+      {
+        title: 'Projects Count',
+        value: 4,
+        icon: 'pi pi-folder-open',
+        iconColor: 'text-purple-500',
+        bgColor: 'bg-purple-100',
+        description: 'Preview data for UI validation'
+      },
+      {
+        title: 'Overdue Assigned',
+        value: 2,
+        icon: 'pi pi-exclamation-triangle',
+        iconColor: 'text-orange-500',
+        bgColor: 'bg-orange-100',
+        description: 'Preview data for UI validation'
+      }
+    ];
+  }
+
   initializeChartOptions(): void {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--text-color') || '#495057';
@@ -179,6 +243,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       ]
     };
+  }
+
+  private createPreviewActivity(): ActivityLogDto[] {
+    const now = new Date();
+    const toIsoMinusMinutes = (minutes: number) =>
+      new Date(now.getTime() - minutes * 60_000).toISOString();
+
+    return [
+      {
+        id: 'preview-activity-1',
+        type: ActivityType.TaskStatusChanged,
+        projectId: 'project-alpha',
+        taskItemId: 'task-alpha-1',
+        projectName: 'Alpha Platform',
+        taskTitle: 'Finalize sprint planning notes',
+        oldStatus: TaskStatus.Todo,
+        newStatus: TaskStatus.InProgress,
+        oldValue: null,
+        newValue: null,
+        actorUserId: 'debug-user',
+        actorDisplayName: 'Debug User',
+        occurredAt: toIsoMinusMinutes(9)
+      },
+      {
+        id: 'preview-activity-2',
+        type: ActivityType.TaskCreated,
+        projectId: 'project-beta',
+        taskItemId: 'task-beta-3',
+        projectName: 'Beta Workspace',
+        taskTitle: 'Prepare Kanban demo flow',
+        oldStatus: null,
+        newStatus: null,
+        oldValue: null,
+        newValue: null,
+        actorUserId: 'debug-user',
+        actorDisplayName: 'Debug User',
+        occurredAt: toIsoMinusMinutes(22)
+      },
+      {
+        id: 'preview-activity-3',
+        type: ActivityType.ProjectRenamed,
+        projectId: 'project-gamma',
+        taskItemId: null,
+        projectName: 'Gamma Services',
+        taskTitle: null,
+        oldStatus: null,
+        newStatus: null,
+        oldValue: 'Gamma API',
+        newValue: 'Gamma Services',
+        actorUserId: 'project-manager-1',
+        actorDisplayName: 'Project Manager',
+        occurredAt: toIsoMinusMinutes(54)
+      }
+    ];
   }
 
   private subscribeToLiveActivity(): void {

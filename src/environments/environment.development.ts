@@ -5,6 +5,10 @@ export const environment: AppEnvironment = {
   apiBaseUrl: 'https://localhost:44320',
   authApiBaseUrl: 'https://localhost:44377',
   activityHubPath: '/hubs/activity',
+  debugAuth: {
+    enabled: true,
+    allowedHosts: ['localhost', '127.0.0.1']
+  },
   auth: {
     authority: 'https://localhost:44377',
     clientId: 'angular-client',

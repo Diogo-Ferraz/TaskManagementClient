@@ -3,6 +3,10 @@ export interface AppEnvironment {
   apiBaseUrl: string;
   authApiBaseUrl: string;
   activityHubPath: string;
+  debugAuth: {
+    enabled: boolean;
+    allowedHosts: string[];
+  };
   auth: {
     authority: string;
     clientId: string;

@@ -1,0 +1,202 @@
+.calendar-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: calc(100dvh - 8.5rem);
+  min-height: calc(100dvh - 8.5rem);
+}
+
+.calendar-kicker {
+  margin: 0;
+  color: var(--primary-color);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.calendar-hero__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.calendar-hero__content h1 {
+  margin: 0.35rem 0 0;
+}
+
+.calendar-hero__content p {
+  margin: 0.75rem 0 0;
+  max-width: 75ch;
+  color: var(--text-color-secondary);
+}
+
+.calendar-hero__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  gap: 1rem;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+}
+
+.calendar-warning {
+  border: 1px solid color-mix(in srgb, var(--orange-500) 40%, transparent);
+  background: color-mix(in srgb, var(--orange-100) 70%, transparent);
+  color: var(--orange-700);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+.calendar-skeleton,
+.calendar-side-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+:host ::ng-deep .calendar-wrapper .p-datepicker {
+  width: 100%;
+  border: 0;
+}
+
+:host ::ng-deep .calendar-wrapper .p-calendar {
+  width: 100%;
+}
+
+:host ::ng-deep .calendar-wrapper .p-datepicker table td > span {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+:host ::ng-deep .calendar-main-card .p-card,
+:host ::ng-deep .calendar-side-card .p-card {
+  height: 100%;
+}
+
+:host ::ng-deep .calendar-main-card .p-card-body,
+:host ::ng-deep .calendar-side-card .p-card-body {
+  height: 100%;
+}
+
+:host ::ng-deep .calendar-main-card .p-card-content,
+:host ::ng-deep .calendar-side-card .p-card-content {
+  height: 100%;
+}
+
+.calendar-day {
+  width: 100%;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.calendar-markers {
+  display: inline-flex;
+  gap: 0.16rem;
+  height: 0.4rem;
+}
+
+.calendar-marker {
+  width: 0.36rem;
+  height: 0.36rem;
+  border-radius: 999px;
+}
+
+.legend {
+  margin-bottom: 1rem;
+}
+
+.legend h4 {
+  margin: 0 0 0.65rem;
+  font-size: 0.95rem;
+}
+
+.legend-items {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+.legend-color {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.task-card {
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--surface-card) 88%, transparent);
+}
+
+.task-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.task-card__project {
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+}
+
+.task-card__desc {
+  margin: 0.55rem 0;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+.task-card__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.task-card__meta {
+  color: var(--text-color-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.calendar-empty {
+  border: 1px dashed var(--surface-border);
+  border-radius: 10px;
+  padding: 0.9rem;
+  color: var(--text-color-secondary);
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+}

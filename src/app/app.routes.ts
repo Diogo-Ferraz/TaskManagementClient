@@ -12,6 +12,8 @@ import { AuthCallbackComponent } from './features/login/components/auth-callback
 import { LandingPageComponent } from './features/landing/components/landing-page/landing-page.component';
 import { NotFoundComponent } from './features/errors/components/not-found/not-found.component';
 import { SearchFiltersComponent } from './features/search/components/search-filters/search-filters.component';
+import { ProjectDocsComponent } from './features/docs/components/project-docs/project-docs.component';
+import { TaskCalendarComponent } from './features/calendar/components/task-calendar/task-calendar.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -21,6 +23,8 @@ export const routes: Routes = [
   { path: 'projects/create', component: ProjectCreateComponent, canActivate: [authGuard] },
   { path: 'tasks', component: TaskItemListComponent, canActivate: [authGuard] },
   { path: 'search', component: SearchFiltersComponent, canActivate: [authGuard] },
+  { path: 'docs', component: ProjectDocsComponent, canActivate: [authGuard] },
+  { path: 'calendar', component: TaskCalendarComponent, canActivate: [authGuard] },
   { path: 'tasks/create', component: TaskItemCreateComponent, canActivate: [authGuard] },
   { path: 'tasks/my-tasks', component: UserTaskItemsComponent, canActivate: [authGuard] },
   { path: 'login', component: HomeLoginComponent },

@@ -13,6 +13,14 @@
   color: var(--text-color-secondary);
 }
 
+:host ::ng-deep .search-header-card .p-card-content {
+  padding: 0;
+}
+
+:host ::ng-deep .search-filters-card .p-card-content {
+  padding: 0;
+}
+
 .search-controls {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

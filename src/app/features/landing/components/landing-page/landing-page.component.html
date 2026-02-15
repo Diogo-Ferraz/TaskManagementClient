@@ -25,6 +25,19 @@
       <button pButton type="button" size="large" label="Get Started" icon="pi pi-arrow-right" iconPos="right" (click)="signIn()"></button>
       <a routerLink="/dashboard" class="landing__demo-link">Go to app (requires sign in)</a>
     </div>
+
+    @if (isDebugEntryEnabled()) {
+      <div class="landing__debug">
+        <button
+          pButton
+          type="button"
+          severity="contrast"
+          outlined="true"
+          icon="pi pi-bug"
+          label="Debug: enter app without login"
+          (click)="startDebugMode()"></button>
+      </div>
+    }
   </main>
 
   <section class="landing__features">

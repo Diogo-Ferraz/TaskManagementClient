@@ -1,74 +1,80 @@
 <div class="search-page">
-  <div *ngIf="errors.length > 0" class="search-error">{{ errors[0].detail }}</div>
+  <p-card *ngIf="errors.length > 0" styleClass="search-alert-card">
+    <div class="search-error">{{ errors[0].detail }}</div>
+  </p-card>
 
-  <div class="search-header">
-    <h2>Search & Filters</h2>
-    <p>Find users in projects, projects for a user, and user/unassigned tasks.</p>
-  </div>
-
-  <div class="search-controls">
-    <div class="control-group">
-      <label for="projectId">Project</label>
-      <p-dropdown
-        inputId="projectId"
-        [options]="projects"
-        optionLabel="name"
-        optionValue="id"
-        [ngModel]="selectedProjectId"
-        [disabled]="isLoading || projects.length === 0"
-        placeholder="Select project"
-        (onChange)="onProjectChange($event.value)">
-      </p-dropdown>
+  <p-card styleClass="search-header-card">
+    <div class="search-header">
+      <h2>Search & Filters</h2>
+      <p>Find users in projects, projects for a user, and user/unassigned tasks.</p>
     </div>
+  </p-card>
 
-    <div class="control-group">
-      <label for="userId">User In Project</label>
-      <p-dropdown
-        inputId="userId"
-        [options]="projectMembers"
-        optionLabel="displayName"
-        optionValue="userId"
-        [ngModel]="selectedUserId"
-        [disabled]="isLoading || projectMembers.length === 0"
-        placeholder="Select user"
-        (onChange)="onUserChange($event.value)">
-      </p-dropdown>
-    </div>
+  <p-card styleClass="search-filters-card">
+    <div class="search-controls">
+      <div class="control-group">
+        <label for="projectId">Project</label>
+        <p-dropdown
+          inputId="projectId"
+          [options]="projects"
+          optionLabel="name"
+          optionValue="id"
+          [ngModel]="selectedProjectId"
+          [disabled]="isLoading || projects.length === 0"
+          placeholder="Select project"
+          (onChange)="onProjectChange($event.value)">
+        </p-dropdown>
+      </div>
 
-    <div class="control-group">
-      <label for="ownership">Task Ownership</label>
-      <p-dropdown
-        inputId="ownership"
-        [options]="taskOwnershipOptions"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="taskOwnershipFilter"
-        (onChange)="taskOwnershipFilter = $event.value; onTaskFiltersChanged()">
-      </p-dropdown>
-    </div>
+      <div class="control-group">
+        <label for="userId">User In Project</label>
+        <p-dropdown
+          inputId="userId"
+          [options]="projectMembers"
+          optionLabel="displayName"
+          optionValue="userId"
+          [ngModel]="selectedUserId"
+          [disabled]="isLoading || projectMembers.length === 0"
+          placeholder="Select user"
+          (onChange)="onUserChange($event.value)">
+        </p-dropdown>
+      </div>
 
-    <div class="control-group">
-      <label for="state">Task State</label>
-      <p-dropdown
-        inputId="state"
-        [options]="taskStateOptions"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="taskStateFilter"
-        (onChange)="taskStateFilter = $event.value; onTaskFiltersChanged()">
-      </p-dropdown>
-    </div>
+      <div class="control-group">
+        <label for="ownership">Task Ownership</label>
+        <p-dropdown
+          inputId="ownership"
+          [options]="taskOwnershipOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="taskOwnershipFilter"
+          (onChange)="taskOwnershipFilter = $event.value; onTaskFiltersChanged()">
+        </p-dropdown>
+      </div>
 
-    <div class="control-group">
-      <label for="search">Task Search</label>
-      <input
-        id="search"
-        pInputText
-        [ngModel]="taskSearch"
-        (ngModelChange)="taskSearch = $event; onTaskFiltersChanged()"
-        placeholder="Title or description" />
+      <div class="control-group">
+        <label for="state">Task State</label>
+        <p-dropdown
+          inputId="state"
+          [options]="taskStateOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="taskStateFilter"
+          (onChange)="taskStateFilter = $event.value; onTaskFiltersChanged()">
+        </p-dropdown>
+      </div>
+
+      <div class="control-group">
+        <label for="search">Task Search</label>
+        <input
+          id="search"
+          pInputText
+          [ngModel]="taskSearch"
+          (ngModelChange)="taskSearch = $event; onTaskFiltersChanged()"
+          placeholder="Title or description" />
+      </div>
     </div>
-  </div>
+  </p-card>
 
   <div class="results-grid">
     <p-card header="Users In Project">

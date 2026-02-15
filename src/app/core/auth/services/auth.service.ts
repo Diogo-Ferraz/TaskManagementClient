@@ -21,7 +21,10 @@ export class AuthService {
   readonly authSession = this.authSessionSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.hasValidSession(this.authSessionSignal()));
   readonly accessToken = computed(() => this.authSessionSignal()?.accessToken ?? null);
+  readonly userClaims = computed(() => this.parseJwtPayload(this.authSessionSignal()?.accessToken ?? ''));
   readonly userRoles = computed(() => this.extractRolesFromSession(this.authSessionSignal()));
+  readonly currentUserId = computed(() => this.extractUserId(this.userClaims()));
+  readonly canStartDebugSession = computed(() => this.isDebugAuthAllowed());
 
   constructor() {
     this.hydrateAuthSession();
@@ -103,6 +106,36 @@ export class AuthService {
   openRegisterPage(): void {
     const registerUrl = `${this.appEnvironment.auth.authority.replace(/\/$/, '')}/Identity/Account/Register`;
     window.location.assign(registerUrl);
+  }
+
+  startDebugSession(): void {
+    if (!this.isDebugAuthAllowed()) {
+      throw new Error('Debug session is disabled.');
+    }
+
+    const nowUtcMs = Date.now();
+    const debugClaims = {
+      sub: 'debug-user',
+      name: 'Debug User',
+      preferred_username: 'debug.user',
+      email: 'debug.user@local.test',
+      role: ['Administrator', 'ProjectManager', 'User']
+    };
+
+    const session: AuthSession = {
+      accessToken: this.createUnsignedJwt(debugClaims),
+      idToken: this.createUnsignedJwt({
+        sub: debugClaims.sub,
+        name: debugClaims.name,
+        email: debugClaims.email
+      }),
+      tokenType: 'Bearer',
+      scope: this.appEnvironment.auth.scopes.join(' '),
+      expiresAtUtcMs: nowUtcMs + 8 * 60 * 60 * 1000,
+      isDebugSession: true
+    };
+
+    this.setSession(session);
   }
 
   hasRole(role: string): boolean {
@@ -218,6 +251,11 @@ export class AuthService {
     return extractedRoles;
   }
 
+  private extractUserId(claims: Record<string, unknown>): string | null {
+    const value = claims['sub'] ?? claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+    return typeof value === 'string' && value.trim().length > 0 ? value : null;
+  }
+
   private parseJwtPayload(jwt: string): Record<string, unknown> {
     const parts = jwt.split('.');
     if (parts.length < 2) {
@@ -232,6 +270,18 @@ export class AuthService {
     } catch {
       return {};
     }
+  }
+
+  private createUnsignedJwt(claims: Record<string, unknown>): string {
+    const header = { alg: 'none', typ: 'JWT' };
+    const encodedHeader = this.base64UrlEncodeString(JSON.stringify(header));
+    const encodedPayload = this.base64UrlEncodeString(JSON.stringify(claims));
+    return `${encodedHeader}.${encodedPayload}.`;
+  }
+
+  private base64UrlEncodeString(value: string): string {
+    const bytes = new TextEncoder().encode(value);
+    return this.base64UrlEncodeBytes(bytes);
   }
 
   private hydrateAuthSession(): void {
@@ -259,7 +309,47 @@ export class AuthService {
       return false;
     }
 
+    if (session.isDebugSession && !this.isDebugAuthAllowed()) {
+      return false;
+    }
+
+    if (!this.isDebugAuthAllowed() && this.isUnsignedJwt(session.accessToken)) {
+      return false;
+    }
+
     return session.expiresAtUtcMs > Date.now() + 30_000;
+  }
+
+  private isDebugAuthAllowed(): boolean {
+    if (this.appEnvironment.production || !this.appEnvironment.debugAuth.enabled) {
+      return false;
+    }
+
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    const currentHost = window.location.hostname.toLowerCase();
+    return this.appEnvironment.debugAuth.allowedHosts.some((host) => host.toLowerCase() === currentHost);
+  }
+
+  private isUnsignedJwt(jwt: string): boolean {
+    const parts = jwt.split('.');
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    if (parts[2].length === 0) {
+      return true;
+    }
+
+    try {
+      const headerJson = atob(parts[0].replace(/-/g, '+').replace(/_/g, '/'));
+      const header = JSON.parse(headerJson) as { alg?: string };
+      return header.alg === 'none';
+    } catch {
+      return false;
+    }
   }
 
   private setSession(session: AuthSession): void {

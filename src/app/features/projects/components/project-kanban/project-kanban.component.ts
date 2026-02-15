@@ -9,6 +9,8 @@ import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.
 import { ProjectDto } from '../../../../core/api/models/project.model';
 import { PatchTaskItemRequest, TaskItemDto } from '../../../../core/api/models/task-item.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 
 interface KanbanColumn {
   status: TaskStatus;
@@ -33,6 +35,8 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+  private readonly authService = inject(AuthService);
+  private readonly appEnvironment = inject(APP_ENVIRONMENT);
   private readonly destroy$ = new Subject<void>();
 
   readonly columns: KanbanColumn[] = [
@@ -47,6 +51,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
   isLoadingProjects = true;
   isLoadingTasks = false;
+  isPreviewMode = false;
   errors: Message[] = [];
 
   private allTasks: TaskItemDto[] = [];
@@ -95,6 +100,10 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   onDrop(newStatus: TaskStatus): void {
+    if (this.isPreviewMode) {
+      return;
+    }
+
     if (!this.draggedTaskId) {
       return;
     }
@@ -123,6 +132,10 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   onAssigneeChanged(task: TaskItemDto, assignedUserId: string | null): void {
+    if (this.isPreviewMode) {
+      return;
+    }
+
     if (this.isTaskPending(task.id) || task.assignedUserId === assignedUserId) {
       return;
     }
@@ -142,6 +155,10 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   onDueDateChanged(task: TaskItemDto, value: Date | null): void {
+    if (this.isPreviewMode) {
+      return;
+    }
+
     const dueDate = value ? value.toISOString() : null;
 
     if (this.isTaskPending(task.id) || task.dueDate === dueDate) {
@@ -169,18 +186,34 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
   private loadProjects(): void {
     this.isLoadingProjects = true;
+    this.isPreviewMode = false;
     this.errors = [];
+
+    if (!this.appEnvironment.production || this.authService.authSession()?.isDebugSession) {
+      this.loadPreviewBoard('Development preview mode active. Backend calls are disabled for Kanban.');
+      return;
+    }
 
     this.projectsApiClient
       .getProjects({ page: 1, pageSize: 200 })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (projects) => {
+          if (projects.length === 0) {
+            this.loadPreviewBoard('No projects were returned. Showing preview Kanban board.');
+            return;
+          }
+
           this.projects = projects;
           this.isLoadingProjects = false;
           this.observeProjectSelection();
         },
         error: () => {
+          if (this.shouldUsePreviewMode()) {
+            this.loadPreviewBoard('Backend unavailable. Showing preview Kanban board.');
+            return;
+          }
+
           this.isLoadingProjects = false;
           this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load projects for Kanban board.' }];
         }
@@ -221,6 +254,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
   private loadProjectBoardData(projectId: string): void {
     this.isLoadingTasks = true;
+    this.isPreviewMode = false;
     this.errors = [];
     this.clearTasks();
 
@@ -239,6 +273,11 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
           this.isLoadingTasks = false;
         },
         error: () => {
+          if (this.shouldUsePreviewMode()) {
+            this.loadPreviewTasks(projectId, 'Task data unavailable. Showing preview tasks.');
+            return;
+          }
+
           this.isLoadingTasks = false;
           this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load tasks for selected project.' }];
         }
@@ -289,5 +328,100 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     this.allTasks = [];
     this.pendingTaskIds.clear();
     this.assigneeOptions = [{ label: 'Unassigned', value: null }];
+  }
+
+  private loadPreviewBoard(detail: string): void {
+    const previewProject: ProjectDto = {
+      id: 'preview-project',
+      name: 'Preview Project',
+      description: 'Preview board when backend is unavailable.',
+      ownerUserId: 'debug-user',
+      createdAt: new Date().toISOString(),
+      createdByUserId: 'debug-user',
+      createdByUserName: 'Debug User',
+      lastModifiedAt: new Date().toISOString(),
+      lastModifiedByUserId: 'debug-user',
+      lastModifiedByUserName: 'Debug User'
+    };
+
+    this.projects = [previewProject];
+    this.selectedProjectId = previewProject.id;
+    this.loadPreviewTasks(previewProject.id, detail);
+    this.isLoadingProjects = false;
+  }
+
+  private loadPreviewTasks(projectId: string, detail: string): void {
+    this.isPreviewMode = true;
+    this.errors = [{ severity: 'warn', summary: 'Preview mode', detail }];
+    this.assigneeOptions = [
+      { label: 'Unassigned', value: null },
+      { label: 'Debug User', value: 'debug-user' },
+      { label: 'Project Manager', value: 'pm-user' }
+    ];
+    this.allTasks = this.createPreviewTasks(projectId);
+    this.pendingTaskIds.clear();
+    this.isLoadingTasks = false;
+  }
+
+  private createPreviewTasks(projectId: string): TaskItemDto[] {
+    const now = new Date().toISOString();
+
+    return [
+      {
+        id: `${projectId}-todo-1`,
+        title: 'Design board swimlanes',
+        description: 'Finalize how tasks are segmented by status and owner.',
+        status: TaskStatus.Todo,
+        dueDate: null,
+        projectId,
+        projectName: 'Preview Project',
+        assignedUserId: 'debug-user',
+        assignedUserName: 'Debug User',
+        createdAt: now,
+        createdByUserId: 'debug-user',
+        createdByUserName: 'Debug User',
+        lastModifiedAt: now,
+        lastModifiedByUserId: 'debug-user',
+        lastModifiedByUserName: 'Debug User'
+      },
+      {
+        id: `${projectId}-inprogress-1`,
+        title: 'Implement SignalR integration',
+        description: 'Connect live events into dashboard activity feed.',
+        status: TaskStatus.InProgress,
+        dueDate: now,
+        projectId,
+        projectName: 'Preview Project',
+        assignedUserId: 'pm-user',
+        assignedUserName: 'Project Manager',
+        createdAt: now,
+        createdByUserId: 'pm-user',
+        createdByUserName: 'Project Manager',
+        lastModifiedAt: now,
+        lastModifiedByUserId: 'pm-user',
+        lastModifiedByUserName: 'Project Manager'
+      },
+      {
+        id: `${projectId}-done-1`,
+        title: 'Refactor error placeholders',
+        description: 'Add resilient loading and fallback UI states.',
+        status: TaskStatus.Done,
+        dueDate: now,
+        projectId,
+        projectName: 'Preview Project',
+        assignedUserId: null,
+        assignedUserName: 'Unassigned',
+        createdAt: now,
+        createdByUserId: 'debug-user',
+        createdByUserName: 'Debug User',
+        lastModifiedAt: now,
+        lastModifiedByUserId: 'debug-user',
+        lastModifiedByUserName: 'Debug User'
+      }
+    ];
+  }
+
+  private shouldUsePreviewMode(): boolean {
+    return this.authService.authSession()?.isDebugSession === true || !this.appEnvironment.production;
   }
 }

@@ -11,6 +11,10 @@ describe('AuthService', () => {
     apiBaseUrl: 'https://localhost:44320',
     authApiBaseUrl: 'https://localhost:44377',
     activityHubPath: '/hubs/activity',
+    debugAuth: {
+      enabled: true,
+      allowedHosts: ['localhost', '127.0.0.1']
+    },
     auth: {
       authority: 'https://localhost:44377',
       clientId: 'angular-client',
@@ -89,5 +93,58 @@ describe('AuthService', () => {
 
     const rehydratedService = TestBed.runInInjectionContext(() => new AuthService());
     expect(rehydratedService.hasRole('Administrator')).toBeTrue();
+  });
+
+  it('creates a local debug session in non-production', () => {
+    authService.startDebugSession();
+
+    expect(authService.isAuthenticated()).toBeTrue();
+    expect(authService.currentUserId()).toBe('debug-user');
+    expect(authService.hasAnyRole(['Administrator', 'ProjectManager'])).toBeTrue();
+  });
+
+  it('blocks debug sessions in production', () => {
+    const productionEnvironment: AppEnvironment = {
+      ...appEnvironment,
+      production: true,
+      debugAuth: {
+        enabled: false,
+        allowedHosts: []
+      }
+    };
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: APP_ENVIRONMENT, useValue: productionEnvironment }
+      ]
+    });
+
+    const productionAuthService = TestBed.inject(AuthService);
+    expect(() => productionAuthService.startDebugSession()).toThrowError('Debug session is disabled.');
+  });
+
+  it('blocks debug sessions when debug auth is disabled', () => {
+    const disabledDebugEnvironment: AppEnvironment = {
+      ...appEnvironment,
+      debugAuth: {
+        enabled: false,
+        allowedHosts: ['localhost']
+      }
+    };
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: APP_ENVIRONMENT, useValue: disabledDebugEnvironment }
+      ]
+    });
+
+    const disabledDebugAuthService = TestBed.inject(AuthService);
+    expect(() => disabledDebugAuthService.startDebugSession()).toThrowError('Debug session is disabled.');
   });
 });
