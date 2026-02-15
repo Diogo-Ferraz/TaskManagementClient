@@ -1,4 +1,6 @@
 <div class="kanban-page">
+    <p-toast></p-toast>
+
     <div *ngIf="errors.length > 0" class="kanban-error">
         {{ errors[0].detail }}
     </div>
@@ -6,7 +8,7 @@
     <div class="kanban-toolbar">
         <div class="kanban-toolbar__title">
             <h2>Project Kanban Board</h2>
-            <p>Read-only board backed by server data.</p>
+            <p>Live board backed by server data.</p>
         </div>
 
         <div class="kanban-toolbar__project-picker">
@@ -45,15 +47,54 @@
                         </div>
                     </ng-template>
 
-                    <div class="kanban-column-body">
+                    <div class="kanban-column-body" pDroppable (onDrop)="onDrop(column.status)">
                         <ng-container *ngFor="let task of getTasksByStatus(column.status); trackBy: trackByTaskId">
-                            <div class="task-card">
+                            <div class="task-card" pDraggable [pDraggableDisabled]="isTaskPending(task.id)"
+                                (onDragStart)="onDragStart(task)" (onDragEnd)="onDragEnd()">
                                 <div class="task-card__header">
                                     <span class="task-card__title">{{ task.title }}</span>
+                                    <p-tag *ngIf="isTaskPending(task.id)" severity="info" value="Saving"></p-tag>
                                 </div>
+
                                 <div class="task-card__description">
                                     {{ task.description || 'No description provided.' }}
                                 </div>
+
+                                <div class="task-card__controls">
+                                    <div class="task-control">
+                                        <label>Assignee</label>
+                                        <p-dropdown
+                                            [options]="assigneeOptions"
+                                            [ngModel]="task.assignedUserId ?? null"
+                                            optionLabel="label"
+                                            optionValue="value"
+                                            [disabled]="isTaskPending(task.id)"
+                                            appendTo="body"
+                                            (onChange)="onAssigneeChanged(task, $event.value)">
+                                        </p-dropdown>
+                                    </div>
+
+                                    <div class="task-control">
+                                        <label>Due date</label>
+                                        <div class="task-date-actions">
+                                            <p-calendar
+                                                [ngModel]="toDate(task.dueDate)"
+                                                [showIcon]="true"
+                                                [showButtonBar]="true"
+                                                [readonlyInput]="true"
+                                                [disabled]="isTaskPending(task.id)"
+                                                dateFormat="yy-mm-dd"
+                                                appendTo="body"
+                                                (ngModelChange)="onDueDateChanged(task, $event)">
+                                            </p-calendar>
+                                            <button pButton type="button" icon="pi pi-times" [text]="true"
+                                                [disabled]="isTaskPending(task.id) || !task.dueDate"
+                                                (click)="clearDueDate(task)">
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="task-card__footer">
                                     <div class="task-card__assignee">
                                         <p-avatar [label]="(task.assignedUserName || 'U').charAt(0)"
