@@ -1,62 +1,81 @@
-<div class="flex gap-5">
-    <ng-container *ngFor="let status of taskStatus">
-        <div class="flex-1">
-            <p-card class="custom-card">
-                <ng-template pTemplate="header">
-                    <div class="flex justify-content-between align-items-center w-full column-header">
-                        <div>
-                            <span class="text-lg font-semibold">{{status}}</span>
-                        </div>
-                        <div>
-                            <span><p-chip [label]="getTasksByStatus(status).length.toString()"></p-chip></span>
-                        </div>
-                    </div>
-                </ng-template>
+<div class="kanban-page">
+    <div *ngIf="errors.length > 0" class="kanban-error">
+        {{ errors[0].detail }}
+    </div>
 
-                <!-- Droppable Area -->
-                <div class="grid gap-3 min-h-10rem drop-column" pDroppable (onDrop)="drop($event, status)">
-                    <ng-container *ngFor="let task of getTasksByStatus(status); let i = index">
-                        <div class="col-12" pDraggable
-                            (onDragStart)="dragStart($event, task)" (onDragEnd)="dragEnd()">
-                            <div class="drag-card" [ngClass]="{'opacity-50': draggedTask === task}">
-                                <div class="flex justify-content-between align-items-center">
-                                    <span
-                                        class="text-surface-900 dark:text-surface-0 font-semibold drag-handle cursor-move">{{
-                                        task.name }}</span>
-                                    <div>
-                                        <p-button icon="pi pi-ellipsis-v" [rounded]="true" [text]="true"
-                                            severity="secondary" />
-                                    </div>
+    <div class="kanban-toolbar">
+        <div class="kanban-toolbar__title">
+            <h2>Project Kanban Board</h2>
+            <p>Read-only board backed by server data.</p>
+        </div>
+
+        <div class="kanban-toolbar__project-picker">
+            <label for="projectPicker">Project</label>
+            <p-dropdown
+                inputId="projectPicker"
+                [options]="projects"
+                optionLabel="name"
+                optionValue="id"
+                [ngModel]="selectedProjectId"
+                [disabled]="isLoadingProjects || projects.length === 0"
+                placeholder="Select a project"
+                (onChange)="onProjectSelected($event.value)">
+            </p-dropdown>
+        </div>
+    </div>
+
+    <div *ngIf="isLoadingProjects || isLoadingTasks" class="kanban-loading">
+        <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8"></p-progressSpinner>
+        <p>Loading board...</p>
+    </div>
+
+    <div *ngIf="!isLoadingProjects && projects.length === 0" class="kanban-empty">
+        <i class="pi pi-folder-open"></i>
+        <p>No projects found in your current scope.</p>
+    </div>
+
+    <div *ngIf="!isLoadingProjects && projects.length > 0 && !isLoadingTasks" class="kanban-grid">
+        <ng-container *ngFor="let column of columns">
+            <div class="kanban-column">
+                <p-card class="custom-card">
+                    <ng-template pTemplate="header">
+                        <div class="flex justify-content-between align-items-center w-full column-header">
+                            <span class="text-lg font-semibold">{{ column.label }}</span>
+                            <p-chip [label]="getTasksByStatus(column.status).length.toString()"></p-chip>
+                        </div>
+                    </ng-template>
+
+                    <div class="kanban-column-body">
+                        <ng-container *ngFor="let task of getTasksByStatus(column.status); trackBy: trackByTaskId">
+                            <div class="task-card">
+                                <div class="task-card__header">
+                                    <span class="task-card__title">{{ task.title }}</span>
                                 </div>
-                                <div class="--surface-700 dark:--surface-100" style="word-break: break-word;">
-                                    <span>{{ task.description }}</span>
+                                <div class="task-card__description">
+                                    {{ task.description || 'No description provided.' }}
                                 </div>
-                                <div
-                                    class="flex align-items-center justify-content-between flex-column md:flex-row gap-6 md:gap-0">
-                                    <div class="flex align-items-center gap-1">
-                                        <p-avatar [label]="task.assignee.charAt(0)" styleClass="mr-2"
-                                        [style]="{ 'background-color': '#dee9fc', color: '#1a2551' }" shape="circle" />
-                                        <span>{{ task.assignee }}</span>
+                                <div class="task-card__footer">
+                                    <div class="task-card__assignee">
+                                        <p-avatar [label]="(task.assignedUserName || 'U').charAt(0)"
+                                            [style]="{ 'background-color': '#dee9fc', color: '#1a2551' }"
+                                            shape="circle">
+                                        </p-avatar>
+                                        <span>{{ task.assignedUserName || 'Unassigned' }}</span>
                                     </div>
-                                    <div class="flex align-items-center gap-4">
-                                        <span class="--surface-900 dark:--surface-0 font-semibold flex-shrink-0 flex align-items-center">
-                                            <i class="pi pi-clock --surface-700 dark:--surface-100 mr-2"></i>
-                                            {{ task.createdOn | date }}
-                                        </span>
-                                    </div>
+                                    <span class="task-card__date">
+                                        <i class="pi pi-clock"></i>
+                                        {{ task.lastModifiedAt | date:'mediumDate' }}
+                                    </span>
                                 </div>
                             </div>
-                        </div>
-                    </ng-container>
-                </div>
+                        </ng-container>
 
-                <ng-template pTemplate="footer">
-                    <div class="flex mt-1">
-                        <p-button icon="pi pi-plus" label="New Task" class="w-full" styleClass="w-full"
-                            (click)="addNewTask(status)" />
+                        <div *ngIf="getTasksByStatus(column.status).length === 0" class="kanban-column-empty">
+                            No tasks in this column.
+                        </div>
                     </div>
-                </ng-template>
-            </p-card>
-        </div>
-    </ng-container>
+                </p-card>
+            </div>
+        </ng-container>
+    </div>
 </div>

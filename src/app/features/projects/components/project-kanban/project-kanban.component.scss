@@ -1,53 +1,121 @@
-::ng-deep .custom-card .p-card-body {
-    padding: 0 2rem 2rem 2rem;
+.kanban-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-::ng-deep .custom-card .p-card-content {
-    padding: 0;
+.kanban-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
-.card {
-    background: var(--surface-card);
+.kanban-toolbar__title h2 {
+    margin: 0;
+}
+
+.kanban-toolbar__title p {
+    margin: 0.25rem 0 0;
+    color: var(--text-color-secondary);
+}
+
+.kanban-toolbar__project-picker {
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.kanban-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.kanban-column-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 200px;
+}
+
+.task-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
     border: 1px solid var(--surface-border);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--card-shadow);
+    border-radius: 10px;
+    padding: 0.85rem;
+    background: color-mix(in srgb, var(--surface-0) 95%, transparent);
+}
+
+.task-card__title {
+    font-weight: 600;
+}
+
+.task-card__description {
+    color: var(--text-color-secondary);
+    font-size: 0.92rem;
+    word-break: break-word;
+}
+
+.task-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.task-card__assignee {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.task-card__date {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-color-secondary);
+    font-size: 0.85rem;
+}
+
+.kanban-loading,
+.kanban-empty,
+.kanban-column-empty {
+    color: var(--text-color-secondary);
+}
+
+.kanban-error {
+    border: 1px solid color-mix(in srgb, var(--red-500) 40%, transparent);
+    background: color-mix(in srgb, var(--red-100) 70%, transparent);
+    color: var(--red-700);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+
+.kanban-empty {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .column-header {
-    padding: 2rem;
+    padding: 1rem 1rem 0.75rem;
 }
 
-.drag-card {
-    display: flex;
-    border-radius: var(--border-radius);
-    border: 1px solid lightgrey;
-    padding: 1rem;
-    --tw-bg-opacity: 1;
-    background-color: 
-    color-mix(in srgb, var(--surface-0) calc(100%* var(--tw-bg-opacity, 1)), transparent);
-    gap: 2rem;
-    flex-direction: column;
-    cursor: pointer;
-    width: 100%;
+:host ::ng-deep .custom-card .p-card-body {
+    padding: 0 1rem 1rem;
 }
 
-.text-surface-900 {
-    --tw-text-opacity: 1;
-    color: color-mix(in srgb, var(--surface-900) calc(100%* var(--tw-text-opacity, 1)), transparent);
+:host ::ng-deep .custom-card .p-card-content {
+    padding: 0;
 }
 
-:host ::ng-deep {
-    .drop-column {
-        border: 1px solid transparent;
-        transition: border-color .2s;
-    
-        &.p-draggable-enter {
-            border-color: var(--primary-color); 
-        }
-    }
-
-    [pDraggable] {
-        cursor: move;
+@media (max-width: 992px) {
+    .kanban-grid {
+        grid-template-columns: 1fr;
     }
 }

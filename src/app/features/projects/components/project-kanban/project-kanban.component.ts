@@ -1,115 +1,155 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { SharedModule } from '../../../../shared/shared.module';
-import { DragDropModule } from 'primeng/dragdrop';
+import { Message } from 'primeng/api';
+import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.client';
+import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.client';
+import { TaskItemDto } from '../../../../core/api/models/task-item.model';
+import { TaskStatus } from '../../../../core/api/models/task-status.enum';
+import { ProjectDto } from '../../../../core/api/models/project.model';
+
+interface KanbanColumn {
+  status: TaskStatus;
+  label: string;
+}
 
 @Component({
   selector: 'app-project-kanban',
   standalone: true,
-  imports: [CommonModule, SharedModule, DragDropModule],
+  imports: [CommonModule, SharedModule],
   templateUrl: './project-kanban.component.html',
   styleUrl: './project-kanban.component.scss'
 })
-export class ProjectKanbanComponent {
-  taskStatus = ['To Do', 'In Progress', 'Done', 'Blocked'];
-  public type = '';
-  public draggedTask: any;
-  public todos = [
-    {
-      id: 1,
-      name: 'Set up theme',
-      description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book`,
-      assignee: 'John Doe',
-      createdOn: new Date(),
-      status: 'Blocked',
-    },
-    {
-      id: 2,
-      name: 'Develop layout',
-      description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book`,
-      assignee: 'Will Smith',
-      createdOn: new Date(),
-      status: 'To Do',
-    },
-    {
-      id: 3,
-      name: 'Develop Auth Module',
-      description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book`,
-      assignee: 'James Aninston',
-      createdOn: new Date(),
-      status: 'To Do',
-    },
-    {
-      id: 4,
-      name: 'Develop layout',
-      description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book`,
-      assignee: 'Will Smith',
-      createdOn: new Date(),
-      status: 'In Progress',
-    },
-    {
-      id: 5,
-      name: 'Develop layout',
-      description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book`,
-      assignee: 'Will Smith',
-      createdOn: new Date(),
-      status: 'In Progress',
-    },
-    {
-      id: 6,
-      name: 'Develop layout',
-      description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book`,
-      assignee: 'John Doe',
-      createdOn: new Date(),
-      status: 'Done',
-    },
+export class ProjectKanbanComponent implements OnInit, OnDestroy {
+  private readonly projectsApiClient = inject(ProjectsApiClient);
+  private readonly taskItemsApiClient = inject(TaskItemsApiClient);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly destroy$ = new Subject<void>();
+
+  readonly columns: KanbanColumn[] = [
+    { status: TaskStatus.Todo, label: 'To Do' },
+    { status: TaskStatus.InProgress, label: 'In Progress' },
+    { status: TaskStatus.Done, label: 'Done' }
   ];
 
-  constructor() { }
+  projects: ProjectDto[] = [];
+  selectedProjectId: string | null = null;
 
-  getTasksByStatus(status: string): any[] {
-    return this.todos.filter(task => task.status === status);
+  isLoadingProjects = true;
+  isLoadingTasks = false;
+  errors: Message[] = [];
+
+  private readonly groupedTasks: Record<TaskStatus, TaskItemDto[]> = {
+    [TaskStatus.Todo]: [],
+    [TaskStatus.InProgress]: [],
+    [TaskStatus.Done]: []
+  };
+
+  ngOnInit(): void {
+    this.loadProjects();
   }
 
-  dragStart(event: DragEvent, task: any) {
-    this.draggedTask = task;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  dragEnd() {
-    this.draggedTask = null;
+  onProjectSelected(projectId: string | null): void {
+    if (!projectId || projectId === this.selectedProjectId) {
+      return;
+    }
+
+    this.updateProjectQueryParam(projectId);
   }
 
-  drop(event: any, newStatus: string) {
-    if (this.draggedTask) {
-      const taskIndex = this.todos.findIndex(t => t.id === this.draggedTask!.id);
+  getTasksByStatus(status: TaskStatus): TaskItemDto[] {
+    return this.groupedTasks[status];
+  }
 
-      if (taskIndex !== -1) {
-        this.todos[taskIndex] = {
-          ...this.todos[taskIndex],
-          status: newStatus
-        };
+  trackByTaskId(_: number, task: TaskItemDto): string {
+    return task.id;
+  }
 
-        this.saveChanges();
+  private loadProjects(): void {
+    this.isLoadingProjects = true;
+    this.errors = [];
+
+    this.projectsApiClient
+      .getProjects({ page: 1, pageSize: 200 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (projects) => {
+          this.projects = projects;
+          this.isLoadingProjects = false;
+          this.observeProjectSelection();
+        },
+        error: () => {
+          this.isLoadingProjects = false;
+          this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load projects for Kanban board.' }];
+        }
+      });
+  }
+
+  private observeProjectSelection(): void {
+    this.activatedRoute.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((queryParams) => {
+      if (this.projects.length === 0) {
+        this.selectedProjectId = null;
+        this.clearTasks();
+        return;
       }
 
-      this.draggedTask = null;
-    }
+      const queryProjectId = queryParams.get('projectId');
+      const hasQueryProject = !!queryProjectId && this.projects.some((project) => project.id === queryProjectId);
+      const resolvedProjectId = hasQueryProject ? queryProjectId : this.projects[0].id;
+
+      if (!hasQueryProject && queryProjectId !== resolvedProjectId) {
+        this.updateProjectQueryParam(resolvedProjectId);
+        return;
+      }
+
+      if (resolvedProjectId !== this.selectedProjectId) {
+        this.selectedProjectId = resolvedProjectId;
+        this.loadTasksForProject(resolvedProjectId);
+      }
+    });
   }
 
-  saveChanges() {
-    console.log('Tasks updated:', this.todos);
+  private updateProjectQueryParam(projectId: string): void {
+    void this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { projectId },
+      queryParamsHandling: 'merge'
+    });
   }
 
-  addNewTask(status: string) {
-    const newTask: any = {
-      id: this.todos.length + 1,
-      name: 'New Task',
-      description: 'Add description here',
-      status: status,
-      createdOn: new Date(),
-      assignee: 'John Doe'
-    };
+  private loadTasksForProject(projectId: string): void {
+    this.isLoadingTasks = true;
+    this.errors = [];
+    this.clearTasks();
 
-    this.todos.push(newTask);
+    this.taskItemsApiClient
+      .getTasks({ projectId, page: 1, pageSize: 500 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (tasks) => {
+          this.groupedTasks[TaskStatus.Todo] = tasks.filter((task) => task.status === TaskStatus.Todo);
+          this.groupedTasks[TaskStatus.InProgress] = tasks.filter((task) => task.status === TaskStatus.InProgress);
+          this.groupedTasks[TaskStatus.Done] = tasks.filter((task) => task.status === TaskStatus.Done);
+          this.isLoadingTasks = false;
+        },
+        error: () => {
+          this.isLoadingTasks = false;
+          this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load tasks for selected project.' }];
+        }
+      });
+  }
+
+  private clearTasks(): void {
+    this.groupedTasks[TaskStatus.Todo] = [];
+    this.groupedTasks[TaskStatus.InProgress] = [];
+    this.groupedTasks[TaskStatus.Done] = [];
   }
 }
