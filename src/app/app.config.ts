@@ -8,12 +8,13 @@ import { MessageService } from 'primeng/api';
 import { environment } from '../environments/environment';
 import { APP_ENVIRONMENT } from './core/config/app-environment.token';
 import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
+import { problemDetailsInterceptor } from './core/http/interceptors/problem-details.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, problemDetailsInterceptor])),
     provideAnimations(),
     MessageService,
     {
