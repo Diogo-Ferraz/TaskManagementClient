@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitemComponent } from '../app-menuitem/app-menuitem.component';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-menu',
@@ -11,6 +12,7 @@ import { AppMenuitemComponent } from '../app-menuitem/app-menuitem.component';
   styleUrl: './app-menu.component.scss'
 })
 export class AppMenuComponent {
+  private readonly authService = inject(AuthService);
   model: MenuItem[] = [];
 
   ngOnInit() {
@@ -42,6 +44,11 @@ export class AppMenuComponent {
           { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/calendar'] },
           { label: 'Project Docs', icon: 'pi pi-fw pi-book', routerLink: ['/docs'] }
         ]
+      },
+      {
+        label: 'Administration',
+        visible: this.authService.hasRole('Administrator'),
+        items: [{ label: 'Admin Dashboard', icon: 'pi pi-fw pi-shield', routerLink: ['/admin'] }]
       }
     ];
   }

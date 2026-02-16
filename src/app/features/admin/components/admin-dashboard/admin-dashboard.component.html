@@ -1,0 +1,120 @@
+<p-card styleClass="admin-users-card">
+  <ng-template pTemplate="header">
+    <div class="admin-users-header">
+      <div>
+        <h2 class="admin-users-title">Admin User Management</h2>
+        <p class="admin-users-subtitle">Manage user access state and review account roles.</p>
+      </div>
+      <button
+        pButton
+        type="button"
+        [icon]="isExporting ? 'pi pi-spin pi-spinner' : 'pi pi-file-excel'"
+        label="Export (Excel CSV)"
+        class="p-button-outlined"
+        (click)="exportUsersAsExcelCompatibleCsv()"
+        [disabled]="isLoading || isExporting">
+      </button>
+    </div>
+  </ng-template>
+
+  <div class="admin-users-filters">
+    <span class="p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        placeholder="Search by name, username, or email"
+        [(ngModel)]="search"
+        (keyup.enter)="applyFilters()"
+        [disabled]="isLoading" />
+    </span>
+
+    <p-dropdown
+      [options]="statusOptions"
+      [(ngModel)]="selectedStatus"
+      optionLabel="label"
+      optionValue="value"
+      [showClear]="false"
+      [disabled]="isLoading"
+      placeholder="Status">
+    </p-dropdown>
+
+    <p-dropdown
+      [options]="roleOptions"
+      [(ngModel)]="selectedRole"
+      optionLabel="label"
+      optionValue="value"
+      [showClear]="false"
+      [disabled]="isLoading"
+      placeholder="Role">
+    </p-dropdown>
+
+    <div class="admin-users-filter-actions">
+      <button pButton type="button" icon="pi pi-filter" label="Apply" (click)="applyFilters()" [disabled]="isLoading"></button>
+      <button pButton type="button" icon="pi pi-times" label="Clear" class="p-button-text" (click)="clearFilters()" [disabled]="isLoading"></button>
+    </div>
+  </div>
+
+  <p-table
+    [value]="users"
+    [lazy]="true"
+    [loading]="isLoading"
+    [paginator]="true"
+    [rows]="rows"
+    [first]="first"
+    [totalRecords]="totalRecords"
+    [rowsPerPageOptions]="[10, 25, 50, 100]"
+    [tableStyle]="{ 'min-width': '72rem' }"
+    dataKey="id"
+    (onLazyLoad)="onLazyLoad($event)">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>User</th>
+        <th>Email</th>
+        <th>Roles</th>
+        <th>Status</th>
+        <th class="text-right">Toggle Active</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-user let-rowIndex="rowIndex">
+      <tr>
+        <td>
+          <div class="admin-user-cell">
+            <span class="admin-user-name">{{ user.displayName || user.userName || 'Unknown User' }}</span>
+            <small class="text-muted-color">{{ user.userName || '-' }}</small>
+          </div>
+        </td>
+        <td>{{ user.email || '-' }}</td>
+        <td>
+          <div class="admin-roles">
+            <p-tag *ngFor="let role of user.roles" [value]="role" severity="info"></p-tag>
+          </div>
+        </td>
+        <td>
+          <p-tag [value]="user.isActive ? 'Active' : 'Inactive'" [severity]="user.isActive ? 'success' : 'warning'"></p-tag>
+        </td>
+        <td class="text-right">
+          <p-inputSwitch
+            [ngModel]="user.isActive"
+            (ngModelChange)="onActiveStatusChange(user, $event)"
+            [disabled]="isStatusUpdating(user.id) || isLoading"
+            [pTooltip]="isStatusUpdating(user.id) ? 'Updating user status...' : ''"
+            tooltipPosition="top">
+          </p-inputSwitch>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5">
+          <div class="admin-empty">
+            No users found with the current filters.
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>

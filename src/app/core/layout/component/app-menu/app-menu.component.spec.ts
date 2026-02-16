@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { AppMenuComponent } from './app-menu.component';
+import { AuthService } from '../../../auth/services/auth.service';
 
 describe('AppMenuComponent', () => {
   let component: AppMenuComponent;
@@ -8,7 +11,15 @@ describe('AppMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppMenuComponent]
+      imports: [NoopAnimationsModule, RouterTestingModule, AppMenuComponent],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: {
+            hasRole: () => true
+          }
+        }
+      ]
     })
     .compileComponents();
 
