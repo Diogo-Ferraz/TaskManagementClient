@@ -327,6 +327,44 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     return this.columnTasks[status].length;
   }
 
+  getColumnIcon(status: TaskStatus): string {
+    switch (status) {
+      case TaskStatus.Todo:
+        return 'pi pi-list';
+      case TaskStatus.InProgress:
+        return 'pi pi-bolt';
+      case TaskStatus.Done:
+        return 'pi pi-check-circle';
+      default:
+        return 'pi pi-circle';
+    }
+  }
+
+  getColumnToneClass(status: TaskStatus): string {
+    switch (status) {
+      case TaskStatus.Todo:
+        return 'column-header--todo';
+      case TaskStatus.InProgress:
+        return 'column-header--progress';
+      case TaskStatus.Done:
+        return 'column-header--done';
+      default:
+        return '';
+    }
+  }
+
+  getColumnSubtitle(status: TaskStatus): string {
+    const count = this.getColumnTaskCount(status);
+    const noun = count === 1 ? 'task' : 'tasks';
+
+    if (this.selectedProjectTaskCount === 0) {
+      return `No ${noun} yet`;
+    }
+
+    const ratio = Math.round((count / this.selectedProjectTaskCount) * 100);
+    return `${count} ${noun} · ${ratio}%`;
+  }
+
   trackByTaskId(_: number, task: TaskItemDto): string {
     return task.id;
   }

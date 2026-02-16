@@ -115,13 +115,80 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.65rem;
   width: 100%;
-  padding: 1rem 1rem 0.75rem;
+  padding: 0.95rem 1rem 0.8rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.column-header__left {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.column-header__icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--surface-border);
+  background: color-mix(in srgb, var(--surface-100) 75%, transparent);
+  flex-shrink: 0;
+}
+
+.column-header__icon i {
+  font-size: 0.95rem;
+}
+
+.column-header__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .column-title {
-  font-size: 1.02rem;
+  font-size: 0.98rem;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+.column-subtitle {
+  font-size: 0.76rem;
+  color: var(--text-color-secondary);
+  line-height: 1.2;
+  margin-top: 0.12rem;
+}
+
+.column-header--todo .column-header__icon {
+  color: #1976d2;
+  border-color: color-mix(in srgb, #1976d2 35%, var(--surface-border));
+  background: color-mix(in srgb, #1976d2 12%, var(--surface-100));
+}
+
+.column-header--progress .column-header__icon {
+  color: #ff9800;
+  border-color: color-mix(in srgb, #ff9800 35%, var(--surface-border));
+  background: color-mix(in srgb, #ff9800 14%, var(--surface-100));
+}
+
+.column-header--done .column-header__icon {
+  color: #43a047;
+  border-color: color-mix(in srgb, #43a047 35%, var(--surface-border));
+  background: color-mix(in srgb, #43a047 14%, var(--surface-100));
+}
+
+:host ::ng-deep .column-count-chip {
+  font-size: 0.76rem;
+  min-width: 2rem;
+  justify-content: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-200) 82%, transparent);
+  color: var(--text-color);
+  border: 1px solid var(--surface-border);
 }
 
 .kanban-column-body {

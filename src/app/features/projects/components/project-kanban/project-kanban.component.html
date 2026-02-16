@@ -80,9 +80,17 @@
         <div class="kanban-column">
           <p-card class="custom-card kanban-column-card">
             <ng-template pTemplate="header">
-              <div class="column-header">
-                <span class="column-title">{{ column.label }}</span>
-                <p-chip [label]="getColumnTaskCount(column.status).toString()"></p-chip>
+              <div class="column-header" [ngClass]="getColumnToneClass(column.status)">
+                <div class="column-header__left">
+                  <span class="column-header__icon">
+                    <i [class]="getColumnIcon(column.status)"></i>
+                  </span>
+                  <div class="column-header__text">
+                    <span class="column-title">{{ column.label }}</span>
+                    <span class="column-subtitle">{{ getColumnSubtitle(column.status) }}</span>
+                  </div>
+                </div>
+                <p-chip styleClass="column-count-chip" [label]="getColumnTaskCount(column.status).toString()"></p-chip>
               </div>
             </ng-template>
 
