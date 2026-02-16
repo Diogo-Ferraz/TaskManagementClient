@@ -181,39 +181,52 @@
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
-  [style]="{ width: '34rem' }"
+  [style]="{ width: '40rem' }"
   (onHide)="closeTaskDialogs()">
-  <div class="task-dialog-form">
-    <div class="task-control">
-      <label>Title</label>
-      <input pInputText [(ngModel)]="taskForm.title" />
-    </div>
-
-    <div class="task-control">
-      <label>Description</label>
-      <textarea pInputTextarea rows="4" [(ngModel)]="taskForm.description"></textarea>
-    </div>
-
-    <div class="task-dialog-grid">
-      <div class="task-control">
-        <label>Status</label>
-        <p-dropdown [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="taskForm.status"></p-dropdown>
-      </div>
-
-      <div class="task-control">
-        <label>Assignee</label>
-        <p-dropdown [options]="assigneeOptions" optionLabel="label" optionValue="value" [(ngModel)]="taskForm.assignedUserId"></p-dropdown>
+  <div class="task-dialog-shell">
+    <div class="task-dialog-intro">
+      <span class="task-dialog-intro__icon"><i class="pi pi-pencil"></i></span>
+      <div>
+        <h3>Edit Task</h3>
+        <p>Update details, ownership, and delivery timeline.</p>
       </div>
     </div>
 
-    <div class="task-control">
-      <label>Due date</label>
-      <p-calendar [(ngModel)]="taskForm.dueDate" [showIcon]="true" [showButtonBar]="true" dateFormat="yy-mm-dd"></p-calendar>
-    </div>
+    <div class="task-dialog-form">
+      <div class="task-control">
+        <label for="editTaskTitle">Title</label>
+        <input id="editTaskTitle" pInputText [(ngModel)]="taskForm.title" placeholder="Task title" />
+      </div>
 
-    <div class="task-dialog-actions">
-      <button pButton type="button" label="Cancel" class="p-button-text" (click)="closeTaskDialogs()"></button>
-      <button pButton type="button" label="Save" icon="pi pi-check" [loading]="isSavingTask" [disabled]="!taskForm.title.trim()" (click)="saveEditTask()"></button>
+      <div class="task-control">
+        <label for="editTaskDescription">Description</label>
+        <textarea id="editTaskDescription" pInputTextarea rows="4" [(ngModel)]="taskForm.description" placeholder="Describe the task context and acceptance criteria"></textarea>
+      </div>
+
+      <div class="task-dialog-section">
+        <div class="task-dialog-section__title">Planning</div>
+        <div class="task-dialog-grid">
+          <div class="task-control">
+            <label for="editTaskStatus">Status</label>
+            <p-dropdown inputId="editTaskStatus" [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="taskForm.status"></p-dropdown>
+          </div>
+
+          <div class="task-control">
+            <label for="editTaskAssignee">Assignee</label>
+            <p-dropdown inputId="editTaskAssignee" [options]="assigneeOptions" optionLabel="label" optionValue="value" [(ngModel)]="taskForm.assignedUserId"></p-dropdown>
+          </div>
+        </div>
+
+        <div class="task-control">
+          <label for="editTaskDueDate">Due date</label>
+          <p-calendar inputId="editTaskDueDate" [(ngModel)]="taskForm.dueDate" [showIcon]="true" [showButtonBar]="true" dateFormat="yy-mm-dd" placeholder="Pick a due date" [appendTo]="'body'"></p-calendar>
+        </div>
+      </div>
+
+      <div class="task-dialog-actions">
+        <button pButton type="button" label="Cancel" class="p-button-text" (click)="closeTaskDialogs()"></button>
+        <button pButton type="button" label="Save changes" icon="pi pi-check" [loading]="isSavingTask" [disabled]="!taskForm.title.trim()" (click)="saveEditTask()"></button>
+      </div>
     </div>
   </div>
 </p-dialog>
@@ -224,39 +237,52 @@
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
-  [style]="{ width: '34rem' }"
+  [style]="{ width: '40rem' }"
   (onHide)="closeTaskDialogs()">
-  <div class="task-dialog-form">
-    <div class="task-control">
-      <label>Title</label>
-      <input pInputText [(ngModel)]="taskForm.title" />
-    </div>
-
-    <div class="task-control">
-      <label>Description</label>
-      <textarea pInputTextarea rows="4" [(ngModel)]="taskForm.description"></textarea>
-    </div>
-
-    <div class="task-dialog-grid">
-      <div class="task-control">
-        <label>Status</label>
-        <p-dropdown [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="taskForm.status"></p-dropdown>
-      </div>
-
-      <div class="task-control">
-        <label>Assignee</label>
-        <p-dropdown [options]="assigneeOptions" optionLabel="label" optionValue="value" [(ngModel)]="taskForm.assignedUserId"></p-dropdown>
+  <div class="task-dialog-shell">
+    <div class="task-dialog-intro">
+      <span class="task-dialog-intro__icon"><i class="pi pi-plus"></i></span>
+      <div>
+        <h3>Create Task</h3>
+        <p>Add a new work item to this project workflow.</p>
       </div>
     </div>
 
-    <div class="task-control">
-      <label>Due date</label>
-      <p-calendar [(ngModel)]="taskForm.dueDate" [showIcon]="true" [showButtonBar]="true" dateFormat="yy-mm-dd"></p-calendar>
-    </div>
+    <div class="task-dialog-form">
+      <div class="task-control">
+        <label for="createTaskTitle">Title</label>
+        <input id="createTaskTitle" pInputText [(ngModel)]="taskForm.title" placeholder="Task title" />
+      </div>
 
-    <div class="task-dialog-actions">
-      <button pButton type="button" label="Cancel" class="p-button-text" (click)="closeTaskDialogs()"></button>
-      <button pButton type="button" label="Create" icon="pi pi-plus" [loading]="isSavingTask" [disabled]="!taskForm.title.trim()" (click)="saveCreateTask()"></button>
+      <div class="task-control">
+        <label for="createTaskDescription">Description</label>
+        <textarea id="createTaskDescription" pInputTextarea rows="4" [(ngModel)]="taskForm.description" placeholder="Describe the task context and acceptance criteria"></textarea>
+      </div>
+
+      <div class="task-dialog-section">
+        <div class="task-dialog-section__title">Planning</div>
+        <div class="task-dialog-grid">
+          <div class="task-control">
+            <label for="createTaskStatus">Status</label>
+            <p-dropdown inputId="createTaskStatus" [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="taskForm.status"></p-dropdown>
+          </div>
+
+          <div class="task-control">
+            <label for="createTaskAssignee">Assignee</label>
+            <p-dropdown inputId="createTaskAssignee" [options]="assigneeOptions" optionLabel="label" optionValue="value" [(ngModel)]="taskForm.assignedUserId"></p-dropdown>
+          </div>
+        </div>
+
+        <div class="task-control">
+          <label for="createTaskDueDate">Due date</label>
+          <p-calendar inputId="createTaskDueDate" [(ngModel)]="taskForm.dueDate" [showIcon]="true" [showButtonBar]="true" dateFormat="yy-mm-dd" placeholder="Pick a due date" [appendTo]="'body'"></p-calendar>
+        </div>
+      </div>
+
+      <div class="task-dialog-actions">
+        <button pButton type="button" label="Cancel" class="p-button-text" (click)="closeTaskDialogs()"></button>
+        <button pButton type="button" label="Create task" icon="pi pi-plus" [loading]="isSavingTask" [disabled]="!taskForm.title.trim()" (click)="saveCreateTask()"></button>
+      </div>
     </div>
   </div>
 </p-dialog>
