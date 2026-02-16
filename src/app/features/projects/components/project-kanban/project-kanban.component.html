@@ -102,7 +102,12 @@
                     [class.kanban-drop-slot--active]="isDropSlotActive(column.status, taskIndex)"
                     (dragover)="onDropSlotDragOver(column.status, taskIndex, $event)"
                     (drop)="onDropAt(column.status, taskIndex, $event)">
-                    <article *ngIf="isDropSlotActive(column.status, taskIndex) && draggedTaskPreview as previewTask" class="task-card task-card--ghost">
+                    <article
+                      *ngIf="isDropSlotActive(column.status, taskIndex) && draggedTaskPreview as previewTask"
+                      class="task-card task-card--ghost"
+                      [class.task-card--todo]="column.status === 0"
+                      [class.task-card--in-progress]="column.status === 1"
+                      [class.task-card--done]="column.status === 2">
                       <div class="task-card__header">
                         <span class="task-card__title">{{ previewTask.title }}</span>
                       </div>
@@ -112,6 +117,9 @@
 
                   <article
                     class="task-card"
+                    [class.task-card--todo]="column.status === 0"
+                    [class.task-card--in-progress]="column.status === 1"
+                    [class.task-card--done]="column.status === 2"
                     [class.task-card--dragging]="isDraggingTask(task.id)"
                     [class.task-card--pending]="isTaskPending(task.id)"
                     [attr.draggable]="isTaskPending(task.id) ? 'false' : 'true'"
@@ -150,7 +158,12 @@
                   [class.kanban-drop-slot--active]="isDropSlotActive(column.status, getColumnTaskCount(column.status))"
                   (dragover)="onDropSlotDragOver(column.status, getColumnTaskCount(column.status), $event)"
                   (drop)="onDropAt(column.status, getColumnTaskCount(column.status), $event)">
-                  <article *ngIf="isDropSlotActive(column.status, getColumnTaskCount(column.status)) && draggedTaskPreview as previewTask" class="task-card task-card--ghost">
+                  <article
+                    *ngIf="isDropSlotActive(column.status, getColumnTaskCount(column.status)) && draggedTaskPreview as previewTask"
+                    class="task-card task-card--ghost"
+                    [class.task-card--todo]="column.status === 0"
+                    [class.task-card--in-progress]="column.status === 1"
+                    [class.task-card--done]="column.status === 2">
                     <div class="task-card__header">
                       <span class="task-card__title">{{ previewTask.title }}</span>
                     </div>
