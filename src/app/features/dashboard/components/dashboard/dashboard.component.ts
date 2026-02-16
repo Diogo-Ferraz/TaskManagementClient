@@ -17,6 +17,10 @@ import {
   mapActivityToRecentActivity,
   RecentActivityViewModel
 } from '../../presenters/dashboard-activity.presenter';
+import {
+  ActivityHeatmapComponent,
+  HeatmapDayCell
+} from '../../../../shared/components/activity-heatmap/activity-heatmap.component';
 
 interface DashboardCard {
   title: string;
@@ -30,7 +34,7 @@ interface DashboardCard {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [SharedModule, ChartModule, MessagesModule],
+  imports: [SharedModule, ChartModule, MessagesModule, ActivityHeatmapComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -50,6 +54,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   taskStatusChartData: any;
   taskStatusChartOptions: any;
+  summarySnapshot: DashboardSummaryDto | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -79,6 +84,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: ({ summary, activity }) => {
+          this.summarySnapshot = summary;
           this.dashboardCards = this.mapDashboardCards(summary);
           this.activityEvents = activity;
           this.recentActivities = activity.map((event) => mapActivityToRecentActivity(event));
@@ -88,23 +94,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
         error: () => {
           const isDebugSession = this.authService.authSession()?.isDebugSession;
-          this.errorMessages = [
-            {
-              severity: isDebugSession ? 'warn' : 'error',
-              summary: isDebugSession ? 'Preview mode' : 'Error',
-              detail: isDebugSession
-                ? 'Backend unavailable. Showing preview dashboard content.'
-                : 'Could not fetch dashboard information.'
-            }
-          ];
 
           if (isDebugSession) {
+            this.errorMessages = [];
             this.isPreviewMode = true;
+            this.summarySnapshot = {
+              assignedTasksCount: 9,
+              tasksClosedThisWeekCount: 6,
+              projectsCount: 4,
+              overdueAssignedTasksCount: 2
+            };
             this.dashboardCards = this.getPreviewCards();
             this.activityEvents = this.createPreviewActivity();
             this.recentActivities = this.activityEvents.map((event) => mapActivityToRecentActivity(event));
             this.prepareChartData(this.activityEvents);
           } else {
+            this.errorMessages = [
+              {
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Could not fetch dashboard information.'
+              }
+            ];
+            this.summarySnapshot = null;
             this.dashboardCards = this.getDefaultCards();
             this.activityEvents = [];
             this.recentActivities = [];
@@ -236,13 +248,64 @@ export class DashboardComponent implements OnInit, OnDestroy {
       datasets: [
         {
           data: values,
-          backgroundColor: ['#64748B', '#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#14B8A6', '#EC4899', '#0EA5E9'],
-          hoverBackgroundColor: ['#475569', '#2563EB', '#7C3AED', '#059669', '#D97706', '#DC2626', '#0D9488', '#DB2777', '#0284C7'],
+          backgroundColor: ['#D4E8FF', '#CFEAE4', '#FDE5C9', '#F9D9E2', '#E2D9F8', '#FFE1D6', '#D9F1F0', '#DDE7FF', '#FBE6EF'],
+          hoverBackgroundColor: ['#BEDCFD', '#B8DED5', '#F9D7B1', '#F5C7D4', '#D5C8F2', '#FFD2C3', '#CAE8E6', '#CFDBFD', '#F6D8E7'],
           borderColor: document.documentElement.style.getPropertyValue('--surface-ground') || '#ffffff',
           borderWidth: 1
         }
       ]
     };
+  }
+
+  get completionRateValue(): number {
+    if (!this.summarySnapshot) {
+      return 0;
+    }
+
+    const denominator = this.summarySnapshot.assignedTasksCount + this.summarySnapshot.tasksClosedThisWeekCount;
+    if (denominator <= 0) {
+      return 0;
+    }
+
+    return Math.round((this.summarySnapshot.tasksClosedThisWeekCount / denominator) * 100);
+  }
+
+  get heatmapWeeks(): HeatmapDayCell[][] {
+    const today = this.startOfDay(new Date());
+    const start = new Date(today);
+    start.setDate(start.getDate() - 83); // 12 weeks
+    const startAligned = this.startOfWeek(start);
+
+    const countsByDay = new Map<string, number>();
+    for (const event of this.activityEvents) {
+      const eventDate = this.startOfDay(new Date(event.occurredAt));
+      const key = this.dateKey(eventDate);
+      countsByDay.set(key, (countsByDay.get(key) ?? 0) + 1);
+    }
+
+    const cells: HeatmapDayCell[] = [];
+    const cursor = new Date(startAligned);
+    while (cursor <= today) {
+      const key = this.dateKey(cursor);
+      const count = countsByDay.get(key) ?? 0;
+      cells.push({
+        date: new Date(cursor),
+        count,
+        intensityLevel: this.toHeatmapLevel(count)
+      });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    const weeks: HeatmapDayCell[][] = [];
+    for (let i = 0; i < cells.length; i += 7) {
+      weeks.push(cells.slice(i, i + 7));
+    }
+
+    return weeks;
+  }
+
+  get heatmapTotalActivities(): number {
+    return this.activityEvents.length;
   }
 
   private createPreviewActivity(): ActivityLogDto[] {
@@ -309,5 +372,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.recentActivities = [mappedEvent, ...this.recentActivities].slice(0, this.activityHistoryLimit);
         this.prepareChartData(this.activityEvents);
       });
+  }
+
+  private toHeatmapLevel(count: number): number {
+    if (count <= 0) {
+      return 0;
+    }
+    if (count === 1) {
+      return 1;
+    }
+    if (count <= 3) {
+      return 2;
+    }
+    if (count <= 5) {
+      return 3;
+    }
+    return 4;
+  }
+
+  private startOfDay(value: Date): Date {
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+  }
+
+  private startOfWeek(value: Date): Date {
+    const day = value.getDay();
+    const diff = day === 0 ? -6 : 1 - day; // Monday-start
+    const start = new Date(value);
+    start.setDate(start.getDate() + diff);
+    return this.startOfDay(start);
+  }
+
+  private dateKey(value: Date): string {
+    const y = value.getFullYear();
+    const m = String(value.getMonth() + 1).padStart(2, '0');
+    const d = String(value.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 }

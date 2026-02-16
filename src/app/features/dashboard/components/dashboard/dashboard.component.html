@@ -17,6 +17,7 @@
       <p-skeleton height="3rem"></p-skeleton>
     </p-card>
   </div>
+
 </div>
 
 <div *ngIf="!isLoading" class="dashboard-grid-container">
@@ -44,6 +45,12 @@
   </div>
 
   <div class="dashboard-row dashboard-row-2">
+    <p-card header="Task Activity Heatmap" class="dashboard-panel-card">
+      <ng-template pTemplate="content">
+        <app-activity-heatmap [weeks]="heatmapWeeks" [totalActivities]="heatmapTotalActivities"></app-activity-heatmap>
+      </ng-template>
+    </p-card>
+
     <p-card header="Activity Event Distribution" class="dashboard-panel-card">
       <ng-template pTemplate="content">
         <div class="dashboard-panel-card__body">
@@ -56,25 +63,41 @@
         </div>
       </ng-template>
     </p-card>
+  </div>
 
-    <p-card [header]="isPreviewMode ? 'Recent Activity (Preview)' : 'Recent Activity (Live)'" class="dashboard-panel-card">
-      <ng-template pTemplate="content">
-        <div class="dashboard-scroll">
-          <ul class="list-none p-0 m-0">
-            <li *ngFor="let activity of recentActivities; let isLast = last" class="flex align-items-center py-3" [ngClass]="{'border-bottom-1 surface-border': !isLast}">
-              <div class="w-3rem h-3rem flex align-items-center justify-content-center border-circle mr-3 flex-shrink-0" [ngClass]="activity.bgColor">
-                <i class="{{ activity.icon }} text-xl" [ngClass]="activity.iconColor"></i>
-              </div>
-              <div class="flex-1">
-                <span class="block text-surface-900 dark:text-surface-0" [innerHTML]="activity.summary"></span>
-                <span class="text-muted-color text-sm">{{ activity.time }}</span>
-              </div>
-            </li>
-            <li *ngIf="recentActivities.length === 0" class="dashboard-empty">
-              No recent activity available.
-            </li>
-          </ul>
+  <div class="dashboard-row dashboard-row-2">
+    <p-card header="Focus Today" class="dashboard-panel-card dashboard-panel-card--compact">
+      <div class="focus-list">
+        <div class="focus-item">
+          <span class="text-muted-color">Completion rate</span>
+          <strong>{{ completionRateValue }}%</strong>
         </div>
+        <p-progressBar [value]="completionRateValue"></p-progressBar>
+
+        <div class="focus-tags">
+          <p-tag [value]="'Assigned: ' + (summarySnapshot?.assignedTasksCount ?? 0)" severity="info"></p-tag>
+          <p-tag [value]="'Closed: ' + (summarySnapshot?.tasksClosedThisWeekCount ?? 0)" severity="success"></p-tag>
+          <p-tag [value]="'Overdue: ' + (summarySnapshot?.overdueAssignedTasksCount ?? 0)" severity="warning"></p-tag>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card [header]="isPreviewMode ? 'Recent Activity (Preview)' : 'Recent Activity (Live)'" class="dashboard-panel-card dashboard-panel-card--compact dashboard-activity-card">
+      <ng-template pTemplate="content">
+        <ul class="list-none p-0 m-0">
+          <li *ngFor="let activity of recentActivities; let isLast = last" class="flex align-items-center py-3" [ngClass]="{'border-bottom-1 surface-border': !isLast}">
+            <div class="w-3rem h-3rem flex align-items-center justify-content-center border-circle mr-3 flex-shrink-0" [ngClass]="activity.bgColor">
+              <i class="{{ activity.icon }} text-xl" [ngClass]="activity.iconColor"></i>
+            </div>
+            <div class="flex-1">
+              <span class="block text-surface-900 dark:text-surface-0" [innerHTML]="activity.summary"></span>
+              <span class="text-muted-color text-sm">{{ activity.time }}</span>
+            </div>
+          </li>
+          <li *ngIf="recentActivities.length === 0" class="dashboard-empty">
+            No recent activity available.
+          </li>
+        </ul>
       </ng-template>
     </p-card>
   </div>

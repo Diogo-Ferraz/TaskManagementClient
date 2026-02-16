@@ -15,11 +15,14 @@
         width: 20rem;
         display: flex;
         align-items: center;
+        min-width: 20rem;
     }
 
     .layout-topbar-logo {
         display: inline-flex;
         align-items: center;
+        flex-wrap: nowrap;
+        white-space: nowrap;
         font-size: 1.5rem;
         border-radius: var(--border-radius);
         color: var(--text-color);
@@ -28,6 +31,28 @@
 
         svg {
             width: 3rem;
+        }
+    }
+
+    .topbar-preview-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-left: 0.35rem;
+        padding: 0.22rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--orange-500) 45%, transparent);
+        background: color-mix(in srgb, var(--orange-100) 72%, transparent);
+        color: var(--orange-700);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        line-height: 1;
+        flex-shrink: 0;
+
+        i {
+            font-size: 0.72rem;
         }
     }
 
@@ -102,6 +127,13 @@
 
         .layout-topbar-logo-container {
             width: auto;
+            min-width: auto;
+        }
+
+        .topbar-preview-badge {
+            margin-left: 0.25rem;
+            padding: 0.2rem 0.45rem;
+            font-size: 0.65rem;
         }
 
         .layout-menu-button {

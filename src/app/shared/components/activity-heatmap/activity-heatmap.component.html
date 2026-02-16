@@ -1,0 +1,23 @@
+<div class="heatmap-widget">
+  <div class="heatmap-canvas-shell">
+    <div class="heatmap-canvas-wrap" #canvasWrap>
+      <canvas
+        #heatmapCanvas
+        class="heatmap-canvas"
+        (mousemove)="onCanvasMouseMove($event)"
+        (mouseleave)="onCanvasMouseLeave()">
+      </canvas>
+    </div>
+  </div>
+
+  <div class="heatmap-footer">
+    <span class="heatmap-meta">{{ hoverText || (totalActivities + ' activity events in the last 12 weeks') }}</span>
+
+    <div class="heatmap-legend">
+      <div class="heatmap-legend-item" *ngFor="let range of legendRanges">
+        <span class="heatmap-legend-swatch" [style.background-color]="'var(' + range.colorVar + ')'"></span>
+        <span class="heatmap-legend-label">{{ range.label }}</span>
+      </div>
+    </div>
+  </div>
+</div>

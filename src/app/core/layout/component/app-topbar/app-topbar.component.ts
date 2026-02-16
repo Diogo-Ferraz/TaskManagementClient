@@ -33,4 +33,8 @@ export class AppTopbarComponent {
   get homeRoute(): string {
     return this.authService.isAuthenticated() ? '/dashboard' : '/';
   }
+
+  get isPreviewMode(): boolean {
+    return this.authService.authSession()?.isDebugSession === true;
+  }
 }

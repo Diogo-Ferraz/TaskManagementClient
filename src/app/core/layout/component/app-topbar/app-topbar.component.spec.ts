@@ -19,6 +19,7 @@ describe('AppTopbarComponent', () => {
           provide: AuthService,
           useValue: {
             isAuthenticated: () => true,
+            authSession: () => null,
             startLoginRedirect: jasmine.createSpy('startLoginRedirect').and.resolveTo(),
             logout: jasmine.createSpy('logout')
           }
