@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Message, MessageService } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.client';
 import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.client';
 import { ProjectDto } from '../../../../core/api/models/project.model';
-import { PatchTaskItemRequest, TaskItemDto } from '../../../../core/api/models/task-item.model';
+import { CreateTaskItemRequest, PatchTaskItemRequest, TaskItemDto } from '../../../../core/api/models/task-item.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
@@ -22,10 +24,28 @@ interface AssigneeOption {
   value: string | null;
 }
 
+interface TaskLocation {
+  status: TaskStatus;
+  index: number;
+}
+
+interface StatusOption {
+  label: string;
+  value: TaskStatus;
+}
+
+interface TaskFormModel {
+  title: string;
+  description: string;
+  status: TaskStatus;
+  assignedUserId: string | null;
+  dueDate: Date | null;
+}
+
 @Component({
   selector: 'app-project-kanban',
   standalone: true,
-  imports: [CommonModule, SharedModule],
+  imports: [CommonModule, SharedModule, DialogModule, InputTextareaModule],
   templateUrl: './project-kanban.component.html',
   styleUrl: './project-kanban.component.scss'
 })
@@ -45,6 +65,12 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     { status: TaskStatus.Done, label: 'Done' }
   ];
 
+  readonly statusOptions: StatusOption[] = [
+    { label: 'To Do', value: TaskStatus.Todo },
+    { label: 'In Progress', value: TaskStatus.InProgress },
+    { label: 'Done', value: TaskStatus.Done }
+  ];
+
   projects: ProjectDto[] = [];
   selectedProjectId: string | null = null;
   assigneeOptions: AssigneeOption[] = [{ label: 'Unassigned', value: null }];
@@ -52,11 +78,62 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   isLoadingProjects = true;
   isLoadingTasks = false;
   isPreviewMode = false;
+  previewDetail: string | null = null;
   errors: Message[] = [];
 
+  isEditDialogVisible = false;
+  isCreateDialogVisible = false;
+  isSavingTask = false;
+  editTaskId: string | null = null;
+
+  taskForm: TaskFormModel = {
+    title: '',
+    description: '',
+    status: TaskStatus.Todo,
+    assignedUserId: null,
+    dueDate: null
+  };
+
   private allTasks: TaskItemDto[] = [];
+  private dueDateModels = new Map<string, Date | null>();
   private pendingTaskIds = new Set<string>();
   private draggedTaskId: string | null = null;
+  private draggedTaskSnapshot: TaskItemDto | null = null;
+  private dragImageElement: HTMLElement | null = null;
+  private draggedFromStatus: TaskStatus | null = null;
+  private draggedFromIndex: number | null = null;
+  private dropTargetStatus: TaskStatus | null = null;
+  private dropTargetIndex: number | null = null;
+
+  readonly columnTasks: Record<TaskStatus, TaskItemDto[]> = {
+    [TaskStatus.Todo]: [],
+    [TaskStatus.InProgress]: [],
+    [TaskStatus.Done]: []
+  };
+
+  get selectedProject(): ProjectDto | null {
+    return this.projects.find((project) => project.id === this.selectedProjectId) ?? null;
+  }
+
+  get selectedProjectTaskCount(): number {
+    return this.allTasks.length;
+  }
+
+  get selectedProjectIndex(): number {
+    if (!this.selectedProjectId) {
+      return -1;
+    }
+
+    return this.projects.findIndex((project) => project.id === this.selectedProjectId);
+  }
+
+  get canSelectPreviousProject(): boolean {
+    return this.selectedProjectIndex > 0;
+  }
+
+  get canSelectNextProject(): boolean {
+    return this.selectedProjectIndex >= 0 && this.selectedProjectIndex < this.projects.length - 1;
+  }
 
   ngOnInit(): void {
     this.loadProjects();
@@ -75,8 +152,179 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     this.updateProjectQueryParam(projectId);
   }
 
+  selectPreviousProject(): void {
+    if (!this.canSelectPreviousProject) {
+      return;
+    }
+
+    const previousProject = this.projects[this.selectedProjectIndex - 1];
+    this.onProjectSelected(previousProject.id);
+  }
+
+  selectNextProject(): void {
+    if (!this.canSelectNextProject) {
+      return;
+    }
+
+    const nextProject = this.projects[this.selectedProjectIndex + 1];
+    this.onProjectSelected(nextProject.id);
+  }
+
+  openCreateTask(status: TaskStatus): void {
+    if (!this.selectedProjectId) {
+      return;
+    }
+
+    this.taskForm = {
+      title: '',
+      description: '',
+      status,
+      assignedUserId: null,
+      dueDate: null
+    };
+
+    this.editTaskId = null;
+    this.isCreateDialogVisible = true;
+  }
+
+  openEditTask(task: TaskItemDto): void {
+    this.editTaskId = task.id;
+    this.taskForm = {
+      title: task.title,
+      description: task.description ?? '',
+      status: task.status,
+      assignedUserId: task.assignedUserId ?? null,
+      dueDate: this.getDueDateModel(task.id)
+    };
+
+    this.isEditDialogVisible = true;
+  }
+
+  closeTaskDialogs(): void {
+    this.isEditDialogVisible = false;
+    this.isCreateDialogVisible = false;
+    this.isSavingTask = false;
+    this.editTaskId = null;
+  }
+
+  saveCreateTask(): void {
+    const title = this.taskForm.title.trim();
+    if (!title || !this.selectedProjectId || this.isSavingTask) {
+      return;
+    }
+
+    const request: CreateTaskItemRequest = {
+      projectId: this.selectedProjectId,
+      title,
+      description: this.taskForm.description.trim() || null,
+      status: this.taskForm.status,
+      dueDate: this.taskForm.dueDate ? this.taskForm.dueDate.toISOString() : null,
+      assignedUserId: this.taskForm.assignedUserId
+    };
+
+    if (this.isPreviewMode) {
+      const now = new Date().toISOString();
+      const localTask: TaskItemDto = {
+        id: `preview-${Math.random().toString(36).slice(2, 10)}`,
+        title: request.title,
+        description: request.description,
+        status: request.status ?? TaskStatus.Todo,
+        dueDate: request.dueDate,
+        projectId: this.selectedProjectId,
+        projectName: this.selectedProject?.name ?? 'Preview Project',
+        assignedUserId: request.assignedUserId,
+        assignedUserName: this.resolveAssigneeName(request.assignedUserId ?? null),
+        createdAt: now,
+        createdByUserId: 'debug-user',
+        createdByUserName: 'Debug User',
+        lastModifiedAt: now,
+        lastModifiedByUserId: 'debug-user',
+        lastModifiedByUserName: 'Debug User'
+      };
+
+      this.setAllTasks([...this.allTasks, localTask]);
+      this.closeTaskDialogs();
+      this.messageService.add({ severity: 'success', summary: 'Created', detail: 'Task created in preview mode.' });
+      return;
+    }
+
+    this.isSavingTask = true;
+    this.taskItemsApiClient
+      .create(request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (createdTask) => {
+          this.setAllTasks([...this.allTasks, createdTask]);
+          this.closeTaskDialogs();
+          this.messageService.add({ severity: 'success', summary: 'Created', detail: 'Task created successfully.' });
+        },
+        error: () => {
+          this.isSavingTask = false;
+        }
+      });
+  }
+
+  saveEditTask(): void {
+    const taskId = this.editTaskId;
+    const title = this.taskForm.title.trim();
+
+    if (!taskId || !title || this.isSavingTask) {
+      return;
+    }
+
+    const task = this.findTaskById(taskId);
+    if (!task) {
+      return;
+    }
+
+    const dueDate = this.taskForm.dueDate ? this.taskForm.dueDate.toISOString() : null;
+    const description = this.taskForm.description.trim() || null;
+    const assignedUserId = this.taskForm.assignedUserId;
+    const status = this.taskForm.status;
+
+    if (this.isPreviewMode) {
+      this.applyTaskUpdateLocal(taskId, {
+        title,
+        description,
+        status,
+        assignedUserId,
+        dueDate
+      });
+      this.closeTaskDialogs();
+      this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Task updated in preview mode.' });
+      return;
+    }
+
+    this.isSavingTask = true;
+    const payload: PatchTaskItemRequest = {
+      title,
+      description,
+      status,
+      assignedUserId,
+      dueDate
+    };
+
+    this.taskItemsApiClient
+      .patch(taskId, payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedTask) => {
+          this.replaceTask(updatedTask);
+          this.closeTaskDialogs();
+          this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Task updated successfully.' });
+        },
+        error: () => {
+          this.isSavingTask = false;
+        }
+      });
+  }
+
   getTasksByStatus(status: TaskStatus): TaskItemDto[] {
-    return this.allTasks.filter((task) => task.status === status);
+    return this.columnTasks[status];
+  }
+
+  getColumnTaskCount(status: TaskStatus): number {
+    return this.columnTasks[status].length;
   }
 
   trackByTaskId(_: number, task: TaskItemDto): string {
@@ -87,52 +335,138 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     return this.pendingTaskIds.has(taskId);
   }
 
-  onDragStart(task: TaskItemDto): void {
+  isDraggingTask(taskId: string): boolean {
+    return this.draggedTaskId === taskId;
+  }
+
+  isDropSlotActive(status: TaskStatus, index: number): boolean {
+    return this.dropTargetStatus === status && this.dropTargetIndex === index;
+  }
+
+  get draggedTaskPreview(): TaskItemDto | null {
+    return this.draggedTaskSnapshot;
+  }
+
+  onDragStart(task: TaskItemDto, status?: TaskStatus, index?: number, event?: DragEvent): void {
     if (this.isTaskPending(task.id)) {
       return;
     }
 
-    this.draggedTaskId = task.id;
-  }
-
-  onDragEnd(): void {
-    this.draggedTaskId = null;
-  }
-
-  onDrop(newStatus: TaskStatus): void {
-    if (this.isPreviewMode) {
+    const location = status !== undefined && index !== undefined ? { status, index } : this.findTaskLocation(task.id);
+    if (!location) {
       return;
     }
 
+    this.draggedTaskId = task.id;
+    this.draggedTaskSnapshot = { ...task };
+    this.draggedFromStatus = location.status;
+    this.draggedFromIndex = location.index;
+
+    if (event?.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', task.id);
+
+      const dragSource = event.currentTarget;
+      if (dragSource instanceof HTMLElement) {
+        this.attachCustomDragImage(event, dragSource);
+      }
+    }
+  }
+
+  onDragEnd(): void {
+    this.resetDragState();
+  }
+
+  onDrop(newStatus: TaskStatus): void {
+    const endIndex = this.getTasksByStatus(newStatus).length;
+    this.onDropAt(newStatus, endIndex);
+  }
+
+  onDropSlotDragOver(status: TaskStatus, index: number, event: DragEvent): void {
     if (!this.draggedTaskId) {
       return;
     }
 
-    const task = this.findTaskById(this.draggedTaskId);
-    if (!task) {
-      this.draggedTaskId = null;
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+
+    this.dropTargetStatus = status;
+    this.dropTargetIndex = index;
+  }
+
+  onTaskDragOver(status: TaskStatus, taskIndex: number, event: DragEvent): void {
+    if (!this.draggedTaskId) {
       return;
     }
 
-    if (task.status === newStatus || this.isTaskPending(task.id)) {
-      this.draggedTaskId = null;
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+
+    const target = event.currentTarget as HTMLElement | null;
+    if (!target) {
       return;
     }
 
-    this.draggedTaskId = null;
-    this.patchTaskWithOptimisticUpdate(
-      task,
-      { status: newStatus },
-      (draft) => {
-        draft.status = newStatus;
-      },
-      'Task status updated.',
-      'Could not update task status.'
-    );
+    const rect = target.getBoundingClientRect();
+    const midpointY = rect.top + rect.height / 2;
+    const pointerY = event.clientY;
+    const insertionIndex = pointerY < midpointY ? taskIndex : taskIndex + 1;
+
+    this.dropTargetStatus = status;
+    this.dropTargetIndex = insertionIndex;
+  }
+
+  onDropAt(status: TaskStatus, index: number, event?: DragEvent): void {
+    if (event) {
+      event.preventDefault();
+    }
+
+    if (!this.draggedTaskId || this.isTaskPending(this.draggedTaskId)) {
+      this.resetDragState();
+      return;
+    }
+
+    const taskId = this.draggedTaskId;
+    const previousTasksSnapshot = this.allTasks.map((task) => ({ ...task }));
+
+    const moveResult = this.moveTaskLocally(taskId, status, index);
+    this.resetDragState();
+
+    if (!moveResult.moved || this.isPreviewMode || !moveResult.statusChanged) {
+      return;
+    }
+
+    this.pendingTaskIds.add(taskId);
+    this.taskItemsApiClient
+      .patch(taskId, { status })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedTask) => {
+          this.replaceTask(updatedTask);
+          this.pendingTaskIds.delete(taskId);
+          this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Task status updated.' });
+        },
+        error: () => {
+          this.setAllTasks(previousTasksSnapshot);
+          this.pendingTaskIds.delete(taskId);
+          this.messageService.add({ severity: 'error', summary: 'Update failed', detail: 'Could not update task status.' });
+        }
+      });
   }
 
   onAssigneeChanged(task: TaskItemDto, assignedUserId: string | null): void {
     if (this.isPreviewMode) {
+      this.applyTaskUpdateLocal(task.id, {
+        title: task.title,
+        description: task.description ?? null,
+        status: task.status,
+        assignedUserId,
+        dueDate: task.dueDate ?? null
+      });
       return;
     }
 
@@ -155,11 +489,18 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   onDueDateChanged(task: TaskItemDto, value: Date | null): void {
+    const dueDate = value ? value.toISOString() : null;
+
     if (this.isPreviewMode) {
+      this.applyTaskUpdateLocal(task.id, {
+        title: task.title,
+        description: task.description ?? null,
+        status: task.status,
+        assignedUserId: task.assignedUserId ?? null,
+        dueDate
+      });
       return;
     }
-
-    const dueDate = value ? value.toISOString() : null;
 
     if (this.isTaskPending(task.id) || task.dueDate === dueDate) {
       return;
@@ -180,13 +521,14 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     this.onDueDateChanged(task, null);
   }
 
-  toDate(value?: string | null): Date | null {
-    return value ? new Date(value) : null;
+  getDueDateModel(taskId: string): Date | null {
+    return this.dueDateModels.get(taskId) ?? null;
   }
 
   private loadProjects(): void {
     this.isLoadingProjects = true;
     this.isPreviewMode = false;
+    this.previewDetail = null;
     this.errors = [];
 
     if (!this.appEnvironment.production || this.authService.authSession()?.isDebugSession) {
@@ -255,6 +597,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   private loadProjectBoardData(projectId: string): void {
     this.isLoadingTasks = true;
     this.isPreviewMode = false;
+    this.previewDetail = null;
     this.errors = [];
     this.clearTasks();
 
@@ -265,7 +608,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: ({ tasks, members }) => {
-          this.allTasks = tasks;
+          this.setAllTasks(this.normalizeTasksOrder(tasks));
           this.assigneeOptions = [
             { label: 'Unassigned', value: null },
             ...members.map((member) => ({ label: member.displayName, value: member.userId }))
@@ -317,7 +660,51 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   private replaceTask(updatedTask: TaskItemDto): void {
-    this.allTasks = this.allTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task));
+    this.setAllTasks(this.allTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
+  }
+
+  private moveTaskLocally(taskId: string, targetStatus: TaskStatus, targetIndex: number): { moved: boolean; statusChanged: boolean } {
+    const columns = this.createColumnsMapFromTasks(this.allTasks);
+    const sourceLocation = this.findTaskLocation(taskId);
+
+    if (!sourceLocation) {
+      return { moved: false, statusChanged: false };
+    }
+
+    const sourceColumnTasks = columns[sourceLocation.status];
+    const targetColumnTasks = columns[targetStatus];
+    const [movedTask] = sourceColumnTasks.splice(sourceLocation.index, 1);
+
+    if (!movedTask) {
+      return { moved: false, statusChanged: false };
+    }
+
+    let insertionIndex = Math.max(0, Math.min(targetIndex, targetColumnTasks.length));
+    if (sourceLocation.status === targetStatus && sourceLocation.index < insertionIndex) {
+      insertionIndex -= 1;
+    }
+
+    const statusChanged = sourceLocation.status !== targetStatus;
+    movedTask.status = targetStatus;
+    targetColumnTasks.splice(insertionIndex, 0, movedTask);
+
+    const moved = statusChanged || sourceLocation.index !== insertionIndex;
+    this.setAllTasks(this.flattenColumns(columns));
+
+    return { moved, statusChanged };
+  }
+
+  private findTaskLocation(taskId: string): TaskLocation | null {
+    const columns = this.createColumnsMapFromTasks(this.allTasks);
+
+    for (const status of [TaskStatus.Todo, TaskStatus.InProgress, TaskStatus.Done]) {
+      const taskIndex = columns[status].findIndex((task) => task.id === taskId);
+      if (taskIndex >= 0) {
+        return { status, index: taskIndex };
+      }
+    }
+
+    return null;
   }
 
   private findTaskById(taskId: string): TaskItemDto | undefined {
@@ -325,9 +712,66 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   private clearTasks(): void {
-    this.allTasks = [];
+    this.setAllTasks([]);
     this.pendingTaskIds.clear();
     this.assigneeOptions = [{ label: 'Unassigned', value: null }];
+    this.resetDragState();
+  }
+
+  private resetDragState(): void {
+    this.draggedTaskId = null;
+    this.draggedTaskSnapshot = null;
+    this.detachCustomDragImage();
+    this.draggedFromStatus = null;
+    this.draggedFromIndex = null;
+    this.dropTargetStatus = null;
+    this.dropTargetIndex = null;
+  }
+
+  private applyTaskUpdateLocal(
+    taskId: string,
+    update: {
+      title: string;
+      description: string | null;
+      status: TaskStatus;
+      assignedUserId: string | null;
+      dueDate: string | null;
+    }
+  ): void {
+    const existingTask = this.findTaskById(taskId);
+    if (!existingTask) {
+      return;
+    }
+
+    const updatedTask: TaskItemDto = {
+      ...existingTask,
+      title: update.title,
+      description: update.description,
+      status: update.status,
+      assignedUserId: update.assignedUserId,
+      assignedUserName: this.resolveAssigneeName(update.assignedUserId),
+      dueDate: update.dueDate,
+      lastModifiedAt: new Date().toISOString(),
+      lastModifiedByUserName: this.isPreviewMode ? 'Debug User' : existingTask.lastModifiedByUserName
+    };
+
+    if (existingTask.status === update.status) {
+      this.replaceTask(updatedTask);
+      return;
+    }
+
+    const filtered = this.allTasks.filter((task) => task.id !== taskId);
+    const columns = this.createColumnsMapFromTasks(filtered);
+    columns[update.status].push(updatedTask);
+    this.setAllTasks(this.flattenColumns(columns));
+  }
+
+  private resolveAssigneeName(assignedUserId: string | null): string {
+    if (!assignedUserId) {
+      return 'Unassigned';
+    }
+
+    return this.assigneeOptions.find((option) => option.value === assignedUserId)?.label ?? 'Unknown User';
   }
 
   private loadPreviewBoard(detail: string): void {
@@ -352,13 +796,14 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
   private loadPreviewTasks(projectId: string, detail: string): void {
     this.isPreviewMode = true;
-    this.errors = [{ severity: 'warn', summary: 'Preview mode', detail }];
+    this.previewDetail = detail;
+    this.errors = [];
     this.assigneeOptions = [
       { label: 'Unassigned', value: null },
       { label: 'Debug User', value: 'debug-user' },
       { label: 'Project Manager', value: 'pm-user' }
     ];
-    this.allTasks = this.createPreviewTasks(projectId);
+    this.setAllTasks(this.createPreviewTasks(projectId));
     this.pendingTaskIds.clear();
     this.isLoadingTasks = false;
   }
@@ -423,5 +868,72 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
   private shouldUsePreviewMode(): boolean {
     return this.authService.authSession()?.isDebugSession === true || !this.appEnvironment.production;
+  }
+
+  private normalizeTasksOrder(tasks: TaskItemDto[]): TaskItemDto[] {
+    return this.flattenColumns(this.createColumnsMapFromTasks(tasks));
+  }
+
+  private createColumnsMapFromTasks(tasks: TaskItemDto[]): Record<TaskStatus, TaskItemDto[]> {
+    const columns: Record<TaskStatus, TaskItemDto[]> = {
+      [TaskStatus.Todo]: [],
+      [TaskStatus.InProgress]: [],
+      [TaskStatus.Done]: []
+    };
+
+    for (const task of tasks) {
+      if (task.status === TaskStatus.Todo || task.status === TaskStatus.InProgress || task.status === TaskStatus.Done) {
+        columns[task.status].push(task);
+      }
+    }
+
+    return columns;
+  }
+
+  private flattenColumns(columns: Record<TaskStatus, TaskItemDto[]>): TaskItemDto[] {
+    return [...columns[TaskStatus.Todo], ...columns[TaskStatus.InProgress], ...columns[TaskStatus.Done]];
+  }
+
+  private setAllTasks(tasks: TaskItemDto[]): void {
+    this.allTasks = tasks;
+    this.columnTasks[TaskStatus.Todo] = tasks.filter((task) => task.status === TaskStatus.Todo);
+    this.columnTasks[TaskStatus.InProgress] = tasks.filter((task) => task.status === TaskStatus.InProgress);
+    this.columnTasks[TaskStatus.Done] = tasks.filter((task) => task.status === TaskStatus.Done);
+
+    const dueDates = new Map<string, Date | null>();
+    for (const task of tasks) {
+      dueDates.set(task.id, task.dueDate ? new Date(task.dueDate) : null);
+    }
+    this.dueDateModels = dueDates;
+  }
+
+  private attachCustomDragImage(event: DragEvent, dragSource: HTMLElement): void {
+    this.detachCustomDragImage();
+
+    const clone = dragSource.cloneNode(true) as HTMLElement;
+    clone.style.position = 'fixed';
+    clone.style.top = '-9999px';
+    clone.style.left = '-9999px';
+    clone.style.width = `${dragSource.offsetWidth}px`;
+    clone.style.maxWidth = `${dragSource.offsetWidth}px`;
+    clone.style.borderRadius = '10px';
+    clone.style.overflow = 'hidden';
+    clone.style.opacity = '0.92';
+    clone.style.pointerEvents = 'none';
+    clone.style.boxShadow = '0 10px 24px -12px rgba(0, 0, 0, 0.45)';
+    clone.style.background = getComputedStyle(dragSource).backgroundColor;
+    document.body.appendChild(clone);
+
+    event.dataTransfer?.setDragImage(clone, 20, 20);
+    this.dragImageElement = clone;
+  }
+
+  private detachCustomDragImage(): void {
+    if (!this.dragImageElement) {
+      return;
+    }
+
+    this.dragImageElement.remove();
+    this.dragImageElement = null;
   }
 }
