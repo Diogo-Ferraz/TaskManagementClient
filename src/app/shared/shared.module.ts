@@ -26,6 +26,7 @@ import { RippleModule } from 'primeng/ripple';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { CalendarModule } from 'primeng/calendar';
+import { StepsModule } from 'primeng/steps';
 
 @NgModule({
   exports: [
@@ -60,7 +61,8 @@ import { CalendarModule } from 'primeng/calendar';
     RippleModule,
     SkeletonModule,
     ToastModule,
-    CalendarModule
+    CalendarModule,
+    StepsModule
   ],
 })
 export class SharedModule {}
