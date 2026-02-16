@@ -40,22 +40,56 @@
   background: color-mix(in srgb, var(--surface-100) 70%, transparent);
 }
 
-.project-switcher {
-  min-width: 360px;
+.project-console {
+  min-width: 340px;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  align-items: flex-end;
+  gap: 0.3rem;
 }
 
-.project-switcher__controls {
+.project-console__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-color-secondary);
+  font-weight: 600;
+  opacity: 0.85;
+  margin-right: 0.2rem;
+}
+
+.project-console__counter {
+  font-size: 0.72rem;
+  color: var(--text-color-secondary);
+  margin-right: 0.2rem;
+}
+
+.project-console__controls {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.35rem;
+  gap: 0.25rem;
   align-items: center;
+  width: 100%;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 0.15rem;
+  background: color-mix(in srgb, var(--surface-100) 70%, transparent);
 }
 
-.project-switcher__hint {
-  color: var(--text-color-secondary);
+:host ::ng-deep .project-console__controls .p-dropdown {
+  min-width: 12rem;
+}
+
+:host ::ng-deep .project-console__controls .p-dropdown .p-dropdown-label {
+  padding-top: 0.42rem;
+  padding-bottom: 0.42rem;
+  font-size: 0.82rem;
+}
+
+:host ::ng-deep .project-console__controls .p-button.p-button-sm {
+  width: 2rem;
+  height: 2rem;
 }
 
 .kanban-content {
@@ -296,8 +330,19 @@
     min-height: auto;
   }
 
-  .project-switcher {
+  .project-console {
     min-width: 100%;
+    max-width: 100%;
+    align-items: stretch;
+  }
+
+  .project-console__controls {
+    min-width: 100%;
+  }
+
+  :host ::ng-deep .project-console__controls .p-dropdown {
+    min-width: 0;
+    width: 100%;
   }
 
   .task-dialog-grid {

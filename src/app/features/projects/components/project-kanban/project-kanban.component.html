@@ -14,14 +14,22 @@
             <i class="pi pi-user"></i>
             By {{ project.createdByUserName || 'Unknown' }}
           </span>
+          <span class="meta-pill">
+            <i class="pi pi-list"></i>
+            {{ selectedProjectTaskCount }} tasks
+          </span>
+          <span class="meta-pill" *ngIf="isPreviewMode">
+            <i class="pi pi-eye"></i>
+            Preview mode
+          </span>
         </div>
       </div>
 
-      <div class="project-switcher">
-        <label for="projectPicker">Project</label>
+      <div class="project-console" *ngIf="selectedProject as project">
+        <label for="projectPicker" class="project-console__label">Switch Project</label>
 
-        <div class="project-switcher__controls">
-          <button pButton type="button" icon="pi pi-angle-left" class="p-button-text" [disabled]="!canSelectPreviousProject || isLoadingProjects" (click)="selectPreviousProject()"></button>
+        <div class="project-console__controls">
+          <button pButton type="button" icon="pi pi-angle-left" class="p-button-text p-button-sm" [disabled]="!canSelectPreviousProject || isLoadingProjects" (click)="selectPreviousProject()"></button>
 
           <p-dropdown
             inputId="projectPicker"
@@ -33,17 +41,14 @@
             filterBy="name"
             [showClear]="false"
             [disabled]="isLoadingProjects || projects.length === 0"
-            placeholder="Select a project"
+            placeholder="Switch project..."
             (onChange)="onProjectSelected($event.value)">
           </p-dropdown>
 
-          <button pButton type="button" icon="pi pi-angle-right" class="p-button-text" [disabled]="!canSelectNextProject || isLoadingProjects" (click)="selectNextProject()"></button>
+          <button pButton type="button" icon="pi pi-angle-right" class="p-button-text p-button-sm" [disabled]="!canSelectNextProject || isLoadingProjects" (click)="selectNextProject()"></button>
         </div>
 
-        <small class="project-switcher__hint">
-          {{ projects.length }} projects · {{ selectedProjectTaskCount }} tasks
-          <span *ngIf="isPreviewMode">· Preview mode</span>
-        </small>
+        <span class="project-console__counter">{{ selectedProjectIndex + 1 }} of {{ projects.length }}</span>
       </div>
     </div>
   </p-card>
