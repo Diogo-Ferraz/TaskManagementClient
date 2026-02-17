@@ -1,195 +1,183 @@
-<p-toolbar styleClass="mb-4 border-round border-1 surface-border" [style]="{'padding': '0.75rem'}">
-  <ng-template pTemplate="left">
-    <div class="flex flex-wrap gap-2 align-items-center">
-      <p-dropdown id="projectSelect" [options]="projects" [(ngModel)]="selectedProject" optionLabel="name"
-          placeholder="Select Project" [showClear]="false" (onChange)="onProjectChange()" [disabled]="isLoadingProjects"
-          styleClass="p-dropdown-sm" [style]="{ minWidth: '180px' }">
-      </p-dropdown>
-    </div>
-  </ng-template>
+<div class="tasks-page">
+  <p-card class="tasks-header-card">
+    <div class="tasks-header">
+      <div class="tasks-header__title">
+        <h2>All Tasks</h2>
+        <p>Explore project tasks, assignment state, and delivery progress in one workspace.</p>
 
-  <ng-template pTemplate="right">
-    <div class="flex flex-wrap gap-3 align-items-center">
-      <div class="flex align-items-center">
-        <p-progressSpinner *ngIf="isLoadingProjects" styleClass="w-1.5rem h-1.5rem ml-2"
-          strokeWidth="6"></p-progressSpinner>
+        <div class="tasks-header__meta" *ngIf="selectedProject as project">
+          <span class="meta-pill">
+            <i class="pi pi-folder"></i>
+            {{ project.name }}
+          </span>
+          <span class="meta-pill">
+            <i class="pi pi-user"></i>
+            By {{ selectedProjectCreatedBy }}
+          </span>
+          <span class="meta-pill" *ngIf="selectedProjectCreatedAt as createdAt">
+            <i class="pi pi-calendar"></i>
+            Created {{ createdAt | date:'mediumDate' }}
+          </span>
+          <span class="meta-pill" *ngIf="isPreviewMode">
+            <i class="pi pi-eye"></i>
+            Preview mode
+          </span>
+        </div>
       </div>
-      <button pButton pRipple label="Export" icon="pi pi-upload"
-        class="p-button-outlined p-button-secondary"
-        (onClick)="exportCSV(dt)"></button>
-    </div>
-  </ng-template>
-</p-toolbar>
 
-<p-table #dt [value]="tasks" dataKey="id" [loading]="isLoadingTasks" [rows]="10" [paginator]="true"
-  [globalFilterFields]="['title', 'description', 'assignedUserName', 'statusName']"
-  paginatorPosition="bottom" [rowsPerPageOptions]="[10, 25, 50]">
-  <ng-template pTemplate="caption">
-    <div class="flex">
-      <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" />
-      <span class="p-input-icon-left ml-auto">
-        <i class="pi pi-search"></i>
-        <input pInputText type="text" [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)"
-          placeholder="Search..." />
-      </span>
-    </div>
-  </ng-template>
-  <ng-template pTemplate="header">
-    <tr>
-      <th style="min-width:15rem">
-        <div class="flex align-items-center">
-          Title
-          <p-columnFilter type="text" field="title" display="menu" />
-        </div>
-      </th>
-      <th style="min-width:10rem">
-        <div class="flex align-items-center">
-          Status
-          <p-columnFilter field="status" matchMode="equals" display="menu">
-            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-              <p-dropdown [ngModel]="value" [options]="statusOptions" (onChange)="filter($event.value)" placeholder="Any">
-                <ng-template let-option pTemplate="item">
-                  <p-tag [value]="option.label" [severity]="getTagSeverity(option.value)" />
-                </ng-template>
-              </p-dropdown>
-            </ng-template>
-          </p-columnFilter>
-        </div>
-      </th>
-      <th style="min-width:10rem">
-        <div class="flex align-items-center">
-          Created At
-          <p-columnFilter type="date" field="createdAt" display="menu" />
-        </div>
-      </th>
-      <th style="min-width:10rem">
-        <div class="flex align-items-center">
-          Due Date
-          <p-columnFilter type="date" field="dueDate" display="menu" />
-        </div>
-      </th>
-      <th style="min-width:10rem">
-        <div class="flex align-items-center">
-          Assigned To
-          <p-columnFilter field="assignedUserName" matchMode="in" display="menu" [showMatchModes]="false"
-            [showOperator]="false" [showAddButton]="false">
-            <ng-template pTemplate="header">
-              <div class="px-3 pt-3 pb-0">
-                <span class="font-bold">User Filter</span>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-              <p-multiSelect [ngModel]="value" [options]="userOptions" placeholder="Any"
-                (onChange)="filter($event.value)" optionLabel="name">
-                <ng-template let-option pTemplate="item">
-                  <div class="inline-block vertical-align-middle">
-                    <p-avatar [label]="getInitials(option.name)" shape="circle"
-                      [styleClass]="'mr-2'"></p-avatar>
-                    <span class="ml-1 mt-1">{{ option.name }}</span>
-                  </div>
-                </ng-template>
-              </p-multiSelect>
-            </ng-template>
-          </p-columnFilter>
-        </div>
-      </th>
-      <th style="width: 12rem" class="text-center"></th>
-    </tr>
-  </ng-template>
-
-  <ng-template pTemplate="body" let-task let-rowIndex="rowIndex">
-    <tr>
-      <td>
-        <span class="p-column-title">Title</span>
-        <span class="font-medium block white-space-nowrap overflow-hidden text-overflow-ellipsis"
-          [pTooltip]="task.title" tooltipPosition="top">{{ task.title }}</span>
-      </td>
-
-      <td>
-        <span class="p-column-title">Status</span>
-        <p-tag *ngIf="!(showStatusDropdown && isAssignedToMe(task))" [value]="getStatusName(task.status)"
-          [severity]="getTagSeverity(task.status)"
-          [pTooltip]="isUnassigned(task) ? 'Task is unassigned' : 'Assigned to ' + task.assignedUserName"
-          tooltipPosition="top" #tagElement
-          [ngClass]="{'cursor-pointer hover:opacity-80': isAssignedToMe(task)}">
-        </p-tag>
-
-        <p-dropdown *ngIf="showStatusDropdown && isAssignedToMe(task)" [options]="statusOptions"
-          [(ngModel)]="task.status" optionLabel="label" optionValue="value"
-          (onChange)="onStatusChange(task); showStatusDropdown = !showStatusDropdown" appendTo="body"
-          [showClear]="false">
-          <ng-template pTemplate="selectedItem">
-            <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"></p-tag>
-          </ng-template>
-          <ng-template let-option pTemplate="item">
-            <p-tag [value]="option.label" [severity]="getTagSeverity(option.value)"></p-tag>
-          </ng-template>
+      <div class="tasks-header__controls">
+        <p-dropdown
+          inputId="projectPicker"
+          [options]="projects"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="selectedProjectId"
+          [filter]="true"
+          filterBy="name"
+          [showClear]="false"
+          [disabled]="isLoadingProjects || projects.length === 0"
+          placeholder="Select project"
+          (onChange)="onProjectChange()">
         </p-dropdown>
-      </td>
 
-      <td>
-        <span class="p-column-title">Created At</span>
-        {{ task.createdAt ? (task.createdAt | date:'MMM d, y') : '-' }}
-      </td>
+        <button pButton type="button" icon="pi pi-refresh" class="p-button-outlined" (click)="refresh()" [loading]="isLoadingProjects || isLoadingTasks"></button>
+        <button pButton type="button" label="Open Kanban" icon="pi pi-th-large" class="p-button-outlined" (click)="openKanban()" [disabled]="!selectedProjectId"></button>
+      </div>
+    </div>
+  </p-card>
 
-      <td>
-        <span class="p-column-title">Due Date</span>
-        {{ task.dueDate ? (task.dueDate | date:'MMM d, y') : '-' }}
-      </td>
+  <div class="tasks-kpis">
+    <p-card class="kpi-card"><span class="kpi-card__label">Total</span><span class="kpi-card__value">{{ totalTasks }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">To Do</span><span class="kpi-card__value">{{ todoTasks }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">In Progress</span><span class="kpi-card__value">{{ inProgressTasks }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Done</span><span class="kpi-card__value">{{ doneTasks }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Unassigned</span><span class="kpi-card__value">{{ unassignedTasks }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Due Soon</span><span class="kpi-card__value">{{ dueSoonTasks }}</span></p-card>
+  </div>
 
-      <td>
-        <span class="p-column-title">Assigned To</span>
-        <div *ngIf="!isUnassigned(task)" class="flex align-items-center gap-2">
-          <p-avatar [label]="getInitials(task.assignedUserName)" shape="circle" size="normal"
-            [styleClass]="'user-avatar ' + (isAssignedToMe(task) ? 'avatar-me' : 'avatar-other')"
-            [pTooltip]="task.assignedUserName" tooltipPosition="top">
-          </p-avatar>
-          <span class="font-medium">{{ task.assignedUserName }}</span>
+  <p-card class="tasks-table-card">
+    <div class="tasks-inline-error" *ngIf="errors.length > 0">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{ errors[0].detail }}
+      <span *ngIf="previewDetail">· {{ previewDetail }}</span>
+    </div>
+
+    <p-table
+      #dt
+      [value]="tasks"
+      dataKey="id"
+      [loading]="isLoadingTasks"
+      [rowHover]="true"
+      [rows]="10"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [globalFilterFields]="['title', 'description', 'assignedUserName', 'createdByUserName', 'lastModifiedByUserName']">
+
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <button pButton label="Clear" icon="pi pi-filter-slash" class="p-button-text" (onClick)="clear(dt)"></button>
+          <button pButton label="Export CSV" icon="pi pi-upload" class="p-button-text" (onClick)="exportCSV(dt)" [disabled]="tasks.length === 0"></button>
+
+          <span class="table-search">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" [(ngModel)]="searchValue" (input)="onGlobalFilter(dt, $event)" placeholder="Search tasks..." />
+          </span>
         </div>
-        <span *ngIf="isUnassigned(task)" class="text-color-secondary text-sm font-italic">
-          Unassigned
-        </span>
-      </td>
+      </ng-template>
 
-      <td class="text-center">
-        <span class="p-column-title"></span>
-        <div class="flex gap-2 justify-content-center">
-          <button *ngIf="isUnassigned(task)" pButton pRipple icon="pi pi-user-plus" class="action-button"
-            severity="success" [outlined]="true" [rounded]="true" (click)="assignToMe(task); showStatusDropdown = !showStatusDropdown" pTooltip="Assign to Me"
-            tooltipPosition="top">
-          </button>
-          <button *ngIf="isAssignedToMe(task)" pButton pRipple icon="pi pi-user-minus" class="action-button"
-            severity="warning" [outlined]="true" [rounded]="true" (click)="unassignTask(task); showStatusDropdown = !showStatusDropdown" pTooltip="Unassign Task"
-            tooltipPosition="top">
-          </button>
-          <button *ngIf="!isUnassigned(task) && !isAssignedToMe(task)" pButton pRipple icon="pi pi-user"
-            class="action-button" severity="secondary" [outlined]="true" [rounded]="true" tooltipPosition="top"
-            disabled>
-          </button>
-        </div>
-      </td>
-    </tr>
-  </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 17rem;">Task</th>
+          <th style="min-width: 8rem;">Status</th>
+          <th style="min-width: 8rem;">Due Date</th>
+          <th style="min-width: 12rem;">Assignee</th>
+          <th style="min-width: 10rem;">Last Updated</th>
+          <th style="min-width: 16rem;">Actions</th>
+        </tr>
+      </ng-template>
 
-  <ng-template pTemplate="emptymessage" let-columns>
-    <tr>
-      <td [attr.colspan]="6">
-        <div class="text-center p-4">
-          <i class="pi pi-inbox text-4xl text-color-secondary mb-3"></i>
-          <p>{{ selectedProject ? 'No tasks found for this project.' : 'Please select a project.' }}</p>
-        </div>
-      </td>
-    </tr>
-  </ng-template>
+      <ng-template pTemplate="body" let-task>
+        <tr>
+          <td>
+            <div class="task-cell">
+              <span class="task-cell__title">{{ task.title }}</span>
+              <span class="task-cell__description">{{ task.description || 'No description provided.' }}</span>
+            </div>
+          </td>
 
-  <ng-template pTemplate="loadingbody" let-columns>
-    <tr *ngFor="let item of [1,2,3]" class="p-datatable-loading-row">
-      <td><p-skeleton height="1.5rem" styleClass="mb-2"></p-skeleton></td>
-      <td><p-skeleton height="1.5rem" styleClass="mb-2"></p-skeleton></td>
-      <td><p-skeleton height="1.5rem" styleClass="mb-2"></p-skeleton></td>
-      <td><p-skeleton height="1.5rem" styleClass="mb-2"></p-skeleton></td>
-      <td><p-skeleton height="1.5rem" styleClass="mb-2"></p-skeleton></td>
-      <td><p-skeleton height="1.5rem" styleClass="mb-2"></p-skeleton></td>
-    </tr>
-  </ng-template>
-</p-table>
+          <td>
+            <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"></p-tag>
+          </td>
+
+          <td>
+            <span [class.task-date--overdue]="isOverdue(task)">
+              {{ task.dueDate ? (task.dueDate | date:'MMM d, y') : '-' }}
+            </span>
+          </td>
+
+          <td>
+            <div class="assignee-cell" *ngIf="!isUnassigned(task); else unassignedTpl">
+              <p-avatar [label]="getInitials(task.assignedUserName)" shape="circle"></p-avatar>
+              <span>{{ task.assignedUserName }}</span>
+            </div>
+            <ng-template #unassignedTpl>
+              <span class="assignee-cell__empty">Unassigned</span>
+            </ng-template>
+          </td>
+
+          <td>
+            <span>{{ task.lastModifiedAt | date:'MMM d, y' }}</span>
+          </td>
+
+          <td>
+            <div class="task-actions">
+              <p-dropdown
+                [options]="statusOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="task.status"
+                [disabled]="!canEditStatus(task) || isTaskPending(task.id)"
+                (onChange)="updateStatus(task, $event.value)"
+                appendTo="body"
+                [style]="{ width: '8.8rem' }">
+              </p-dropdown>
+
+              <button
+                *ngIf="isUnassigned(task)"
+                pButton
+                type="button"
+                icon="pi pi-user-plus"
+                class="p-button-rounded p-button-text"
+                [disabled]="isTaskPending(task.id) || !currentUserId"
+                (click)="assignToMe(task)"
+                pTooltip="Assign to me">
+              </button>
+
+              <button
+                *ngIf="!isUnassigned(task) && (isAssignedToMe(task) || canManageAllTasks)"
+                pButton
+                type="button"
+                icon="pi pi-user-minus"
+                class="p-button-rounded p-button-text"
+                [disabled]="isTaskPending(task.id)"
+                (click)="unassignTask(task)"
+                pTooltip="Unassign">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="empty-cell">
+            <div class="empty-state">
+              <i class="pi pi-inbox"></i>
+              <p>{{ selectedProjectId ? 'No tasks found for this project.' : 'Select a project to view tasks.' }}</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
