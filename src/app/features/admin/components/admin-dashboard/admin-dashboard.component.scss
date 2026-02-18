@@ -1,43 +1,96 @@
-:host {
-  display: block;
-}
-
-.admin-users-card {
-  display: block;
-}
-
-.admin-users-header {
+.admin-page {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.admin-header {
+  display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
-  padding: 1.5rem 1.5rem 0;
+  flex-wrap: wrap;
 }
 
-.admin-users-title {
+.admin-header__title h2 {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-color);
 }
 
-.admin-users-subtitle {
-  margin: 0.4rem 0 0;
+.admin-header__title p {
+  margin: 0.3rem 0 0;
   color: var(--text-color-secondary);
 }
 
-.admin-users-filters {
-  display: grid;
-  grid-template-columns: minmax(15rem, 1fr) 12rem 13rem auto;
-  gap: 0.75rem;
-  align-items: center;
-  margin-bottom: 1rem;
+.admin-header__meta {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
 }
 
-.admin-users-filter-actions {
+.meta-pill {
   display: inline-flex;
   align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  padding: 0.22rem 0.62rem;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  background: color-mix(in srgb, var(--surface-100) 75%, transparent);
+}
+
+.admin-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.kpi-card {
+  min-height: 6rem;
+}
+
+.kpi-card__label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  margin-bottom: 0.3rem;
+}
+
+.kpi-card__value {
+  font-size: 1.7rem;
+  font-weight: 600;
+}
+
+.table-caption {
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.column-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.table-search {
+  margin-left: auto;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.table-search i {
+  position: absolute;
+  left: 0.65rem;
+  color: var(--text-color-secondary);
+}
+
+.table-search input {
+  padding-left: 2rem;
+  min-width: 18rem;
 }
 
 .admin-user-cell {
@@ -74,14 +127,20 @@
   color: var(--text-color-secondary);
 }
 
-@media (max-width: 992px) {
-  .admin-users-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .admin-users-filters {
-    grid-template-columns: 1fr;
+@media (max-width: 1200px) {
+  .admin-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
+@media (max-width: 992px) {
+  .table-search {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .table-search input {
+    width: 100%;
+    min-width: 0;
+  }
+}
