@@ -1,16 +1,21 @@
 <section class="calendar-page">
   <p-card styleClass="calendar-hero">
     <div class="calendar-hero__content">
-      <div>
-        <p class="calendar-kicker">Planning</p>
-        <h1>My Due Date Calendar</h1>
+      <div class="calendar-hero__title">
+        <h2>My Due Date Calendar</h2>
         <p>
           Track your assigned tasks by due date, grouped by project color. Select a day to inspect tasks
           and jump directly into project context.
         </p>
+        <div class="calendar-hero__meta" *ngIf="isPreviewMode">
+          <span class="meta-pill">
+            <i class="pi pi-eye"></i>
+            Preview mode
+          </span>
+          <span class="meta-pill" *ngIf="previewDetail">{{ previewDetail }}</span>
+        </div>
       </div>
       <div class="calendar-hero__actions">
-        <p-tag *ngIf="isPreviewMode" severity="warning" value="Preview mode"></p-tag>
         <button pButton type="button" icon="pi pi-refresh" label="Reload" (click)="reload()"></button>
       </div>
     </div>

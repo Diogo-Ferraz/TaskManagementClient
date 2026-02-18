@@ -31,6 +31,7 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
 
   isLoading = true;
   isPreviewMode = false;
+  previewDetail: string | null = null;
   loadError: string | null = null;
 
   tasksForSelectedDate: TaskItemDto[] = [];
@@ -88,12 +89,13 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
   private loadCalendar(): void {
     this.isLoading = true;
     this.isPreviewMode = false;
+    this.previewDetail = null;
     this.loadError = null;
     this.clearData();
 
     const currentUserId = this.authService.currentUserId();
     if (!currentUserId) {
-      this.loadPreviewData('No user context available. Showing preview tasks.');
+      this.loadPreviewData();
       return;
     }
 
@@ -107,7 +109,7 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
         },
         error: () => {
           if (this.authService.authSession()?.isDebugSession) {
-            this.loadPreviewData('Backend unavailable. Showing preview tasks for UI validation.');
+            this.loadPreviewData();
             return;
           }
 
@@ -117,9 +119,9 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
       });
   }
 
-  private loadPreviewData(message: string): void {
+  private loadPreviewData(): void {
     this.isPreviewMode = true;
-    this.loadError = message;
+    this.previewDetail = 'Showing preview tasks.';
     this.applyTasks(this.createPreviewTasks());
     this.isLoading = false;
   }

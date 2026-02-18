@@ -1,16 +1,17 @@
 .calendar-page {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 2rem;
   height: calc(100dvh - 8.5rem);
   min-height: calc(100dvh - 8.5rem);
 }
 
-.calendar-kicker {
-  margin: 0;
-  color: var(--primary-color);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+:host ::ng-deep .calendar-hero .p-card {
+  border: 1px solid color-mix(in srgb, var(--primary-color) 20%, var(--surface-border));
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--primary-color) 12%, transparent), transparent 60%),
+    radial-gradient(90% 90% at 100% 0%, color-mix(in srgb, var(--primary-200) 18%, transparent), transparent 65%),
+    var(--surface-card);
 }
 
 .calendar-hero__content {
@@ -21,14 +22,33 @@
   flex-wrap: wrap;
 }
 
-.calendar-hero__content h1 {
-  margin: 0.35rem 0 0;
+.calendar-hero__title h2 {
+  margin: 0;
 }
 
 .calendar-hero__content p {
-  margin: 0.75rem 0 0;
+  margin: 0.3rem 0 0;
   max-width: 75ch;
   color: var(--text-color-secondary);
+}
+
+.calendar-hero__meta {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  padding: 0.22rem 0.62rem;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  background: color-mix(in srgb, var(--surface-100) 75%, transparent);
 }
 
 .calendar-hero__actions {
@@ -37,10 +57,16 @@
   gap: 0.75rem;
 }
 
+:host ::ng-deep .calendar-main-card .p-card,
+:host ::ng-deep .calendar-side-card .p-card {
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 10px 24px -20px rgba(18, 18, 23, 0.25);
+}
+
 .calendar-layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
-  gap: 1rem;
+  gap: 2rem;
   flex: 1;
   height: 100%;
   min-height: 0;
@@ -73,6 +99,17 @@
 :host ::ng-deep .calendar-wrapper .p-datepicker table td > span {
   width: 2.5rem;
   height: 2.5rem;
+  border-radius: 10px;
+  transition: background-color 0.14s ease, transform 0.14s ease;
+}
+
+:host ::ng-deep .calendar-wrapper .p-datepicker table td > span:hover {
+  transform: translateY(-1px);
+}
+
+:host ::ng-deep .calendar-wrapper .p-datepicker table td.p-datepicker-today > span {
+  border: 1px solid color-mix(in srgb, var(--primary-color) 40%, var(--surface-border));
+  background: color-mix(in srgb, var(--primary-color) 10%, var(--surface-100));
 }
 
 :host ::ng-deep .calendar-main-card .p-card,
@@ -95,19 +132,20 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.2rem;
+  gap: 0.24rem;
 }
 
 .calendar-markers {
   display: inline-flex;
-  gap: 0.16rem;
+  gap: 0.18rem;
   height: 0.4rem;
 }
 
 .calendar-marker {
-  width: 0.36rem;
-  height: 0.36rem;
+  width: 0.38rem;
+  height: 0.38rem;
   border-radius: 999px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--surface-card) 80%, transparent);
 }
 
 .legend {
@@ -117,6 +155,7 @@
 .legend h4 {
   margin: 0 0 0.65rem;
   font-size: 0.95rem;
+  letter-spacing: 0.02em;
 }
 
 .legend-items {
@@ -131,6 +170,11 @@
   gap: 0.45rem;
   color: var(--text-color-secondary);
   font-size: 0.9rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  width: fit-content;
+  background: color-mix(in srgb, var(--surface-100) 60%, transparent);
 }
 
 .legend-color {
@@ -151,8 +195,16 @@
 .task-card {
   border: 1px solid var(--surface-border);
   border-radius: 12px;
-  padding: 0.75rem;
-  background: color-mix(in srgb, var(--surface-card) 88%, transparent);
+  padding: 0.78rem;
+  background:
+    linear-gradient(165deg, color-mix(in srgb, var(--primary-color) 6%, var(--surface-card)), var(--surface-card));
+  transition: border-color 0.14s ease, transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.task-card:hover {
+  border-color: color-mix(in srgb, var(--primary-color) 38%, var(--surface-border));
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -16px rgba(18, 18, 23, 0.35);
 }
 
 .task-card__header {
@@ -163,13 +215,14 @@
 
 .task-card__project {
   color: var(--text-color-secondary);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 .task-card__desc {
   margin: 0.55rem 0;
   color: var(--text-color-secondary);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.35;
 }
 
 .task-card__actions {
