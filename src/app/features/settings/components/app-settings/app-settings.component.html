@@ -1,0 +1,137 @@
+<div class="settings-page">
+  <p-card class="settings-header-card">
+    <div class="settings-header">
+      <div class="settings-header__title">
+        <h2>Settings</h2>
+        <p>Personalize application behavior, visual density, and workspace defaults.</p>
+      </div>
+
+      <div class="settings-header__actions">
+        <button pButton type="button" icon="pi pi-refresh" label="Reset Defaults" class="p-button-outlined" (click)="resetDefaults()"></button>
+      </div>
+    </div>
+  </p-card>
+
+  <div class="settings-grid">
+    <p-card header="Appearance" styleClass="settings-card">
+      <div class="settings-form">
+        <div class="field">
+          <label for="themeMode">Theme</label>
+          <p-dropdown
+            inputId="themeMode"
+            [options]="themeOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="isDarkTheme() ? 'dark' : 'light'"
+            [appendTo]="'body'"
+            (onChange)="onThemeChange($event.value)">
+          </p-dropdown>
+        </div>
+
+        <div class="field">
+          <label for="densityMode">Density</label>
+          <p-dropdown
+            inputId="densityMode"
+            [options]="densityOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="preferences().uiDensity"
+            [appendTo]="'body'"
+            (onChange)="onDensityChange($event.value)">
+          </p-dropdown>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card header="Locale & Date" styleClass="settings-card">
+      <div class="settings-form">
+        <div class="field">
+          <label for="dateFormat">Date Format</label>
+          <p-dropdown
+            inputId="dateFormat"
+            [options]="dateFormatOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="preferences().dateFormat"
+            [appendTo]="'body'"
+            (onChange)="onDateFormatChange($event.value)">
+          </p-dropdown>
+        </div>
+
+        <div class="field-inline">
+          <span>Use relative dates</span>
+          <p-inputSwitch
+            [ngModel]="preferences().useRelativeDates"
+            (ngModelChange)="onToggle('useRelativeDates', $event)">
+          </p-inputSwitch>
+        </div>
+
+        <div class="preview-line">
+          <span>Preview:</span>
+          <strong>{{ datePreview() }}</strong>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card header="Kanban Preferences" styleClass="settings-card">
+      <div class="settings-form">
+        <div class="field-inline">
+          <span>Show drag preview ghost</span>
+          <p-inputSwitch
+            [ngModel]="preferences().showKanbanDragPreview"
+            (ngModelChange)="onToggle('showKanbanDragPreview', $event)">
+          </p-inputSwitch>
+        </div>
+
+        <div class="field-inline">
+          <span>Show assignee avatars</span>
+          <p-inputSwitch
+            [ngModel]="preferences().showKanbanAssigneeAvatars"
+            (ngModelChange)="onToggle('showKanbanAssigneeAvatars', $event)">
+          </p-inputSwitch>
+        </div>
+
+        <div class="field">
+          <label for="taskDialogMode">Task Edit Surface</label>
+          <p-dropdown
+            inputId="taskDialogMode"
+            [options]="taskDialogModeOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="preferences().taskDialogMode"
+            [appendTo]="'body'"
+            (onChange)="onTaskDialogModeChange($event.value)">
+          </p-dropdown>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card header="Notifications" styleClass="settings-card">
+      <div class="settings-form">
+        <div class="field-inline">
+          <span>Activity toasts</span>
+          <p-inputSwitch
+            [ngModel]="preferences().showActivityToasts"
+            (ngModelChange)="onToggle('showActivityToasts', $event)">
+          </p-inputSwitch>
+        </div>
+
+        <div class="field-inline">
+          <span>Calendar reminders</span>
+          <p-inputSwitch
+            [ngModel]="preferences().showCalendarReminders"
+            (ngModelChange)="onToggle('showCalendarReminders', $event)">
+          </p-inputSwitch>
+        </div>
+
+        <div class="field-inline">
+          <span>Desktop notifications</span>
+          <p-inputSwitch
+            [ngModel]="preferences().enableDesktopNotifications"
+            (ngModelChange)="onToggle('enableDesktopNotifications', $event)">
+          </p-inputSwitch>
+        </div>
+      </div>
+    </p-card>
+  </div>
+</div>

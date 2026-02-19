@@ -24,3 +24,21 @@ a {
 .p-card {
     box-shadow: none;
 }
+
+.app-density-compact {
+    .p-card .p-card-body {
+        padding: 0.9rem;
+    }
+
+    .p-datatable .p-datatable-thead > tr > th,
+    .p-datatable .p-datatable-tbody > tr > td {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .p-inputtext,
+    .p-dropdown,
+    .p-button {
+        font-size: 0.92rem;
+    }
+}

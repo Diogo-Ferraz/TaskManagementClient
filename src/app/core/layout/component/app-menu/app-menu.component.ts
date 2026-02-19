@@ -44,6 +44,7 @@ export class AppMenuComponent {
         items: [
           { label: 'My Activity', icon: 'pi pi-fw pi-history', routerLink: ['/activity/my'] },
           { label: 'Activity Log', icon: 'pi pi-fw pi-database', routerLink: ['/activity/log'], visible: this.authService.hasAnyRole(['Administrator', 'ProjectManager']) },
+          { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/settings'] },
           { label: 'Profile & Security', icon: 'pi pi-fw pi-user-edit', routerLink: ['/profile'] },
           { label: 'Search & Filters', icon: 'pi pi-fw pi-search', routerLink: ['/search'] },
           { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/calendar'] },
