@@ -6,6 +6,8 @@
 
 <ng-template #appLayout>
     <div class="layout-wrapper" [ngClass]="containerClass">
+        <div class="layout-ambient layout-ambient--one" aria-hidden="true"></div>
+        <div class="layout-ambient layout-ambient--two" aria-hidden="true"></div>
         <app-topbar></app-topbar>
         <app-sidebar></app-sidebar>
         <div class="layout-main-container">

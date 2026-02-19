@@ -5,6 +5,48 @@
 
 .layout-wrapper {
   min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.layout-ambient {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(56px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.18;
+}
+
+.layout-ambient--one {
+  width: 28rem;
+  height: 28rem;
+  top: -12rem;
+  right: -8rem;
+  background: color-mix(in srgb, var(--primary-color) 55%, transparent);
+}
+
+.layout-ambient--two {
+  width: 30rem;
+  height: 30rem;
+  left: -10rem;
+  bottom: -14rem;
+  background: color-mix(in srgb, var(--blue-400) 50%, transparent);
+}
+
+app-topbar {
+  position: relative;
+  z-index: 3;
+}
+
+app-sidebar {
+  position: relative;
+  z-index: 2;
+}
+
+.layout-main-container {
+  position: relative;
+  z-index: 1;
 }
 
 .layout-main-container {
