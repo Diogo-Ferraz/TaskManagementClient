@@ -20,6 +20,8 @@ import { adminRoleGuard } from './core/auth/guards/admin-role.guard';
 import { MyActivityComponent } from './features/activity/components/my-activity/my-activity.component';
 import { UserProfileSecurityComponent } from './features/profile/components/user-profile-security/user-profile-security.component';
 import { ProjectMembersComponent } from './features/projects/components/project-members/project-members.component';
+import { ActivityLogComponent } from './features/activity/components/activity-log/activity-log.component';
+import { managerOrAdminGuard } from './core/auth/guards/manager-or-admin.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -34,6 +36,7 @@ export const routes: Routes = [
   { path: 'docs', component: ProjectDocsComponent, canActivate: [authGuard] },
   { path: 'calendar', component: TaskCalendarComponent, canActivate: [authGuard] },
   { path: 'activity/my', component: MyActivityComponent, canActivate: [authGuard] },
+  { path: 'activity/log', component: ActivityLogComponent, canActivate: [authGuard, managerOrAdminGuard] },
   { path: 'profile', component: UserProfileSecurityComponent, canActivate: [authGuard] },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [authGuard, adminRoleGuard] },
   { path: 'tasks/create', component: TaskItemCreateComponent, canActivate: [authGuard] },
