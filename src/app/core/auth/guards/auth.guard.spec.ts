@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { authGuard } from './auth.guard';
 
@@ -7,50 +8,69 @@ describe('authGuard', () => {
     const authServiceMock = {
       isAuthenticated: () => true,
       authSession: () => null,
-      canStartDebugSession: () => false,
-      startLoginRedirect: jasmine.createSpy('startLoginRedirect').and.resolveTo()
+      canStartDebugSession: () => false
+    };
+
+    const routerMock = {
+      createUrlTree: jasmine.createSpy('createUrlTree')
     };
 
     TestBed.configureTestingModule({
-      providers: [{ provide: AuthService, useValue: authServiceMock }]
+      providers: [
+        { provide: AuthService, useValue: authServiceMock },
+        { provide: Router, useValue: routerMock }
+      ]
     });
 
     const canActivate = TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
     expect(canActivate).toBeTrue();
-    expect(authServiceMock.startLoginRedirect).not.toHaveBeenCalled();
+    expect(routerMock.createUrlTree).not.toHaveBeenCalled();
   });
 
-  it('starts login redirect when user is not authenticated', () => {
+  it('redirects to unauthorized when user is not authenticated', () => {
+    const redirectTree = {} as never;
     const authServiceMock = {
       isAuthenticated: () => false,
       authSession: () => null,
-      canStartDebugSession: () => false,
-      startLoginRedirect: jasmine.createSpy('startLoginRedirect').and.resolveTo()
+      canStartDebugSession: () => false
+    };
+
+    const routerMock = {
+      createUrlTree: jasmine.createSpy('createUrlTree').and.returnValue(redirectTree)
     };
 
     TestBed.configureTestingModule({
-      providers: [{ provide: AuthService, useValue: authServiceMock }]
+      providers: [
+        { provide: AuthService, useValue: authServiceMock },
+        { provide: Router, useValue: routerMock }
+      ]
     });
 
     const canActivate = TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
-    expect(canActivate).toBeFalse();
-    expect(authServiceMock.startLoginRedirect).toHaveBeenCalled();
+    expect(canActivate).toBe(redirectTree);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/unauthorized']);
   });
 
   it('allows navigation when debug session is active in preview mode', () => {
     const authServiceMock = {
       isAuthenticated: () => false,
       authSession: () => ({ isDebugSession: true }),
-      canStartDebugSession: () => true,
-      startLoginRedirect: jasmine.createSpy('startLoginRedirect').and.resolveTo()
+      canStartDebugSession: () => true
+    };
+
+    const routerMock = {
+      createUrlTree: jasmine.createSpy('createUrlTree')
     };
 
     TestBed.configureTestingModule({
-      providers: [{ provide: AuthService, useValue: authServiceMock }]
+      providers: [
+        { provide: AuthService, useValue: authServiceMock },
+        { provide: Router, useValue: routerMock }
+      ]
     });
 
     const canActivate = TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
     expect(canActivate).toBeTrue();
-    expect(authServiceMock.startLoginRedirect).not.toHaveBeenCalled();
+    expect(routerMock.createUrlTree).not.toHaveBeenCalled();
   });
 });

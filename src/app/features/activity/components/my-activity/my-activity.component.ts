@@ -217,11 +217,7 @@ export class MyActivityComponent implements OnInit, OnDestroy {
   }
 
   private shouldUsePreviewMode(): boolean {
-    if (!this.appEnvironment.production) {
-      return true;
-    }
-
-    return this.authService.authSession()?.isDebugSession === true;
+    return this.authService.authSession()?.isDebugSession === true && this.authService.canStartDebugSession();
   }
 
   private loadPreviewActivity(detail: string): void {
@@ -305,4 +301,3 @@ export class MyActivityComponent implements OnInit, OnDestroy {
     return value.replace(/<[^>]*>/g, ' ');
   }
 }
-

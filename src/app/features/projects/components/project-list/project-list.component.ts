@@ -92,7 +92,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.isPreviewMode = false;
     this.previewDetail = null;
 
-    if (!this.appEnvironment.production || this.authService.authSession()?.isDebugSession) {
+    if (this.shouldUsePreviewMode()) {
       this.loadPreviewProjects('Preview mode active. Showing local project data.');
       return;
     }
@@ -127,11 +127,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   private shouldUsePreviewMode(): boolean {
-    if (!this.appEnvironment.production) {
-      return true;
-    }
-
-    return this.authService.authSession()?.isDebugSession === true;
+    return this.authService.authSession()?.isDebugSession === true && this.authService.canStartDebugSession();
   }
 
   private loadPreviewProjects(detail: string): void {

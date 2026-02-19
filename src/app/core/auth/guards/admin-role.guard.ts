@@ -10,5 +10,5 @@ export const adminRoleGuard: CanActivateFn = () => {
     return true;
   }
 
-  return router.createUrlTree(['/dashboard']);
+  return router.createUrlTree(['/unauthorized']);
 };

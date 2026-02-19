@@ -1,0 +1,40 @@
+.unauthorized {
+  min-height: calc(100vh - 8rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.unauthorized__card {
+  width: min(34rem, 100%);
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
+  background: var(--surface-card);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: none;
+}
+
+.unauthorized__code {
+  margin: 0;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.unauthorized h1 {
+  margin: 0.35rem 0 0;
+}
+
+.unauthorized p {
+  margin: 0.85rem 0 0;
+  color: var(--text-color-secondary);
+}
+
+.unauthorized__actions {
+  margin-top: 1.2rem;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}

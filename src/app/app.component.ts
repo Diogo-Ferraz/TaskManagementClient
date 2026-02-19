@@ -100,7 +100,8 @@ export class AppComponent {
     return currentUrl === '/' ||
       currentUrl.startsWith('/login') ||
       currentUrl.startsWith('/callback') ||
-      currentUrl.startsWith('/not-found');
+      currentUrl.startsWith('/not-found') ||
+      currentUrl.startsWith('/unauthorized');
   }
 
   ngOnDestroy() {

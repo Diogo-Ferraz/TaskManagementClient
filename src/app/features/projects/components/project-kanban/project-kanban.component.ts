@@ -569,7 +569,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     this.previewDetail = null;
     this.errors = [];
 
-    if (!this.appEnvironment.production || this.authService.authSession()?.isDebugSession) {
+    if (this.shouldUsePreviewMode()) {
       this.loadPreviewBoard('Development preview mode active. Backend calls are disabled for Kanban.');
       return;
     }
@@ -905,7 +905,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   private shouldUsePreviewMode(): boolean {
-    return this.authService.authSession()?.isDebugSession === true || !this.appEnvironment.production;
+    return this.authService.authSession()?.isDebugSession === true && this.authService.canStartDebugSession();
   }
 
   private normalizeTasksOrder(tasks: TaskItemDto[]): TaskItemDto[] {

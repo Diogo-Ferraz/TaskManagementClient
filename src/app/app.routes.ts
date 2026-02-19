@@ -12,6 +12,7 @@ import { authGuard } from './core/auth/guards/auth.guard';
 import { AuthCallbackComponent } from './features/login/components/auth-callback/auth-callback.component';
 import { LandingPageComponent } from './features/landing/components/landing-page/landing-page.component';
 import { NotFoundComponent } from './features/errors/components/not-found/not-found.component';
+import { UnauthorizedComponent } from './features/errors/components/unauthorized/unauthorized.component';
 import { SearchFiltersComponent } from './features/search/components/search-filters/search-filters.component';
 import { ProjectDocsComponent } from './features/docs/components/project-docs/project-docs.component';
 import { TaskCalendarComponent } from './features/calendar/components/task-calendar/task-calendar.component';
@@ -45,6 +46,8 @@ export const routes: Routes = [
   { path: 'tasks/my-tasks', component: UserTaskItemsComponent, canActivate: [authGuard] },
   { path: 'login', component: HomeLoginComponent },
   { path: 'callback', component: AuthCallbackComponent },
+  { path: 'notfound', redirectTo: 'not-found' },
   { path: 'not-found', component: NotFoundComponent },
-  { path: '**', component: NotFoundComponent }
+  { path: 'unauthorized', component: UnauthorizedComponent },
+  { path: '**', redirectTo: 'not-found' }
 ];

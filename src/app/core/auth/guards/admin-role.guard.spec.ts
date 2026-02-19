@@ -25,7 +25,7 @@ describe('adminRoleGuard', () => {
     expect(routerMock.createUrlTree).not.toHaveBeenCalled();
   });
 
-  it('redirects non-admin users to dashboard', () => {
+  it('redirects non-admin users to unauthorized', () => {
     const redirectTree = {} as never;
     const authServiceMock = {
       hasRole: () => false
@@ -44,6 +44,6 @@ describe('adminRoleGuard', () => {
 
     const canActivate = TestBed.runInInjectionContext(() => adminRoleGuard({} as never, {} as never));
     expect(canActivate).toBe(redirectTree);
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/dashboard']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/unauthorized']);
   });
 });

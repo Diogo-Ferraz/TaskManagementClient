@@ -308,11 +308,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
   }
 
   private shouldUsePreviewMode(): boolean {
-    if (!this.appEnvironment.production) {
-      return true;
-    }
-
-    return this.authService.authSession()?.isDebugSession === true;
+    return this.authService.authSession()?.isDebugSession === true && this.authService.canStartDebugSession();
   }
 
   private loadPreviewData(detail: string): void {
