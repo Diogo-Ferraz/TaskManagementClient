@@ -6,6 +6,7 @@ import { ProjectKanbanComponent } from './features/projects/components/project-k
 import { TaskItemListComponent } from './features/task-item/components/task-item-list/task-item-list.component';
 import { UserTaskItemsComponent } from './features/task-item/components/user-task-items/user-task-items.component';
 import { ProjectCreateComponent } from './features/projects/components/project-create/project-create.component';
+import { ProjectDetailsComponent } from './features/projects/components/project-details/project-details.component';
 import { TaskItemCreateComponent } from './features/task-item/components/task-item-create/task-item-create.component';
 import { authGuard } from './core/auth/guards/auth.guard';
 import { AuthCallbackComponent } from './features/login/components/auth-callback/auth-callback.component';
@@ -23,6 +24,7 @@ export const routes: Routes = [
   { path: 'projects', component: ProjectListComponent, canActivate: [authGuard] },
   { path: 'projects/kanban', component: ProjectKanbanComponent, canActivate: [authGuard] },
   { path: 'projects/create', component: ProjectCreateComponent, canActivate: [authGuard] },
+  { path: 'projects/details', component: ProjectDetailsComponent, canActivate: [authGuard] },
   { path: 'tasks', component: TaskItemListComponent, canActivate: [authGuard] },
   { path: 'search', component: SearchFiltersComponent, canActivate: [authGuard] },
   { path: 'docs', component: ProjectDocsComponent, canActivate: [authGuard] },
