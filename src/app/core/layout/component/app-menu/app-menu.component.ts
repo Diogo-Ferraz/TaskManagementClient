@@ -42,6 +42,7 @@ export class AppMenuComponent {
         label: 'Insights',
         items: [
           { label: 'My Activity', icon: 'pi pi-fw pi-history', routerLink: ['/activity/my'] },
+          { label: 'Profile & Security', icon: 'pi pi-fw pi-user-edit', routerLink: ['/profile'] },
           { label: 'Search & Filters', icon: 'pi pi-fw pi-search', routerLink: ['/search'] },
           { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/calendar'] },
           { label: 'Project Docs', icon: 'pi pi-fw pi-book', routerLink: ['/docs'] }
