@@ -1,0 +1,159 @@
+<div class="project-details-page">
+  <p-card class="project-details-header-card">
+    <div class="project-details-header">
+      <div class="project-details-header__title">
+        <h2>Project Details</h2>
+        <p>Project metadata, member visibility, and recent delivery context in one view.</p>
+
+        <div class="project-details-header__meta" *ngIf="selectedProjectDetails as project">
+          <span class="meta-pill">
+            <i class="pi pi-folder"></i>
+            {{ project.name }}
+          </span>
+          <span class="meta-pill">
+            <i class="pi pi-user"></i>
+            By {{ project.createdByUserName || 'Unknown' }}
+          </span>
+          <span class="meta-pill">
+            <i class="pi pi-calendar"></i>
+            Created {{ project.createdAt | date:'mediumDate' }}
+          </span>
+          <span class="meta-pill">
+            <i class="pi pi-history"></i>
+            Updated {{ project.lastModifiedAt | date:'mediumDate' }}
+          </span>
+          <span class="meta-pill" *ngIf="isPreviewMode">
+            <i class="pi pi-eye"></i>
+            Preview mode
+          </span>
+        </div>
+      </div>
+
+      <div class="project-details-header__controls">
+        <p-dropdown
+          inputId="projectDetailsPicker"
+          [options]="projects"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="selectedProjectId"
+          [filter]="true"
+          filterBy="name"
+          [showClear]="false"
+          [disabled]="isLoadingProjects || projects.length === 0 || isLoadingDetails"
+          placeholder="Select project"
+          (onChange)="onProjectChange()">
+        </p-dropdown>
+
+        <button pButton type="button" icon="pi pi-refresh" class="p-button-outlined" (click)="refresh()" [loading]="isLoadingProjects || isLoadingDetails"></button>
+        <button pButton type="button" label="Open Kanban" icon="pi pi-th-large" class="p-button-outlined" (click)="openKanban()" [disabled]="!selectedProjectId"></button>
+        <button pButton type="button" label="Open Tasks" icon="pi pi-list" class="p-button-outlined" (click)="openTasks()"></button>
+      </div>
+    </div>
+  </p-card>
+
+  <div class="project-kpis">
+    <p-card class="kpi-card"><span class="kpi-card__label">Team Members</span><span class="kpi-card__value">{{ projectMembers.length }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Recent Tasks</span><span class="kpi-card__value">{{ totalTasks }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">To Do</span><span class="kpi-card__value">{{ todoTasks }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">In Progress</span><span class="kpi-card__value">{{ inProgressTasks }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Done</span><span class="kpi-card__value">{{ doneTasks }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Overdue</span><span class="kpi-card__value">{{ overdueTasks }}</span></p-card>
+  </div>
+
+  <div class="project-details-grid">
+    <div class="project-details-grid__col project-details-grid__col--overview">
+      <p-card header="Project Overview" styleClass="details-card">
+        <div class="project-overview" *ngIf="selectedProjectDetails as project; else emptyProjectState">
+          <p>{{ project.description || 'No project description provided yet.' }}</p>
+          <div class="project-overview__meta">
+            <span><strong>Created by:</strong> {{ project.createdByUserName || 'Unknown' }}</span>
+            <span><strong>Last modified by:</strong> {{ project.lastModifiedByUserName || 'Unknown' }}</span>
+            <span><strong>Unassigned tasks:</strong> {{ unassignedTasks }}</span>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="project-details-grid__col project-details-grid__col--members">
+      <p-card header="Project Members" styleClass="details-card">
+        <div class="members-list" *ngIf="projectMembers.length > 0; else emptyMembersState">
+          <div class="member-item" *ngFor="let member of projectMembers">
+            <div class="member-item__identity">
+              <p-avatar [label]="getInitials(member.displayName)" shape="circle"></p-avatar>
+              <span>{{ member.displayName }}</span>
+            </div>
+            <p-tag [value]="member.isOwner ? 'Owner' : 'Member'" [severity]="member.isOwner ? 'info' : 'contrast'"></p-tag>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="project-details-grid__col project-details-grid__col--tasks">
+      <p-card header="Recent Tasks" styleClass="details-card">
+        <div class="tasks-inline-error" *ngIf="errors.length > 0">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ errors[0].detail }}
+          <span *ngIf="previewDetail">· {{ previewDetail }}</span>
+        </div>
+
+        <p-table [value]="recentTasks" [loading]="isLoadingDetails" [rowHover]="true" [tableStyle]="{ 'min-width': '42rem' }">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="min-width: 16rem;">Task</th>
+              <th style="min-width: 8rem;">Status</th>
+              <th style="min-width: 10rem;">Assignee</th>
+              <th style="min-width: 8rem;">Due</th>
+              <th style="min-width: 10rem;">Updated</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-task>
+            <tr>
+              <td>
+                <div class="task-cell">
+                  <span class="task-cell__title">{{ task.title }}</span>
+                  <span class="task-cell__description">{{ task.description || 'No description.' }}</span>
+                </div>
+              </td>
+              <td>
+                <p-tag [value]="getStatusName(task.status)" [severity]="getStatusSeverity(task.status)"></p-tag>
+              </td>
+              <td>{{ task.assignedUserName || 'Unassigned' }}</td>
+              <td>
+                <span [class.task-date--overdue]="isOverdue(task)">
+                  {{ task.dueDate ? (task.dueDate | date:'MMM d, y') : '-' }}
+                </span>
+              </td>
+              <td>{{ task.lastModifiedAt | date:'MMM d, y' }}</td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="empty-cell">
+                <div class="empty-state">
+                  <i class="pi pi-inbox"></i>
+                  <p>No tasks found for this project.</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+  </div>
+</div>
+
+<ng-template #emptyProjectState>
+  <div class="empty-state">
+    <i class="pi pi-folder-open"></i>
+    <p>Select a project to view details.</p>
+  </div>
+</ng-template>
+
+<ng-template #emptyMembersState>
+  <div class="empty-state">
+    <i class="pi pi-users"></i>
+    <p>No members found for this project.</p>
+  </div>
+</ng-template>

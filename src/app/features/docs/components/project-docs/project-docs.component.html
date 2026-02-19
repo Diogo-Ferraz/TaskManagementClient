@@ -1,0 +1,86 @@
+<section class="docs-page">
+  <p-card class="docs-header-card">
+    <div class="docs-header">
+      <div class="docs-header__content">
+        <p class="docs-kicker">Project Documentation</p>
+        <h2>Task Management Platform</h2>
+        <p>
+          A Jira-style product showcase focused on clean architecture, secure auth, and production-minded Angular UX.
+          This page explains the purpose, technical direction, and architecture decisions behind the platform.
+        </p>
+      </div>
+
+      <div class="docs-header__meta">
+        <span class="meta-pill"><i class="pi pi-desktop"></i> Angular + PrimeNG</span>
+        <span class="meta-pill"><i class="pi pi-shield"></i> OpenIddict + PKCE</span>
+        <span class="meta-pill"><i class="pi pi-sync"></i> SignalR Real-time</span>
+      </div>
+    </div>
+  </p-card>
+
+  <div class="docs-grid docs-grid--equal docs-grid--two">
+    <p-card header="Project Purpose" styleClass="docs-card">
+      <p>
+        Build a practical collaboration workspace where teams can plan, execute, and track work using boards,
+        role-aware capabilities, and a live activity feed.
+      </p>
+      <p>
+        The frontend intentionally demonstrates maintainability and UI quality while proving real backend integration,
+        not a disconnected mock-only demo.
+      </p>
+    </p-card>
+
+    <p-card header="Architecture Notes" styleClass="docs-card">
+      <div class="notes">
+        <p>
+          The backend is built as a reusable template with Vertical Slice Architecture and OpenIddict-based auth.
+          The SPA maps directly onto that backend contract so adding features remains predictable.
+        </p>
+        <p>
+          Error handling follows RFC7807 Problem Details, while key screens include resilient loading, empty, and
+          degraded states for local UI development and demos.
+        </p>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="docs-grid docs-grid--equal docs-grid--three">
+    <p-card header="Tech Stack" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of techStack">{{ item }}</li>
+      </ul>
+    </p-card>
+
+    <p-card header="Current Feature Highlights" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of highlights">{{ item }}</li>
+      </ul>
+    </p-card>
+
+    <p-card header="Engineering Principles" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of principles">{{ item }}</li>
+      </ul>
+    </p-card>
+  </div>
+
+  <div class="docs-grid docs-grid--equal docs-grid--three">
+    <p-card header="Navigation Information Architecture" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of navigationGroups">{{ item }}</li>
+      </ul>
+    </p-card>
+
+    <p-card header="Engineering Standards" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of engineeringStandards">{{ item }}</li>
+      </ul>
+    </p-card>
+
+    <p-card header="Quality & Delivery" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of qualityAndDelivery">{{ item }}</li>
+      </ul>
+    </p-card>
+  </div>
+</section>

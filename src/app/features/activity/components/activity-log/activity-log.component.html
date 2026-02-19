@@ -1,0 +1,163 @@
+<div class="activity-log-page">
+  <p-card class="activity-log-header-card">
+    <div class="activity-log-header">
+      <div class="activity-log-header__title">
+        <h2>Activity Log</h2>
+        <p>Global audit feed for project and task events across the workspace.</p>
+      </div>
+
+      <div class="activity-log-header__meta">
+        <span class="meta-pill">
+          <i class="pi pi-bolt"></i>
+          {{ isLiveConnected ? 'Live connected' : 'Live disconnected' }}
+        </span>
+        <span class="meta-pill" *ngIf="isPreviewMode">
+          <i class="pi pi-eye"></i>
+          Preview mode
+        </span>
+        <span class="meta-pill" *ngIf="previewDetail">{{ previewDetail }}</span>
+      </div>
+    </div>
+  </p-card>
+
+  <div class="activity-log-kpis">
+    <p-card class="kpi-card"><span class="kpi-card__label">Total Events</span><span class="kpi-card__value">{{ totalEvents }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Visible Events</span><span class="kpi-card__value">{{ visibleEvents }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Today</span><span class="kpi-card__value">{{ todayEvents }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Project Events</span><span class="kpi-card__value">{{ projectEvents }}</span></p-card>
+  </div>
+
+  <p-card class="activity-log-table-card">
+    <div class="activity-log-inline-error" *ngIf="errorMessage">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{ errorMessage }}
+    </div>
+
+    <p-table
+      #dt
+      [value]="filteredRows"
+      [loading]="isLoading"
+      [rowHover]="true"
+      [paginator]="true"
+      [rows]="15"
+      [rowsPerPageOptions]="[15, 30, 60]"
+      [tableStyle]="{ 'min-width': '72rem' }"
+      [globalFilterFields]="['actorDisplayName', 'projectName', 'taskTitle', 'typeLabel', 'entityType']"
+      (onFilter)="onTableFilter($event)">
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <button pButton type="button" icon="pi pi-filter-slash" label="Clear Filters" class="p-button-text" (click)="clearFilters(dt)"></button>
+          <button pButton type="button" icon="pi pi-upload" label="Export CSV" class="p-button-text" (click)="exportCsv(dt)"></button>
+
+          <div class="caption-date-filters">
+            <p-calendar
+              [(ngModel)]="dateFrom"
+              [showIcon]="true"
+              [appendTo]="'body'"
+              dateFormat="yy-mm-dd"
+              placeholder="From"
+              (onSelect)="onDateRangeChanged(dt)"
+              (onClearClick)="onDateRangeChanged(dt)">
+            </p-calendar>
+
+            <p-calendar
+              [(ngModel)]="dateTo"
+              [showIcon]="true"
+              [appendTo]="'body'"
+              dateFormat="yy-mm-dd"
+              placeholder="To"
+              (onSelect)="onDateRangeChanged(dt)"
+              (onClearClick)="onDateRangeChanged(dt)">
+            </p-calendar>
+          </div>
+
+          <span class="table-search">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" [(ngModel)]="tableSearch" (input)="onGlobalFilter(dt, $event)" placeholder="Search activity..." />
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 12rem;">
+            <div class="column-head">
+              Actor
+              <p-columnFilter type="text" field="actorDisplayName" display="menu"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 9rem;">
+            <div class="column-head">
+              Entity
+              <p-columnFilter field="entityType" matchMode="equals" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="entityTypeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="value"
+                    [appendTo]="'body'"
+                    [showClear]="false"
+                    placeholder="Entity"
+                    (onChange)="filter($event.value)">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 14rem;">
+            <div class="column-head">
+              Event Type
+              <p-columnFilter field="type" matchMode="equals" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="typeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="value"
+                    [appendTo]="'body'"
+                    [showClear]="false"
+                    placeholder="Type"
+                    (onChange)="filter($event.value)">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 14rem;">
+            <div class="column-head">
+              Project
+              <p-columnFilter type="text" field="projectName" display="menu"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 16rem;">Task</th>
+          <th style="min-width: 12rem;">Occurred At</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td>{{ row.actorDisplayName || '-' }}</td>
+          <td>
+            <p-tag [value]="row.entityType" [severity]="row.entityType === 'Project' ? 'info' : 'contrast'"></p-tag>
+          </td>
+          <td>{{ row.typeLabel }}</td>
+          <td>{{ row.projectName || '-' }}</td>
+          <td>{{ row.taskTitle || '-' }}</td>
+          <td>{{ row.occurredAtDate | date:'MMM d, y, h:mm a' }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="empty-cell">
+            <div class="empty-state">
+              <i class="pi pi-history"></i>
+              <p>No activity found for current filters.</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

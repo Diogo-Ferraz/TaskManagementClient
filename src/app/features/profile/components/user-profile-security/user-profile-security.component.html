@@ -1,0 +1,115 @@
+<div class="profile-page">
+  <p-card class="profile-header-card">
+    <div class="profile-header">
+      <div class="profile-header__title">
+        <h2>User Profile & Security</h2>
+        <p>Identity claims, roles, active session health, and security posture for this account.</p>
+        <div class="profile-header__meta">
+          <span class="meta-pill">
+            <i class="pi pi-user"></i>
+            {{ userDisplayName() }}
+          </span>
+          <span class="meta-pill">
+            <i class="pi pi-envelope"></i>
+            {{ userEmail() }}
+          </span>
+          <span class="meta-pill" *ngIf="isDebugSession">
+            <i class="pi pi-eye"></i>
+            Debug session
+          </span>
+        </div>
+      </div>
+
+      <div class="profile-header__actions">
+        <button pButton type="button" label="Create Account" icon="pi pi-user-plus" class="p-button-outlined" (click)="register()"></button>
+        <button pButton type="button" label="Logout" icon="pi pi-sign-out" class="p-button-outlined" (click)="logout()"></button>
+      </div>
+    </div>
+  </p-card>
+
+  <div class="profile-kpis">
+    <div class="profile-kpis__item">
+      <p-card class="kpi-card"><span class="kpi-card__label">User Id</span><span class="kpi-card__value kpi-card__value--small">{{ currentUserId() || '-' }}</span></p-card>
+    </div>
+    <div class="profile-kpis__item">
+      <p-card class="kpi-card"><span class="kpi-card__label">Roles</span><span class="kpi-card__value">{{ roles().length }}</span></p-card>
+    </div>
+    <div class="profile-kpis__item">
+      <p-card class="kpi-card"><span class="kpi-card__label">Scopes</span><span class="kpi-card__value">{{ scopes().length }}</span></p-card>
+    </div>
+    <div class="profile-kpis__item">
+      <p-card class="kpi-card"><span class="kpi-card__label">Expires In</span><span class="kpi-card__value">{{ expiresInMinutes() }}m</span></p-card>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+    <div class="profile-grid__col profile-grid__col--roles">
+      <p-card header="Role Membership" styleClass="profile-panel-card">
+        <div class="roles-list" *ngIf="roles().length > 0; else noRolesState">
+          <div class="role-item" *ngFor="let role of roles()">
+            <div class="role-item__head">
+              <span class="role-item__name">{{ role }}</span>
+            </div>
+            <p class="role-item__description">{{ getRoleDescription(role) }}</p>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="profile-grid__col profile-grid__col--session">
+      <p-card header="Session Details" styleClass="profile-panel-card">
+        <div class="session-details">
+          <div class="session-item"><span>Token Type</span><strong>{{ tokenType }}</strong></div>
+          <div class="session-item"><span>Expires At</span><strong>{{ expiresAt() ? (expiresAt() | date:'medium') : '-' }}</strong></div>
+          <div class="session-item"><span>Debug Session</span><strong>{{ isDebugSession ? 'Yes' : 'No' }}</strong></div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="profile-grid__col profile-grid__col--security">
+      <p-card header="Security Notes" styleClass="profile-panel-card">
+        <ul class="security-list">
+          <li *ngFor="let item of securityChecklist">{{ item }}</li>
+        </ul>
+      </p-card>
+    </div>
+
+    <div class="profile-grid__col profile-grid__col--claims">
+      <p-card header="Identity Claims" styleClass="profile-panel-card">
+        <p-table [value]="claimRows()" [rows]="8" [paginator]="claimRows().length > 8" [rowsPerPageOptions]="[8, 16, 30]" [scrollable]="true" scrollHeight="22rem">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 30%;">Claim</th>
+              <th>Value</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-claim>
+            <tr>
+              <td><code>{{ claim.key }}</code></td>
+              <td class="claim-value">{{ claim.value }}</td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="2" class="empty-cell">
+                <div class="empty-state">
+                  <i class="pi pi-id-card"></i>
+                  <p>No claims available for this session.</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+  </div>
+</div>
+
+<ng-template #noRolesState>
+  <div class="empty-state">
+    <i class="pi pi-users"></i>
+    <p>No role claims present in the current token.</p>
+  </div>
+</ng-template>

@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-home-login',
@@ -11,41 +10,9 @@ import { Router } from '@angular/router';
   styleUrl: './home-login.component.scss'
 })
 export class HomeLoginComponent {
-  loginForm: FormGroup;
-  errorMessage: string = '';
+  private readonly authService = inject(AuthService);
 
-  constructor(private fb: FormBuilder, private router: Router) {
-    this.loginForm = this.fb.group({
-      username: ['', [Validators.required]],
-      password: ['', [Validators.required]],
-    });
-
-    this.loginForm.get('username')?.valueChanges.subscribe(() => {
-      this.errorMessage = '';
-    });
-
-    this.loginForm.get('password')?.valueChanges.subscribe(() => {
-      this.errorMessage = '';
-    });
-  }
-
-  onLogin() {
-    const { username, password } = this.loginForm.value;
-
-    if (username === 'admin' && password === 'admin') {
-      this.errorMessage = '';
-      alert('Login successful');
-      this.router.navigate(['/projects']);
-    } else {
-      this.errorMessage = 'Invalid credentials. Please try again.';
-    }
-  }
-
-  get f() {
-    return this.loginForm.controls;
-  }
-
-  get isFormValid() {
-    return this.loginForm.valid;
+  signIn(): void {
+    void this.authService.startLoginRedirect();
   }
 }

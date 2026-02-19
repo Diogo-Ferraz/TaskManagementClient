@@ -1,0 +1,12 @@
+<div class="auth-callback-container">
+  <div class="auth-callback-card">
+    <h2>Signing you in</h2>
+
+    <p *ngIf="isProcessing">Completing secure sign in...</p>
+
+    <div *ngIf="!isProcessing && errorMessage" class="auth-callback-error">
+      <p>{{ errorMessage }}</p>
+      <button type="button" class="retry-button" (click)="retryLogin()">Try again</button>
+    </div>
+  </div>
+</div>

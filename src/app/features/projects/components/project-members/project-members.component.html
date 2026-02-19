@@ -1,0 +1,137 @@
+<div class="project-members-page">
+  <p-card class="members-header-card">
+    <div class="members-header">
+      <div class="members-header__title">
+        <h2>Project Members</h2>
+        <p>Review project membership, ownership, and collaborator visibility for any project.</p>
+        <div class="members-header__meta" *ngIf="selectedProject as project">
+          <span class="meta-pill">
+            <i class="pi pi-folder"></i>
+            {{ project.name }}
+          </span>
+          <span class="meta-pill">
+            <i class="pi pi-user"></i>
+            By {{ project.createdByUserName || 'Unknown' }}
+          </span>
+          <span class="meta-pill">
+            <i class="pi pi-calendar"></i>
+            Created {{ project.createdAt | date:'mediumDate' }}
+          </span>
+          <span class="meta-pill" *ngIf="isPreviewMode">
+            <i class="pi pi-eye"></i>
+            Preview mode
+          </span>
+        </div>
+      </div>
+
+      <div class="members-header__controls">
+        <p-dropdown
+          inputId="membersProjectPicker"
+          [options]="projects"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="selectedProjectId"
+          [filter]="true"
+          filterBy="name"
+          [showClear]="false"
+          [disabled]="isLoadingProjects || projects.length === 0 || isLoadingMembers"
+          placeholder="Select project"
+          (onChange)="onProjectChange($event.value)">
+        </p-dropdown>
+
+        <button pButton type="button" icon="pi pi-refresh" class="p-button-outlined" (click)="refresh()" [loading]="isLoadingProjects || isLoadingMembers"></button>
+      </div>
+    </div>
+  </p-card>
+
+  <div class="members-kpis">
+    <p-card class="kpi-card"><span class="kpi-card__label">Total Members</span><span class="kpi-card__value">{{ totalMembers }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Owners</span><span class="kpi-card__value">{{ ownerCount }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Collaborators</span><span class="kpi-card__value">{{ collaboratorCount }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Visible</span><span class="kpi-card__value">{{ visibleCount }}</span></p-card>
+  </div>
+
+  <p-card class="members-table-card">
+    <div class="members-inline-error" *ngIf="errorMessage">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{ errorMessage }}
+      <span *ngIf="previewDetail">· {{ previewDetail }}</span>
+    </div>
+
+    <p-table
+      #dt
+      [value]="members"
+      [loading]="isLoadingMembers"
+      [rowHover]="true"
+      [tableStyle]="{ 'min-width': '42rem' }"
+      (onFilter)="onTableFilter($event)">
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <button pButton type="button" icon="pi pi-filter-slash" label="Clear Filters" class="p-button-text" (click)="clearTableFilters(dt)"></button>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="min-width: 18rem;">
+            <div class="column-head">
+              Member
+              <p-columnFilter type="text" field="displayName" display="menu"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 10rem;">
+            <div class="column-head">
+              Role In Project
+              <p-columnFilter field="isOwner" matchMode="equals" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="roleFilterOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="value"
+                    [appendTo]="'body'"
+                    [showClear]="false"
+                    placeholder="Role"
+                    (onChange)="filter($event.value)">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 12rem;">
+            <div class="column-head">
+              User Id
+              <p-columnFilter type="text" field="userId" display="menu"></p-columnFilter>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-member>
+        <tr>
+          <td>
+            <div class="member-cell">
+              <p-avatar [label]="getInitials(member.displayName)" shape="circle"></p-avatar>
+              <span>{{ member.displayName }}</span>
+            </div>
+          </td>
+          <td>
+            <p-tag [value]="member.isOwner ? 'Owner' : 'Member'" [severity]="member.isOwner ? 'info' : 'contrast'"></p-tag>
+          </td>
+          <td><code>{{ member.userId }}</code></td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="3" class="empty-cell">
+            <div class="empty-state">
+              <i class="pi pi-users"></i>
+              <p>{{ members.length === 0 ? 'No members found for this project.' : 'No members match current filters.' }}</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

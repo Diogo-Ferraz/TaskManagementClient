@@ -1,0 +1,120 @@
+.docs-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.docs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.docs-header__content h2 {
+  margin: 0.35rem 0 0;
+}
+
+.docs-header__content p {
+  margin: 0.8rem 0 0;
+  color: var(--text-color-secondary);
+  max-width: 85ch;
+}
+
+.docs-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  padding: 0.24rem 0.68rem;
+  font-size: 0.82rem;
+  color: var(--text-color-secondary);
+  background: color-mix(in srgb, var(--surface-100) 75%, transparent);
+}
+
+.docs-kicker {
+  margin: 0;
+  color: var(--primary-color);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.docs-grid.docs-grid--equal p-card {
+  display: block;
+}
+
+.docs-grid.docs-grid--two p-card {
+  grid-column: span 6;
+}
+
+.docs-grid.docs-grid--three p-card {
+  grid-column: span 4;
+}
+
+.docs-list {
+  margin: 0;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.notes {
+  color: var(--text-color-secondary);
+}
+
+:host ::ng-deep .docs-grid--equal .docs-card {
+  height: 100%;
+}
+
+:host ::ng-deep .docs-grid--equal .docs-card .p-card {
+  height: 100%;
+}
+
+:host ::ng-deep .docs-card .p-card-body {
+  height: 100%;
+}
+
+:host ::ng-deep .docs-card .p-card-content {
+  color: var(--text-color-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (max-width: 1200px) {
+  .docs-grid.docs-grid--three p-card {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 960px) {
+  .docs-header__meta {
+    justify-content: flex-start;
+  }
+
+  .docs-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .docs-grid.docs-grid--two p-card,
+  .docs-grid.docs-grid--three p-card {
+    grid-column: auto;
+  }
+}

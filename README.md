@@ -1,27 +1,44 @@
 # TaskManagementClient
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.11.
+Angular SPA for a Jira-style task management system, integrated with an existing .NET 8 backend.
 
-## Development server
+## Highlights
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- OIDC authentication (Authorization Code + PKCE) against OpenIddict
+- Role-aware UX for `Administrator`, `ProjectManager`, and `User`
+- Real-time activity updates via SignalR
+- Project Kanban board with drag/drop and inline task editing
+- Dashboard, calendar, search/filters, admin tools, activity views, and settings
+- Preview mode support for frontend-only workflows
 
-## Code scaffolding
+## Tech Stack
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Angular 18 (standalone components)
+- PrimeNG UI
+- RxJS
+- SignalR JavaScript client
 
-## Build
+## Architecture
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+- `src/app/core`: auth, api clients, config, layout, realtime, preferences
+- `src/app/features`: page-level feature components by domain
+- `src/app/shared`: shared module and reusable UI pieces
 
-## Running unit tests
+The SPA is API-contract-first: typed DTOs and clients are aligned with backend endpoints.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Sidebar Information Architecture
 
-## Running end-to-end tests
+- Overview: Dashboard
+- Workspaces: Projects, Project Details, Project Members, Kanban
+- Delivery: All Tasks, My Tasks, Create Task
+- Activity: My Activity, Activity Log, Calendar, Search & Filters
+- Account: Profile & Security, Settings
+- Administration: Admin Dashboard
+- About: Project Docs
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Run
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- Install dependencies: `npm install`
+- Development server: `npm start`
+- Build: `npm run build`
+- Tests: `npm test`

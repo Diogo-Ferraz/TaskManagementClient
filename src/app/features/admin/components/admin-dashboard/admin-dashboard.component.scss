@@ -1,0 +1,146 @@
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-header__title h2 {
+  margin: 0;
+}
+
+.admin-header__title p {
+  margin: 0.3rem 0 0;
+  color: var(--text-color-secondary);
+}
+
+.admin-header__meta {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  padding: 0.22rem 0.62rem;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  background: color-mix(in srgb, var(--surface-100) 75%, transparent);
+}
+
+.admin-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.kpi-card {
+  min-height: 6rem;
+}
+
+.kpi-card__label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  margin-bottom: 0.3rem;
+}
+
+.kpi-card__value {
+  font-size: 1.7rem;
+  font-weight: 600;
+}
+
+.table-caption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.column-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.table-search {
+  margin-left: auto;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.table-search i {
+  position: absolute;
+  left: 0.65rem;
+  color: var(--text-color-secondary);
+}
+
+.table-search input {
+  padding-left: 2rem;
+  min-width: 18rem;
+}
+
+.admin-user-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.admin-user-name {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.admin-roles {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.admin-empty {
+  border: 1px dashed var(--surface-border);
+  border-radius: 10px;
+  color: var(--text-color-secondary);
+  padding: 1rem;
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-muted-color {
+  color: var(--text-color-secondary);
+}
+
+@media (max-width: 1200px) {
+  .admin-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .table-search {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .table-search input {
+    width: 100%;
+    min-width: 0;
+  }
+}

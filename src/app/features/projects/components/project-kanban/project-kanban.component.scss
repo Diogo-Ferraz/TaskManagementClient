@@ -1,53 +1,555 @@
-::ng-deep .custom-card .p-card-body {
-    padding: 0 2rem 2rem 2rem;
+.kanban-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-::ng-deep .custom-card .p-card-content {
-    padding: 0;
+.kanban-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.card {
-    background: var(--surface-card);
-    border: 1px solid var(--surface-border);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--card-shadow);
+.kanban-toolbar__title h2 {
+  margin: 0;
+}
+
+.kanban-toolbar__title p {
+  margin: 0.25rem 0 0;
+  color: var(--text-color-secondary);
+}
+
+.kanban-toolbar__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  padding: 0.28rem 0.65rem;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  background: color-mix(in srgb, var(--surface-100) 70%, transparent);
+}
+
+.project-console {
+  min-width: 340px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+}
+
+.project-console__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-color-secondary);
+  font-weight: 600;
+  opacity: 0.85;
+  margin-right: 0.2rem;
+}
+
+.project-console__counter {
+  font-size: 0.72rem;
+  color: var(--text-color-secondary);
+  margin-right: 0.2rem;
+}
+
+.project-console__controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.25rem;
+  align-items: center;
+  width: 100%;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 0.15rem;
+  background: color-mix(in srgb, var(--surface-100) 70%, transparent);
+}
+
+:host ::ng-deep .project-console__controls .p-dropdown {
+  min-width: 12rem;
+}
+
+:host ::ng-deep .project-console__controls .p-dropdown .p-dropdown-label {
+  padding-top: 0.42rem;
+  padding-bottom: 0.42rem;
+  font-size: 0.82rem;
+}
+
+:host ::ng-deep .project-console__controls .p-button.p-button-sm {
+  width: 2rem;
+  height: 2rem;
+}
+
+.kanban-content {
+  min-height: calc(100vh - 14.5rem);
+}
+
+.kanban-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+  min-height: calc(100vh - 19rem);
+}
+
+.kanban-column,
+.kanban-column-card,
+:host ::ng-deep .kanban-column-card .p-card,
+:host ::ng-deep .kanban-column-card .p-card-body,
+:host ::ng-deep .kanban-column-card .p-card-content {
+  height: 100%;
 }
 
 .column-header {
-    padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.95rem 1rem 0.8rem;
+  border-bottom: 1px solid var(--surface-border);
 }
 
-.drag-card {
-    display: flex;
-    border-radius: var(--border-radius);
-    border: 1px solid lightgrey;
-    padding: 1rem;
-    --tw-bg-opacity: 1;
-    background-color: 
-    color-mix(in srgb, var(--surface-0) calc(100%* var(--tw-bg-opacity, 1)), transparent);
-    gap: 2rem;
-    flex-direction: column;
-    cursor: pointer;
+.column-header__left {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.column-header__icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--surface-border);
+  background: color-mix(in srgb, var(--surface-100) 75%, transparent);
+  flex-shrink: 0;
+}
+
+.column-header__icon i {
+  font-size: 0.95rem;
+}
+
+.column-header__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.column-title {
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.column-subtitle {
+  font-size: 0.76rem;
+  color: var(--text-color-secondary);
+  line-height: 1.2;
+  margin-top: 0.12rem;
+}
+
+.column-header--todo .column-header__icon {
+  color: #1976d2;
+  border-color: color-mix(in srgb, #1976d2 35%, var(--surface-border));
+  background: color-mix(in srgb, #1976d2 12%, var(--surface-100));
+}
+
+.column-header--progress .column-header__icon {
+  color: #ff9800;
+  border-color: color-mix(in srgb, #ff9800 35%, var(--surface-border));
+  background: color-mix(in srgb, #ff9800 14%, var(--surface-100));
+}
+
+.column-header--done .column-header__icon {
+  color: #43a047;
+  border-color: color-mix(in srgb, #43a047 35%, var(--surface-border));
+  background: color-mix(in srgb, #43a047 14%, var(--surface-100));
+}
+
+:host ::ng-deep .column-count-chip {
+  font-size: 0.76rem;
+  min-width: 2rem;
+  justify-content: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-200) 82%, transparent);
+  color: var(--text-color);
+  border: 1px solid var(--surface-border);
+}
+
+.kanban-column-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-height: 0;
+  height: 100%;
+  max-height: calc(100vh - 24rem);
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.task-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.kanban-drop-slot {
+  min-height: 0.35rem;
+  border-radius: 10px;
+  transition: min-height 0.12s ease, background-color 0.12s ease;
+}
+
+.kanban-drop-slot--active {
+  min-height: 4.1rem;
+  background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+}
+
+.kanban-drop-slot--end {
+  margin-top: 0.15rem;
+}
+
+.task-card {
+  --task-tone: var(--primary-color);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--task-tone) 22%, var(--surface-border));
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0.9rem 0.9rem 0.85rem;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--task-tone) 4%, var(--surface-0)) 0%, color-mix(in srgb, var(--surface-0) 97%, transparent) 55%),
+    var(--surface-0);
+  box-shadow:
+    0 10px 18px -14px color-mix(in srgb, var(--task-tone) 40%, transparent),
+    0 2px 5px -3px rgba(18, 18, 23, 0.16);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.task-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--task-tone) 92%, white), color-mix(in srgb, var(--task-tone) 62%, black));
+}
+
+.task-card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--task-tone) 45%, var(--surface-border));
+  box-shadow:
+    0 14px 24px -15px color-mix(in srgb, var(--task-tone) 55%, transparent),
+    0 5px 12px -6px rgba(18, 18, 23, 0.2);
+}
+
+.task-card--todo {
+  --task-tone: #1e88e5;
+}
+
+.task-card--in-progress {
+  --task-tone: #fb8c00;
+}
+
+.task-card--done {
+  --task-tone: #43a047;
+}
+
+.task-card--dragging {
+  opacity: 0.58;
+  border-radius: 12px;
+  transform: rotate(1deg) scale(0.995);
+  box-shadow: 0 10px 20px -14px rgba(18, 18, 23, 0.45);
+}
+
+.task-card--pending {
+  opacity: 0.8;
+}
+
+.task-card--ghost {
+  opacity: 0.42;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--task-tone) 65%, var(--surface-border));
+  background:
+    linear-gradient(155deg, color-mix(in srgb, var(--task-tone) 16%, var(--surface-100)), color-mix(in srgb, var(--task-tone) 8%, transparent));
+  box-shadow: none;
+  transform: none;
+}
+
+.task-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.task-card__header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.task-card__title {
+  font-weight: 600;
+  line-height: 1.25;
+  color: color-mix(in srgb, var(--text-color) 90%, var(--task-tone));
+  padding-right: 0.35rem;
+}
+
+.task-card__description {
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.task-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.task-control label {
+  font-size: 0.82rem;
+  color: var(--text-color-secondary);
+}
+
+.task-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.15rem;
+  border-top: 1px dashed color-mix(in srgb, var(--task-tone) 25%, var(--surface-border));
+}
+
+.task-card__assignee {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.task-card__date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: color-mix(in srgb, var(--task-tone) 45%, var(--text-color-secondary));
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.task-create-placeholder {
+  border: 1px dashed color-mix(in srgb, var(--primary-color) 45%, var(--surface-border));
+  background: color-mix(in srgb, var(--surface-100) 60%, transparent);
+  color: var(--text-color-secondary);
+  border-radius: 12px;
+  padding: 1rem 0.75rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  cursor: pointer;
+}
+
+.task-create-placeholder i {
+  font-size: 1.15rem;
+}
+
+.task-create-placeholder:hover {
+  border-color: color-mix(in srgb, var(--primary-color) 70%, var(--surface-border));
+  background: color-mix(in srgb, var(--primary-color) 8%, var(--surface-100));
+}
+
+.task-dialog-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+
+.task-dialog-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.75rem 0.8rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-100) 65%, transparent);
+}
+
+.task-dialog-intro__icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 30%, var(--surface-border));
+  background: color-mix(in srgb, var(--primary-color) 12%, var(--surface-100));
+  flex-shrink: 0;
+}
+
+.task-dialog-intro h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.task-dialog-intro p {
+  margin: 0.2rem 0 0;
+  color: var(--text-color-secondary);
+  font-size: 0.84rem;
+}
+
+.task-dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.task-dialog-section {
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-100) 45%, transparent);
+  padding: 0.8rem;
+}
+
+.task-dialog-section__title {
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  margin-bottom: 0.65rem;
+}
+
+.task-dialog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.task-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+:host ::ng-deep .task-dialog-form .p-inputtext,
+:host ::ng-deep .task-dialog-form .p-inputtextarea,
+:host ::ng-deep .task-dialog-form .p-dropdown,
+:host ::ng-deep .task-dialog-form .p-calendar {
+  width: 100%;
+}
+
+:host ::ng-deep .task-dialog-form .p-inputtext,
+:host ::ng-deep .task-dialog-form .p-inputtextarea,
+:host ::ng-deep .task-dialog-form .p-dropdown .p-dropdown-label,
+:host ::ng-deep .task-dialog-form .p-calendar .p-inputtext {
+  font-size: 0.92rem;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header {
+  padding-bottom: 0.35rem;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-content {
+  padding-top: 0.55rem;
+}
+
+.kanban-empty,
+.kanban-column-empty {
+  color: var(--text-color-secondary);
+}
+
+.kanban-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kanban-column-empty {
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.kanban-inline-error {
+  border: 1px solid color-mix(in srgb, var(--orange-500) 35%, transparent);
+  background: color-mix(in srgb, var(--orange-100) 68%, transparent);
+  color: var(--orange-700);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+:host ::ng-deep .custom-card .p-card-body {
+  padding: 0 1rem 1rem;
+}
+
+:host ::ng-deep .custom-card .p-card-content {
+  padding: 0;
+}
+
+@media (max-width: 1200px) {
+  .kanban-grid {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .kanban-column-body {
+    max-height: 24rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .kanban-content {
+    min-height: auto;
+  }
+
+  .project-console {
+    min-width: 100%;
+    max-width: 100%;
+    align-items: stretch;
+  }
+
+  .project-console__controls {
+    min-width: 100%;
+  }
+
+  :host ::ng-deep .project-console__controls .p-dropdown {
+    min-width: 0;
     width: 100%;
-}
+  }
 
-.text-surface-900 {
-    --tw-text-opacity: 1;
-    color: color-mix(in srgb, var(--surface-900) calc(100%* var(--tw-text-opacity, 1)), transparent);
-}
+  .task-dialog-grid {
+    grid-template-columns: 1fr;
+  }
 
-:host ::ng-deep {
-    .drop-column {
-        border: 1px solid transparent;
-        transition: border-color .2s;
-    
-        &.p-draggable-enter {
-            border-color: var(--primary-color); 
-        }
-    }
-
-    [pDraggable] {
-        cursor: move;
-    }
+  .task-dialog-intro {
+    padding: 0.65rem;
+  }
 }

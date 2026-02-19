@@ -1,30 +1,98 @@
-<p-toast />
-<p-card header="Create New Project">
-    <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+<p-toast></p-toast>
 
-        <div class="field">
-            <label for="name">Project Name</label>
-            <input id="name" type="text" pInputText formControlName="name" placeholder="Name" class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': isInvalid('name')}" />
-            <small *ngIf="isInvalid('name')" class="p-error">
-                Project name is required.
-            </small>
+<div class="project-create-page">
+  <p-card class="project-create-header-card">
+    <div class="project-create-header">
+      <div class="project-create-header__title">
+        <h2>Create Project</h2>
+        <p>Define a clear project scope and get your Kanban workflow started.</p>
+        <div class="project-create-header__meta" *ngIf="isPreviewMode">
+          <span class="meta-pill">
+            <i class="pi pi-eye"></i>
+            Preview mode
+          </span>
+          <span class="meta-pill">{{ previewDetail }}</span>
         </div>
+      </div>
 
-        <div class="field">
+      <button pButton type="button" label="Back to Projects" icon="pi pi-arrow-left" class="p-button-outlined" (click)="cancel()" [disabled]="isLoading"></button>
+    </div>
+  </p-card>
+
+  <p-card class="readiness-card">
+    <p-steps [model]="readinessSteps" [readonly]="true" [activeIndex]="readinessStepIndex"></p-steps>
+    <small class="readiness-card__hint">
+      Progress updates live as you complete required project details.
+    </small>
+  </p-card>
+
+  <div class="project-create-grid">
+    <p-card class="project-create-form-card">
+      <form class="project-create-form" [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+        <div class="form-section">
+          <div class="form-section__title">Project Details</div>
+
+          <div class="field">
+            <label for="name">Project Name <span class="required">*</span></label>
+            <input
+              id="name"
+              type="text"
+              pInputText
+              formControlName="name"
+              placeholder="e.g. Billing Platform Revamp"
+              [maxlength]="maxNameLength"
+              [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('name') }" />
+            <div class="field-row">
+              <small *ngIf="isInvalid('name')" class="p-error">Project name is required.</small>
+              <small class="field-counter">{{ (projectForm.get('name')?.value || '').length }}/{{ maxNameLength }}</small>
+            </div>
+          </div>
+
+          <div class="field">
             <label for="description">Description</label>
-            <textarea id="description" pInputTextarea formControlName="description" class="w-full"
-                [rows]="5"></textarea>
+            <textarea
+              id="description"
+              pInputTextarea
+              formControlName="description"
+              [rows]="7"
+              placeholder="Summarize business purpose, delivery goals, and constraints."
+              [maxlength]="maxDescriptionLength"></textarea>
+            <div class="field-row">
+              <small class="field-hint">A strong description helps collaborators understand context quickly.</small>
+              <small class="field-counter">{{ descriptionLength }}/{{ maxDescriptionLength }}</small>
+            </div>
+          </div>
         </div>
 
-        <div class="flex justify-content-end gap-2">
-            <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-secondary" (click)="cancel()"
-                [disabled]="isLoading">
-            </p-button>
-            <p-button type="submit" label="Create Project" icon="pi pi-check" [loading]="isLoading"
-                [disabled]="!projectForm.valid || isLoading">
-            </p-button>
+        <div class="project-create-actions">
+          <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-text" (click)="cancel()" [disabled]="isLoading"></button>
+          <button pButton type="submit" label="Create Project" icon="pi pi-check" [loading]="isLoading" [disabled]="isLoading || !projectForm.valid"></button>
         </div>
+      </form>
+    </p-card>
 
-    </form>
-</p-card>
+    <p-card class="project-create-side-card">
+      <div class="side-card__title">What Makes a Good Project?</div>
+      <div class="side-card__description">Keep naming and scope explicit so boards stay easy to navigate at scale.</div>
+
+      <div class="checklist-item">
+        <i class="pi pi-check-circle"></i>
+        <span>Use a clear, business-focused project name.</span>
+      </div>
+      <div class="checklist-item">
+        <i class="pi pi-check-circle"></i>
+        <span>Describe expected outcomes and ownership context.</span>
+      </div>
+      <div class="checklist-item">
+        <i class="pi pi-check-circle"></i>
+        <span>Keep one project per delivery stream to avoid board clutter.</span>
+      </div>
+
+      <div class="project-preview-card">
+        <div class="project-preview-card__title">Live Preview</div>
+        <div class="project-preview-card__name">{{ previewName }}</div>
+        <div class="project-preview-card__description">{{ previewDescription }}</div>
+      </div>
+    </p-card>
+  </div>
+</div>

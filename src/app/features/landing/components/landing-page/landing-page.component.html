@@ -1,0 +1,61 @@
+<section class="landing">
+  <div class="landing__bg-shape landing__bg-shape--one"></div>
+  <div class="landing__bg-shape landing__bg-shape--two"></div>
+
+  <header class="landing__header">
+    <div class="landing__brand">
+      <span class="landing__brand-dot"></span>
+      <span>Task Management</span>
+    </div>
+    <div class="landing__actions">
+      <button pButton type="button" label="Sign In" (click)="signIn()"></button>
+      <button pButton type="button" severity="secondary" label="Create Account" (click)="register()"></button>
+    </div>
+  </header>
+
+  <main class="landing__hero">
+    <p class="landing__kicker">Jira-style Project Workspace</p>
+    <h1>Plan, track, and deliver work with a modern Kanban workflow.</h1>
+    <p>
+      This application helps teams organize projects, collaborate on tasks, and follow real-time activity
+      across boards and dashboards.
+    </p>
+
+    <div class="landing__cta">
+      <button pButton type="button" size="large" label="Get Started" icon="pi pi-arrow-right" iconPos="right" (click)="signIn()"></button>
+    </div>
+
+    @if (isDebugEntryEnabled()) {
+      <div class="landing__debug">
+        <button
+          pButton
+          type="button"
+          severity="contrast"
+          outlined="true"
+          icon="pi pi-bug"
+          label="Debug: enter app without login"
+          (click)="startDebugMode()"></button>
+      </div>
+    }
+  </main>
+
+  <section class="landing__features">
+    <article class="landing__feature-card">
+      <i class="pi pi-th-large"></i>
+      <h3>Kanban Boards</h3>
+      <p>Visualize project work by status, assignee, and due dates.</p>
+    </article>
+
+    <article class="landing__feature-card">
+      <i class="pi pi-chart-line"></i>
+      <h3>Actionable Dashboard</h3>
+      <p>Track assigned tasks, weekly delivery, project count, and overdue items.</p>
+    </article>
+
+    <article class="landing__feature-card">
+      <i class="pi pi-bolt"></i>
+      <h3>Real-time Activity</h3>
+      <p>Follow project and task updates instantly through a live activity feed.</p>
+    </article>
+  </section>
+</section>

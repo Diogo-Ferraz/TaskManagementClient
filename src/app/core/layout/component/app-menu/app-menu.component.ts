@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitemComponent } from '../app-menuitem/app-menuitem.component';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-menu',
@@ -11,69 +12,60 @@ import { AppMenuitemComponent } from '../app-menuitem/app-menuitem.component';
   styleUrl: './app-menu.component.scss'
 })
 export class AppMenuComponent {
+  private readonly authService = inject(AuthService);
   model: MenuItem[] = [];
 
   ngOnInit() {
     this.model = [
       {
-        label: 'Home',
-        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
+        label: 'Overview',
+        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }]
       },
       {
-        label: 'Projects',
-        icon: 'pi pi-fw pi-folder',
+        label: 'Workspaces',
         items: [
           { label: 'All Projects', icon: 'pi pi-fw pi-list', routerLink: ['/projects'] },
+          { label: 'Project Details', icon: 'pi pi-fw pi-folder-open', routerLink: ['/projects/details'] },
+          { label: 'Project Members', icon: 'pi pi-fw pi-users', routerLink: ['/projects/members'] },
           { label: 'Create Project', icon: 'pi pi-fw pi-plus', routerLink: ['/projects/create'] },
-          { label: 'Kanban Board', icon: 'pi pi-fw pi-th-large', routerLink: ['/projects/kanban'] },
-          { label: 'Archived Projects', icon: 'pi pi-fw pi-folder', routerLink: ['/projects/archived'] }
+          { label: 'Kanban Board', icon: 'pi pi-fw pi-th-large', routerLink: ['/projects/kanban'] }
         ]
       },
       {
-        label: 'Tasks',
-        icon: 'pi pi-fw pi-check',
+        label: 'Delivery',
         items: [
           { label: 'All Tasks', icon: 'pi pi-fw pi-list', routerLink: ['/tasks'] },
           { label: 'My Tasks', icon: 'pi pi-fw pi-user', routerLink: ['/tasks/my-tasks'] },
-          { label: 'Completed Tasks', icon: 'pi pi-fw pi-check-circle', routerLink: ['/tasks/completed'] },
           { label: 'Create Task', icon: 'pi pi-fw pi-plus', routerLink: ['/tasks/create'] }
         ]
       },
       {
-        label: 'Teams',
-        icon: 'pi pi-fw pi-users',
+        label: 'Activity',
         items: [
-          { label: 'Manage Teams', icon: 'pi pi-fw pi-user-edit', routerLink: ['/teams'] },
-          { label: 'User Roles', icon: 'pi pi-fw pi-users', routerLink: ['/teams/roles'] },
-          { label: 'Invite Members', icon: 'pi pi-fw pi-user-plus', routerLink: ['/teams/invite'] }
+          { label: 'My Activity', icon: 'pi pi-fw pi-history', routerLink: ['/activity/my'] },
+          { label: 'Activity Log', icon: 'pi pi-fw pi-database', routerLink: ['/activity/log'], visible: this.authService.hasAnyRole(['Administrator', 'ProjectManager']) },
+          { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/calendar'] },
+          { label: 'Search & Filters', icon: 'pi pi-fw pi-search', routerLink: ['/search'] }
         ]
       },
       {
-        label: 'Reports',
-        icon: 'pi pi-fw pi-chart-line',
+        label: 'Account',
         items: [
-          { label: 'Project Reports', icon: 'pi pi-fw pi-folder-open', routerLink: ['/reports/projects'] },
-          { label: 'Task Reports', icon: 'pi pi-fw pi-check-square', routerLink: ['/reports/tasks'] },
-          { label: 'User Activity', icon: 'pi pi-fw pi-clock', routerLink: ['/reports/activity'] }
+          { label: 'Profile & Security', icon: 'pi pi-fw pi-user-edit', routerLink: ['/profile'] },
+          { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/settings'] }
         ]
       },
       {
-        label: 'Settings',
-        icon: 'pi pi-fw pi-cog',
+        label: 'About',
         items: [
-          { label: 'Profile Settings', icon: 'pi pi-fw pi-user', routerLink: ['/settings/profile'] },
-          { label: 'Notification Settings', icon: 'pi pi-fw pi-bell', routerLink: ['/settings/notifications'] },
-          { label: 'Theme & Appearance', icon: 'pi pi-fw pi-palette', routerLink: ['/settings/theme'] }
+          { label: 'Project Docs', icon: 'pi pi-fw pi-book', routerLink: ['/docs'] }
         ]
       },
       {
-        label: 'Help',
-        icon: 'pi pi-fw pi-question-circle',
-        items: [
-          { label: 'Documentation', icon: 'pi pi-fw pi-book', routerLink: ['/help/documentation'] },
-          { label: 'Support', icon: 'pi pi-fw pi-question', routerLink: ['/help/support'] }
-        ]
+        label: 'Administration',
+        visible: this.authService.hasRole('Administrator'),
+        items: [{ label: 'Admin Dashboard', icon: 'pi pi-fw pi-shield', routerLink: ['/admin'] }]
       }
     ];
-}
+  }
 }

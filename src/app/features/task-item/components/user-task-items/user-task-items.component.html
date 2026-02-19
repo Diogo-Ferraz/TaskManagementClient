@@ -1,115 +1,207 @@
-<div class="grid">
-    <div class="col-12">
-        <p-card header="My Tasks" styleClass="custom-card">
+<div class="my-tasks-page">
+  <p-card class="my-tasks-header-card">
+    <div class="my-tasks-header">
+      <div class="my-tasks-header__title">
+        <h2>My Tasks</h2>
+        <p>Your assigned task queue across projects.</p>
+        <div class="my-tasks-header__meta">
+          <span class="meta-pill">
+            <i class="pi pi-user"></i>
+            {{ currentUserDisplayName }}
+          </span>
+          <span class="meta-pill" *ngIf="isPreviewMode">
+            <i class="pi pi-eye"></i>
+            Preview mode
+          </span>
+          <span class="meta-pill" *ngIf="previewDetail">{{ previewDetail }}</span>
+        </div>
+      </div>
 
-            <div *ngIf="isLoading" class="flex justify-content-center align-items-center py-5">
-                <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-                <span class="ml-2">Loading tasks...</span>
+      <button pButton type="button" label="Refresh" icon="pi pi-refresh" class="p-button-outlined" (click)="refresh()" [loading]="isLoading"></button>
+    </div>
+  </p-card>
+
+  <div class="my-tasks-kpis">
+    <p-card class="kpi-card status-kpi status-kpi--todo"><span class="kpi-card__label">To Do</span><span class="kpi-card__value">{{ todoTasks.length }}</span></p-card>
+    <p-card class="kpi-card status-kpi status-kpi--inprogress"><span class="kpi-card__label">In Progress</span><span class="kpi-card__value">{{ inProgressTasks.length }}</span></p-card>
+    <p-card class="kpi-card status-kpi status-kpi--done"><span class="kpi-card__label">Done</span><span class="kpi-card__value">{{ doneTasks.length }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Due Soon</span><span class="kpi-card__value">{{ dueSoonTasksCount }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Overdue</span><span class="kpi-card__value">{{ overdueTasksCount }}</span></p-card>
+  </div>
+
+  <p-card class="my-tasks-content-card">
+    <div class="tasks-inline-error" *ngIf="errors.length > 0">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{ errors[0].detail }}
+    </div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      <p-progressSpinner styleClass="w-2rem h-2rem" strokeWidth="6"></p-progressSpinner>
+      <span>Loading your tasks...</span>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+      <section class="task-section">
+        <header class="task-section__header task-section__header--todo">
+          <h3>To Do</h3>
+          <p-chip [label]="todoTasks.length.toString()"></p-chip>
+        </header>
+
+        <ul class="task-list">
+          <li *ngFor="let task of todoTasks; trackBy: taskTrackBy" class="task-row task-row--todo">
+            <p-checkbox
+              [ngModel]="task.status === TaskStatus.Done"
+              (ngModelChange)="onTaskCheck(task)"
+              [inputId]="'task_' + task.id"
+              [binary]="true"
+              [disabled]="isTaskPending(task.id)">
+            </p-checkbox>
+
+            <div class="task-main">
+              <label [for]="'task_' + task.id" class="task-title" [pTooltip]="task.title" tooltipPosition="top">{{ task.title }}</label>
+              <small class="task-subline">
+                <span class="task-project">{{ task.projectName }}</span>
+                <span *ngIf="task.dueDate">
+                  · Due {{ task.dueDate | date:'MMM d, y' }}
+                  <i *ngIf="isOverdue(task.dueDate)" class="pi pi-exclamation-triangle task-overdue" pTooltip="Overdue" tooltipPosition="top"></i>
+                </span>
+              </small>
             </div>
 
-            <ng-container *ngIf="!isLoading">
-                <div class="font-semibold text-lg mt-5 mb-3 py-3 border-bottom-1 surface-border">Pending ({{
-                    getPendingTasks().length }})</div>
-                <ul class="list-none p-0 m-0">
-                    <li *ngFor="let task of getPendingTasks(); trackBy: taskTrackBy"
-                        class="flex align-items-center py-3 px-2 border-bottom-1 surface-border flex-wrap gap-3">
+            <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"></p-tag>
 
-                        <p-checkbox [ngModel]="task.status === TaskStatus.Done" (ngModelChange)="onTaskCheck(task)"
-                            [inputId]="'task_'+task.id" [binary]="true">
-                        </p-checkbox>
+            <div class="task-actions">
+              <button pButton type="button" icon="pi pi-pencil" class="p-button-text p-button-rounded" pTooltip="Edit task" tooltipPosition="top" (click)="openEditTask(task)" [disabled]="!canEditTask(task) || isTaskPending(task.id)"></button>
+              <button pButton type="button" icon="pi pi-th-large" class="p-button-text p-button-rounded" pTooltip="Open project board" tooltipPosition="top" (click)="openTaskBoard(task)"></button>
+            </div>
+          </li>
+          <li *ngIf="todoTasks.length === 0" class="task-empty-row">No tasks in To Do.</li>
+        </ul>
+      </section>
 
-                        <div class="flex-1 flex flex-column gap-1 min-w-0">
-                            <label [for]="'task_'+task.id"
-                                class="font-medium cursor-pointer hover:text-primary white-space-nowrap overflow-hidden text-overflow-ellipsis"
-                                [pTooltip]="task.title" tooltipPosition="top"
-                                [ngClass]="{'line-through text-color-secondary': task.status === TaskStatus.Done}">
-                                {{ task.title }}
-                            </label>
-                            <small *ngIf="task.dueDate" class="text-sm text-color-secondary">
-                                Due: {{ task.dueDate | date:'MMM d, y' }}
-                                <i *ngIf="isOverdue(task.dueDate)"
-                                    class="pi pi-exclamation-triangle ml-1 text-orange-500" pTooltip="Overdue"
-                                    tooltipPosition="top"></i>
-                            </small>
-                        </div>
+      <section class="task-section">
+        <header class="task-section__header task-section__header--inprogress">
+          <h3>In Progress</h3>
+          <p-chip [label]="inProgressTasks.length.toString()"></p-chip>
+        </header>
 
-                        <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"
-                            class="ml-auto md:ml-0 px-2 py-1 text-xs"> 
-                        </p-tag>
+        <ul class="task-list">
+          <li *ngFor="let task of inProgressTasks; trackBy: taskTrackBy" class="task-row task-row--inprogress">
+            <p-checkbox
+              [ngModel]="task.status === TaskStatus.Done"
+              (ngModelChange)="onTaskCheck(task)"
+              [inputId]="'task_' + task.id"
+              [binary]="true"
+              [disabled]="isTaskPending(task.id)">
+            </p-checkbox>
 
-                        <div class="flex align-items-center gap-2" [pTooltip]="'Created by ' + task.createdBy"
-                            tooltipPosition="top">
-                            <p-avatar [label]="getInitials(task.createdBy)" shape="circle"
-                                styleClass="bg-primary-lighten text-primary-darken">
-                            </p-avatar>
-                        </div>
+            <div class="task-main">
+              <label [for]="'task_' + task.id" class="task-title" [pTooltip]="task.title" tooltipPosition="top">{{ task.title }}</label>
+              <small class="task-subline">
+                <span class="task-project">{{ task.projectName }}</span>
+                <span *ngIf="task.dueDate">
+                  · Due {{ task.dueDate | date:'MMM d, y' }}
+                  <i *ngIf="isOverdue(task.dueDate)" class="pi pi-exclamation-triangle task-overdue" pTooltip="Overdue" tooltipPosition="top"></i>
+                </span>
+              </small>
+            </div>
 
+            <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"></p-tag>
 
-                        <div class="flex align-items-center">
-                            <p-button icon="pi pi-pencil"
-                                styleClass="p-button-text p-button-rounded p-button-plain mr-1" (click)="editTask(task)"
-                                pTooltip="Edit Task" tooltipPosition="top">
-                            </p-button>
-                            <p-button icon="pi pi-trash"
-                                styleClass="p-button-text p-button-rounded p-button-plain p-button-danger"
-                                (click)="deleteTask(task)" pTooltip="Delete Task" tooltipPosition="top">
-                            </p-button>
-                        </div>
-                    </li>
-                    <li *ngIf="!isLoading && getPendingTasks().length === 0" class="py-3 px-2 text-color-secondary">
-                        No pending tasks.
-                    </li>
-                </ul>
+            <div class="task-actions">
+              <button pButton type="button" icon="pi pi-pencil" class="p-button-text p-button-rounded" pTooltip="Edit task" tooltipPosition="top" (click)="openEditTask(task)" [disabled]="!canEditTask(task) || isTaskPending(task.id)"></button>
+              <button pButton type="button" icon="pi pi-th-large" class="p-button-text p-button-rounded" pTooltip="Open project board" tooltipPosition="top" (click)="openTaskBoard(task)"></button>
+            </div>
+          </li>
+          <li *ngIf="inProgressTasks.length === 0" class="task-empty-row">No tasks currently in progress.</li>
+        </ul>
+      </section>
 
-                <div class="font-semibold text-lg mt-5 mb-3 py-3 border-bottom-1 surface-border">Done ({{
-                    getDoneTasks().length }})</div>
-                <ul class="list-none p-0 m-0">
-                    <li *ngFor="let task of getDoneTasks(); trackBy: taskTrackBy"
-                        class="flex align-items-center py-3 px-2 border-bottom-1 surface-border flex-wrap gap-3">
+      <section class="task-section">
+        <header class="task-section__header task-section__header--done">
+          <h3>Done</h3>
+          <p-chip [label]="doneTasks.length.toString()"></p-chip>
+        </header>
 
-                        <p-checkbox [ngModel]="task.status === TaskStatus.Done" (ngModelChange)="onTaskCheck(task)"
-                            [inputId]="'task_'+task.id" [binary]="true">
-                        </p-checkbox>
+        <ul class="task-list">
+          <li *ngFor="let task of doneTasks; trackBy: taskTrackBy" class="task-row task-row--done">
+            <p-checkbox
+              [ngModel]="task.status === TaskStatus.Done"
+              (ngModelChange)="onTaskCheck(task)"
+              [inputId]="'task_' + task.id"
+              [binary]="true"
+              [disabled]="isTaskPending(task.id)">
+            </p-checkbox>
 
-                        <div class="flex-1 flex flex-column gap-1 min-w-0">
-                            <label [for]="'task_'+task.id"
-                                class="font-medium cursor-pointer hover:text-primary white-space-nowrap overflow-hidden text-overflow-ellipsis line-through text-color-secondary"
-                                [pTooltip]="task.title" tooltipPosition="top">
-                                {{ task.title }}
-                            </label>
-                            <small *ngIf="task.dueDate" class="text-sm text-color-secondary">
-                                Due: {{ task.dueDate | date:'MMM d, y' }}
-                            </small>
-                        </div>
+            <div class="task-main">
+              <label [for]="'task_' + task.id" class="task-title task-title--done" [pTooltip]="task.title" tooltipPosition="top">{{ task.title }}</label>
+              <small class="task-subline">
+                <span class="task-project">{{ task.projectName }}</span>
+                <span *ngIf="task.dueDate"> · Due {{ task.dueDate | date:'MMM d, y' }}</span>
+              </small>
+            </div>
 
-                        <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"
-                            class="ml-auto md:ml-0 px-2 py-1 text-xs">
-                        </p-tag>
+            <p-tag [value]="getStatusName(task.status)" [severity]="getTagSeverity(task.status)"></p-tag>
 
-                        <div class="flex align-items-center gap-2" [pTooltip]="'Created by ' + task.createdBy"
-                            tooltipPosition="top">
-                            <p-avatar [label]="getInitials(task.createdBy)" shape="circle"
-                                styleClass="bg-gray-200 text-gray-700">
-                            </p-avatar>
-                        </div>
-
-                        <div class="flex align-items-center">
-                            <p-button icon="pi pi-pencil"
-                                styleClass="p-button-text p-button-rounded p-button-plain mr-1" (click)="editTask(task)"
-                                pTooltip="Edit Task" tooltipPosition="top">
-                            </p-button>
-                            <p-button icon="pi pi-trash"
-                                styleClass="p-button-text p-button-rounded p-button-plain p-button-danger"
-                                (click)="deleteTask(task)" pTooltip="Delete Task" tooltipPosition="top">
-                            </p-button>
-                        </div>
-                    </li>
-                    <li *ngIf="!isLoading && getDoneTasks().length === 0" class="py-3 px-2 text-color-secondary">
-                        No tasks completed yet.
-                    </li>
-                </ul>
-            </ng-container>
-
-        </p-card>
-    </div>
+            <div class="task-actions">
+              <button pButton type="button" icon="pi pi-pencil" class="p-button-text p-button-rounded" pTooltip="Edit task" tooltipPosition="top" (click)="openEditTask(task)" [disabled]="!canEditTask(task) || isTaskPending(task.id)"></button>
+              <button pButton type="button" icon="pi pi-th-large" class="p-button-text p-button-rounded" pTooltip="Open project board" tooltipPosition="top" (click)="openTaskBoard(task)"></button>
+            </div>
+          </li>
+          <li *ngIf="doneTasks.length === 0" class="task-empty-row">No completed tasks yet.</li>
+        </ul>
+      </section>
+    </ng-container>
+  </p-card>
 </div>
+
+<p-dialog
+  header="Edit Task"
+  [(visible)]="isEditDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '40rem' }"
+  (onHide)="closeEditDialog()">
+  <div class="task-dialog-shell">
+    <div class="task-dialog-intro">
+      <span class="task-dialog-intro__icon"><i class="pi pi-pencil"></i></span>
+      <div>
+        <h3>Edit Task</h3>
+        <p>Update details and delivery timeline.</p>
+      </div>
+    </div>
+
+    <div class="task-dialog-form">
+    <div class="task-control">
+      <label for="taskEditTitle">Title</label>
+      <input id="taskEditTitle" pInputText [(ngModel)]="taskForm.title" placeholder="Task title" />
+    </div>
+
+    <div class="task-control">
+      <label for="taskEditDescription">Description</label>
+      <textarea id="taskEditDescription" pInputTextarea rows="4" [(ngModel)]="taskForm.description" placeholder="Describe the task context and acceptance criteria"></textarea>
+    </div>
+
+    <div class="task-dialog-section">
+      <div class="task-dialog-section__title">Planning</div>
+      <div class="task-dialog-grid">
+      <div class="task-control">
+        <label for="taskEditStatus">Status</label>
+        <p-dropdown inputId="taskEditStatus" [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="taskForm.status" [appendTo]="'body'"></p-dropdown>
+      </div>
+
+      <div class="task-control">
+        <label for="taskEditDueDate">Due Date</label>
+        <p-calendar inputId="taskEditDueDate" [(ngModel)]="taskForm.dueDate" [showIcon]="true" [showButtonBar]="true" dateFormat="yy-mm-dd" [appendTo]="'body'" placeholder="Pick a due date"></p-calendar>
+      </div>
+      </div>
+    </div>
+
+    <div class="task-dialog-actions">
+      <button pButton type="button" label="Cancel" class="p-button-text" (click)="closeEditDialog()"></button>
+      <button pButton type="button" label="Save changes" icon="pi pi-check" [loading]="isSavingTask" [disabled]="!taskForm.title.trim()" (click)="saveEditTask()"></button>
+    </div>
+    </div>
+  </div>
+</p-dialog>

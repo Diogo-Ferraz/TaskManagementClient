@@ -1,8 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { ProjectDto, ProjectService } from '../../services/project.service';
 import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { Message } from 'primeng/api';
 import { SharedModule } from '../../../../shared/shared.module';
 import { Table } from 'primeng/table';
+import { Subject, takeUntil } from 'rxjs';
+import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.client';
+import { ProjectDto } from '../../../../core/api/models/project.model';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 
 @Component({
   selector: 'app-project-list',
@@ -11,99 +17,170 @@ import { Table } from 'primeng/table';
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.scss'
 })
-export class ProjectListComponent implements OnInit {
+export class ProjectListComponent implements OnInit, OnDestroy {
+  private readonly projectsApiClient = inject(ProjectsApiClient);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly appEnvironment = inject(APP_ENVIRONMENT);
+  private readonly destroy$ = new Subject<void>();
+
   projects: ProjectDto[] = [];
-
-  representatives: any[] = [];
-
-  statuses!: any[];
-
-  loading: boolean = true;
-
-  activityValues: number[] = [0, 100];
-
+  selectedProjects: ProjectDto[] = [];
+  loading = true;
   searchValue: string | undefined;
+  isPreviewMode = false;
+  previewDetail: string | null = null;
+  errors: Message[] = [];
+  private readonly previewTaskCounts: Record<string, number> = {};
 
-  selectedProducts!: any[] | null;
-
-  constructor(private projectService: ProjectService) { }
-
-  ngOnInit() {
-    this.projectService.getUserProjects().subscribe({
-      next: (projects) => {
-        this.projects = projects;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error fetching projects:', err);
-        this.loading = false;
-      }
-    });
-
-    this.representatives = [
-      { name: 'Amy Elsner', image: 'amyelsner.png' },
-      { name: 'Anna Fali', image: 'annafali.png' },
-      { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-      { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-      { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-      { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-      { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-      { name: 'Onyama Limba', image: 'onyamalimba.png' },
-      { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-      { name: 'Xuxue Feng', image: 'xuxuefeng.png' }
-    ];
-
-    this.statuses = [
-      { label: 'Unqualified', value: 'unqualified' },
-      { label: 'Qualified', value: 'qualified' },
-      { label: 'New', value: 'new' },
-      { label: 'Negotiation', value: 'negotiation' },
-      { label: 'Renewal', value: 'renewal' },
-      { label: 'Proposal', value: 'proposal' }
-    ];
+  ngOnInit(): void {
+    this.loadProjects();
   }
 
-  createProject() {
-    const newProject = {
-      name: 'New Project',
-      description: 'A brand new project'
-    };
-
-    this.projectService.createProject(newProject).subscribe(
-      createdProject => this.projects.push(createdProject)
-    );
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  clear(table: Table) {
+  get totalProjects(): number {
+    return this.projects.length;
+  }
+
+  get totalTasks(): number {
+    return this.projects.reduce((sum, project) => sum + (project.taskItems?.length ?? 0), 0);
+  }
+
+  get recentProjects(): number {
+    const lastThirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+    const nowMs = Date.now();
+    return this.projects.filter((project) => nowMs - new Date(project.createdAt).getTime() <= lastThirtyDaysMs).length;
+  }
+
+  trackByProjectId(_: number, project: ProjectDto): string {
+    return project.id;
+  }
+
+  clear(table: Table): void {
     table.clear();
-    this.searchValue = ''
+    this.searchValue = '';
   }
 
-  getSeverity(status: string) {
-    switch (status.toLowerCase()) {
-      case 'unqualified':
-        return 'danger';
-
-      case 'qualified':
-        return 'success';
-
-      case 'new':
-        return 'info';
-
-      case 'negotiation':
-        return 'warning';
-
-      case 'renewal':
-        return undefined;
-    }
-    return undefined;
-  }
-
-  onGlobalFilter(table: Table, event: Event) {
+  onGlobalFilter(table: Table, event: Event): void {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
-  exportCSV(table: Table) {
+  exportCSV(table: Table): void {
     table.exportCSV();
+  }
+
+  refreshProjects(): void {
+    this.loadProjects();
+  }
+
+  createProject(): void {
+    void this.router.navigate(['/projects/create']);
+  }
+
+  openKanban(projectId: string): void {
+    void this.router.navigate(['/projects/kanban'], { queryParams: { projectId } });
+  }
+
+  loadProjects(): void {
+    this.loading = true;
+    this.errors = [];
+    this.projects = [];
+    this.isPreviewMode = false;
+    this.previewDetail = null;
+
+    if (this.shouldUsePreviewMode()) {
+      this.loadPreviewProjects('Preview mode active. Showing local project data.');
+      return;
+    }
+
+    this.projectsApiClient
+      .getProjects({ page: 1, pageSize: 200 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (projects) => {
+          this.projects = projects;
+          this.selectedProjects = [];
+          this.loading = false;
+        },
+        error: () => {
+          if (this.shouldUsePreviewMode()) {
+            this.loadPreviewProjects('Backend unavailable. Showing preview projects.');
+            return;
+          }
+
+          this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load projects.' }];
+          this.loading = false;
+        }
+      });
+  }
+
+  getProjectTaskCount(project: ProjectDto): number {
+    if (project.taskItems?.length) {
+      return project.taskItems.length;
+    }
+
+    return this.previewTaskCounts[project.id] ?? 0;
+  }
+
+  private shouldUsePreviewMode(): boolean {
+    return this.authService.authSession()?.isDebugSession === true && this.authService.canStartDebugSession();
+  }
+
+  private loadPreviewProjects(detail: string): void {
+    this.isPreviewMode = true;
+    this.previewDetail = detail;
+    this.projects = this.buildPreviewProjects();
+    this.previewTaskCounts['preview-platform-refresh'] = 3;
+    this.previewTaskCounts['preview-mobile-portal'] = 1;
+    this.previewTaskCounts['preview-security-hardening'] = 2;
+    this.selectedProjects = [];
+    this.errors = [];
+    this.loading = false;
+  }
+
+  private buildPreviewProjects(): ProjectDto[] {
+    const now = Date.now();
+    return [
+      {
+        id: 'preview-platform-refresh',
+        name: 'Platform Refresh',
+        description: 'Modernization initiative across API, SPA, and DevOps automation.',
+        ownerUserId: 'user-1',
+        createdAt: new Date(now - 12 * 24 * 60 * 60 * 1000).toISOString(),
+        createdByUserId: 'user-1',
+        createdByUserName: 'Ava Mitchell',
+        lastModifiedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+        lastModifiedByUserId: 'user-2',
+        lastModifiedByUserName: 'Liam Carter'
+      },
+      {
+        id: 'preview-mobile-portal',
+        name: 'Mobile Portal',
+        description: 'Self-service mobile workspace for project collaboration and approvals.',
+        ownerUserId: 'user-3',
+        createdAt: new Date(now - 43 * 24 * 60 * 60 * 1000).toISOString(),
+        createdByUserId: 'user-3',
+        createdByUserName: 'Noah Sanders',
+        lastModifiedAt: new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        lastModifiedByUserId: 'user-3',
+        lastModifiedByUserName: 'Noah Sanders'
+      },
+      {
+        id: 'preview-security-hardening',
+        name: 'Security Hardening',
+        description: 'RBAC coverage, OIDC hardening, and audit event visibility improvements.',
+        ownerUserId: 'user-4',
+        createdAt: new Date(now - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        createdByUserId: 'user-4',
+        createdByUserName: 'Mia Foster',
+        lastModifiedAt: new Date(now - 4 * 60 * 60 * 1000).toISOString(),
+        lastModifiedByUserId: 'user-4',
+        lastModifiedByUserName: 'Mia Foster'
+      }
+    ];
   }
 }
