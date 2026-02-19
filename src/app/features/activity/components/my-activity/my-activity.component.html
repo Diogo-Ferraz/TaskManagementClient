@@ -1,0 +1,118 @@
+<div class="my-activity-page">
+  <p-card class="my-activity-header-card">
+    <div class="my-activity-header">
+      <div class="my-activity-header__title">
+        <h2>My Activity</h2>
+        <p>Your recent actions across projects and tasks, with live updates from the activity hub.</p>
+      </div>
+
+      <div class="my-activity-header__meta">
+        <span class="meta-pill">
+          <i class="pi pi-bolt"></i>
+          {{ isLiveConnected ? 'Live connected' : 'Live disconnected' }}
+        </span>
+        <span class="meta-pill" *ngIf="isPreviewMode">
+          <i class="pi pi-eye"></i>
+          Preview mode
+        </span>
+        <span class="meta-pill" *ngIf="previewDetail">{{ previewDetail }}</span>
+      </div>
+    </div>
+  </p-card>
+
+  <div class="activity-kpis">
+    <p-card class="kpi-card"><span class="kpi-card__label">Total Events</span><span class="kpi-card__value">{{ totalEvents }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Today</span><span class="kpi-card__value">{{ todayEvents }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Task Events</span><span class="kpi-card__value">{{ taskEvents }}</span></p-card>
+    <p-card class="kpi-card"><span class="kpi-card__label">Project Events</span><span class="kpi-card__value">{{ projectEvents }}</span></p-card>
+  </div>
+
+  <div class="activity-content-grid">
+    <p-card class="activity-feed-card">
+      <div class="activity-feed-card__header">
+        <div>
+          <h3>Activity Timeline</h3>
+          <p>Track your changes and jump back to related project context.</p>
+        </div>
+      </div>
+
+      <div class="activity-error" *ngIf="errorMessage">
+        <i class="pi pi-exclamation-triangle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <div class="activity-list" *ngIf="!isLoading; else loadingState">
+        <div class="activity-row" *ngFor="let activity of filteredActivities; let isLast = last" [class.activity-row--last]="isLast">
+          <div class="activity-row__icon" [ngClass]="activity.bgColor">
+            <i class="{{ activity.icon }}" [ngClass]="activity.iconColor"></i>
+          </div>
+
+          <div class="activity-row__content">
+            <div class="activity-row__summary" [innerHTML]="activity.summary"></div>
+            <div class="activity-row__meta">
+              <span>{{ activity.time }}</span>
+              <p-tag [value]="getTypeLabel(activity.rawEvent.type)" severity="contrast"></p-tag>
+              <button
+                *ngIf="activity.rawEvent.projectId"
+                pButton
+                type="button"
+                class="p-button-text p-button-sm"
+                icon="pi pi-external-link"
+                label="Open Project"
+                (click)="openRelatedProject(activity)">
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="filteredActivities.length === 0">
+          <i class="pi pi-inbox"></i>
+          <p>No activity matches your filters.</p>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="activity-filters-card">
+      <div class="activity-filters-card__header">
+        <h3>Filters</h3>
+        <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-filter-slash" label="Clear" (click)="clearFilters()"></button>
+      </div>
+
+      <div class="filters-form">
+        <div class="field">
+          <label for="typeFilter">Event Type</label>
+          <p-dropdown
+            inputId="typeFilter"
+            [options]="typeOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="selectedType"
+            [appendTo]="'body'">
+          </p-dropdown>
+        </div>
+
+        <div class="field">
+          <label for="searchFilter">Search</label>
+          <span class="filter-search">
+            <i class="pi pi-search"></i>
+            <input id="searchFilter" pInputText type="text" [(ngModel)]="search" placeholder="Project, task, or action" />
+          </span>
+        </div>
+
+        <button pButton type="button" icon="pi pi-refresh" label="Refresh" class="p-button-outlined" [loading]="isLoading" (click)="refresh()"></button>
+      </div>
+    </p-card>
+  </div>
+</div>
+
+<ng-template #loadingState>
+  <div class="activity-list activity-list--loading">
+    <div class="activity-row" *ngFor="let item of [1, 2, 3, 4, 5]">
+      <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+      <div class="activity-row__skeleton">
+        <p-skeleton width="85%" height="0.95rem"></p-skeleton>
+        <p-skeleton width="55%" height="0.85rem"></p-skeleton>
+      </div>
+    </div>
+  </div>
+</ng-template>
