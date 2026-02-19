@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [ButtonModule, RouterLink],
+  imports: [ButtonModule],
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.scss'
 })

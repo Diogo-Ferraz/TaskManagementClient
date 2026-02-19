@@ -68,7 +68,7 @@
 
 .landing__kicker {
   display: inline-block;
-  margin: 0 0 1rem;
+  margin: 0;
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--primary-color) 18%, transparent);
@@ -84,7 +84,7 @@
 
 .landing__hero p {
   max-width: 700px;
-  margin: 1.2rem auto 0;
+  margin: 1.2rem auto 1.2rem;
   color: var(--text-color-secondary);
   font-size: 1.05rem;
 }
@@ -96,16 +96,6 @@
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
-}
-
-.landing__demo-link {
-  font-weight: 600;
-  color: var(--primary-color);
-  text-decoration: none;
-}
-
-.landing__demo-link:hover {
-  text-decoration: underline;
 }
 
 .landing__debug {
