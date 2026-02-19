@@ -19,6 +19,7 @@ import { AdminDashboardComponent } from './features/admin/components/admin-dashb
 import { adminRoleGuard } from './core/auth/guards/admin-role.guard';
 import { MyActivityComponent } from './features/activity/components/my-activity/my-activity.component';
 import { UserProfileSecurityComponent } from './features/profile/components/user-profile-security/user-profile-security.component';
+import { ProjectMembersComponent } from './features/projects/components/project-members/project-members.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -26,6 +27,7 @@ export const routes: Routes = [
   { path: 'projects', component: ProjectListComponent, canActivate: [authGuard] },
   { path: 'projects/kanban', component: ProjectKanbanComponent, canActivate: [authGuard] },
   { path: 'projects/create', component: ProjectCreateComponent, canActivate: [authGuard] },
+  { path: 'projects/members', component: ProjectMembersComponent, canActivate: [authGuard] },
   { path: 'projects/details', component: ProjectDetailsComponent, canActivate: [authGuard] },
   { path: 'tasks', component: TaskItemListComponent, canActivate: [authGuard] },
   { path: 'search', component: SearchFiltersComponent, canActivate: [authGuard] },
