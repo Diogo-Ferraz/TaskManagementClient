@@ -22,7 +22,7 @@ export class AppMenuComponent {
         items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] }]
       },
       {
-        label: 'Projects',
+        label: 'Workspaces',
         items: [
           { label: 'All Projects', icon: 'pi pi-fw pi-list', routerLink: ['/projects'] },
           { label: 'Project Details', icon: 'pi pi-fw pi-folder-open', routerLink: ['/projects/details'] },
@@ -32,7 +32,7 @@ export class AppMenuComponent {
         ]
       },
       {
-        label: 'Tasks',
+        label: 'Delivery',
         items: [
           { label: 'All Tasks', icon: 'pi pi-fw pi-list', routerLink: ['/tasks'] },
           { label: 'My Tasks', icon: 'pi pi-fw pi-user', routerLink: ['/tasks/my-tasks'] },
@@ -40,14 +40,24 @@ export class AppMenuComponent {
         ]
       },
       {
-        label: 'Insights',
+        label: 'Activity',
         items: [
           { label: 'My Activity', icon: 'pi pi-fw pi-history', routerLink: ['/activity/my'] },
           { label: 'Activity Log', icon: 'pi pi-fw pi-database', routerLink: ['/activity/log'], visible: this.authService.hasAnyRole(['Administrator', 'ProjectManager']) },
-          { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/settings'] },
-          { label: 'Profile & Security', icon: 'pi pi-fw pi-user-edit', routerLink: ['/profile'] },
-          { label: 'Search & Filters', icon: 'pi pi-fw pi-search', routerLink: ['/search'] },
           { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/calendar'] },
+          { label: 'Search & Filters', icon: 'pi pi-fw pi-search', routerLink: ['/search'] }
+        ]
+      },
+      {
+        label: 'Account',
+        items: [
+          { label: 'Profile & Security', icon: 'pi pi-fw pi-user-edit', routerLink: ['/profile'] },
+          { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/settings'] }
+        ]
+      },
+      {
+        label: 'About',
+        items: [
           { label: 'Project Docs', icon: 'pi pi-fw pi-book', routerLink: ['/docs'] }
         ]
       },

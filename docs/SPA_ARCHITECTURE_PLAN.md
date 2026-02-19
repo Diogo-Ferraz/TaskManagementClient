@@ -1,53 +1,78 @@
 # SPA Architecture Plan (Angular + .NET 8 API)
 
-## Architecture decisions
-- Use Angular standalone-first feature architecture (no new NgModules).
-- Keep clear boundaries: `core` (cross-cutting), `shared` (pure UI primitives), `features` (domain pages/use-cases).
-- Keep API contract strict by maintaining backend-aligned DTO/request models under `core/api/models`.
-- Use typed API clients per backend feature under `core/api/clients`.
-- Use route-level lazy loading for each feature page group.
-- Use Signals for local UI state and RxJS streams for async/server workflows.
+## Current architecture status
+- Angular standalone-first architecture is active (no feature NgModules used in runtime).
+- Clear boundaries are in place:
+  - `core`: auth, api clients/models, config, layout, realtime, preferences.
+  - `shared`: shared module + reusable cross-feature UI.
+  - `features`: page-level domain slices.
+- API contracts are typed and aligned under `core/api/models` and consumed through `core/api/clients`.
+- RxJS is used for async/server orchestration; Signals/computed are used for local/session/preferences state.
 
-## Proposed folder structure
-- `src/app/core/config`: environment/config injection tokens.
-- `src/app/core/auth`: OIDC PKCE flow, auth facade, role extraction.
-- `src/app/core/http`: interceptors (auth bearer, problem-details mapping, retry policy).
-- `src/app/core/api`: typed models + API clients (projects, taskitems, activity, dashboard, users).
-- `src/app/core/realtime`: SignalR clients and event mappers.
-- `src/app/features/dashboard`: dashboard shell + summary cards + activity feed.
-- `src/app/features/kanban`: project board, drag/drop interactions, task update workflows.
-- `src/app/features/search`: cross-entity filters/search views.
-- `src/app/shared/ui`: reusable presentational components (cards, chips, loaders, empty states).
-- `src/app/shared/utils`: pure helpers/formatters with tests.
+## Implemented folder structure
+- `src/app/core/config`: app environment token + runtime config plumbing.
+- `src/app/core/auth`: OIDC PKCE auth service + guards (`auth`, `admin`, `managerOrAdmin`).
+- `src/app/core/http`: query param/url helpers and HTTP integration utilities.
+- `src/app/core/api`: typed DTOs + API clients (`projects`, `taskitems`, `activity`, `dashboard`, `users`).
+- `src/app/core/realtime`: SignalR hub integration for activity feed/log updates.
+- `src/app/core/preferences`: persisted app preferences service (density/date/notification/kanban defaults).
+- `src/app/features`: dashboard, projects, tasks, search, calendar, activity, profile, settings, docs, admin.
 
-## State strategy
-- Feature facades own page state and orchestration.
-- Keep state close to feature; avoid global store until needed.
-- Use explicit `load/error/empty` view models for each screen.
-- Use optimistic updates only where backend conflict risk is low; otherwise apply server-authoritative updates.
+## Routing and authorization (implemented)
+- Public routes:
+  - `/` (landing)
+  - `/login`
+  - `/callback`
+- Protected routes:
+  - dashboard/workspaces/delivery/activity/account/about.
+- Role-restricted routes:
+  - `/admin` -> `Administrator`.
+  - `/activity/log` -> `Administrator` or `ProjectManager`.
 
-## Routing and authorization
-- Public routes: login + auth callback.
-- Protected routes: dashboard, board, search.
-- Route data declares required capabilities; guard checks token roles.
-- UI capability helpers control action visibility but API remains final authority.
+## Sidebar information architecture (current)
+- Overview: Dashboard
+- Workspaces: All Projects, Project Details, Project Members, Create Project, Kanban
+- Delivery: All Tasks, My Tasks, Create Task
+- Activity: My Activity, Activity Log, Calendar, Search & Filters
+- Account: Profile & Security, Settings
+- Administration: Admin Dashboard
+- About: Project Docs
 
-## API contract alignment rules
-- No frontend-only enum/value inventions.
-- Patch payloads use omitted vs `null` semantics exactly as API contract defines.
-- Date query filters use ISO-8601 UTC.
-- ProblemDetails (`application/problem+json`) mapped to typed client errors.
+## Core feature status
+- Auth foundation:
+  - OIDC Authorization Code + PKCE, callback handling, guarded routes.
+- Dashboard:
+  - Summary KPIs + activity history + SignalR live updates + preview fallback.
+- Kanban:
+  - Project picker, grouped status columns, drag/drop, create/edit dialogs, optimistic patch flows.
+- Search & filters:
+  - Cross-entity filtering flows aligned with current API clients.
+- Project tools:
+  - All Projects, Project Details, Project Members.
+- Task tools:
+  - All Tasks, My Tasks, Create Task.
+- Activity tools:
+  - My Activity (personal timeline) + Activity Log (admin/pm audit).
+- Account:
+  - Profile & Security, Settings (persisted app preferences).
 
-## Planned commit slices
-1. Foundation: typed API models/clients + environment/config plumbing.
-2. Auth: OIDC code+PKCE login/callback/logout + auth guard/interceptor.
-3. Dashboard: server summary + activity history + SignalR live feed.
-4. Kanban read model: project selector + grouped task columns from API.
-5. Kanban mutations: patch task status/assignee/due date with optimistic UX safeguards.
-6. Search/filter page: users/projects/tasks filters + pagination.
-7. Quality pass: unit tests for core clients/facades + component tests for key flows.
-8. Cleanup pass: remove legacy dummy services/components and dead CSS.
+## Contract alignment rules (enforced)
+- Frontend uses backend enums/contracts from typed models (no ad-hoc enum invention).
+- Patch semantics preserve omitted vs `null` behavior.
+- Date values sent to API follow ISO conventions.
+- Problem Details responses are surfaced consistently at UI layer.
 
-## Backend gap found during alignment
-- `GET /api/projects/{id}` currently requires `CanManageProjects` policy, which excludes `User` role at authorization layer.
-- This appears to conflict with documented matrix intention where `User` should have scoped project read access.
+## Quality and cleanup status
+- Legacy scaffold artifacts removed:
+  - unused dummy services (`ProjectService`, `TaskItemService`, `LoginService`) and associated specs.
+  - empty unused feature modules (`projects.module.ts`, `task-item.module.ts`).
+- UI consistency pass completed across major pages:
+  - header card + kpi cards + main content card patterns.
+  - PrimeNG built-in table filter strategy on table-centric pages.
+
+## Known backend/API gaps worth addressing
+- Activity endpoint filtering:
+  - Current contract used by SPA does not expose server-side actor/type/date filters.
+  - Activity Log currently applies these filters client-side after fetching feed data.
+- Authorization matrix check:
+  - `GET /api/projects/{id}` policy should be verified against intended `User` read capabilities.

@@ -21,9 +21,12 @@ export class ProjectDocsComponent {
 
   readonly highlights = [
     'Role-aware UI for Administrator / ProjectManager / User',
-    'Dashboard with summary counters and live feed',
-    'Kanban board with patch-based optimistic updates',
-    'Search & filtering across projects, users, and tasks'
+    'Dashboard with summary counters and real-time activity',
+    'Jira-style Kanban board with drag/drop and inline task editing',
+    'Project details, project members, and task calendar',
+    'Activity views: My Activity and Admin/PM Activity Log',
+    'Admin dashboard with user activation and CSV export',
+    'Settings page with persisted app preferences'
   ];
 
   readonly principles = [
@@ -31,5 +34,32 @@ export class ProjectDocsComponent {
     'PrimeNG-first UI strategy: use battle-tested components before custom code.',
     'Resilient UX by default: loading, empty, and degraded states are always visible.',
     'Incremental delivery through focused commits and maintainable architecture.'
+  ];
+
+  readonly navigationGroups = [
+    'Overview: Dashboard',
+    'Workspaces: Projects, Project Details, Project Members, Kanban',
+    'Delivery: All Tasks, My Tasks, Create Task',
+    'Activity: My Activity, Activity Log, Calendar, Search & Filters',
+    'Account: Profile & Security, Settings',
+    'Administration: Admin Dashboard',
+    'About: Project Docs'
+  ];
+
+  readonly engineeringStandards = [
+    'Typed API client boundary under core/api with explicit DTO contracts.',
+    'Role-aware routing and UI behavior for Administrator, ProjectManager, and User.',
+    'OIDC Authorization Code + PKCE flow with guarded routes and secure callbacks.',
+    'SignalR event ingestion for real-time activity without polling fallback.',
+    'Problem Details-aligned error surfaces and resilient loading/empty/degraded states.',
+    'Consistent PrimeNG-based component strategy for long-term maintainability.'
+  ];
+
+  readonly qualityAndDelivery = [
+    'Incremental feature delivery with focused commit scopes and page-by-page hardening.',
+    'Standalone Angular feature components organized by domain responsibility.',
+    'Preview mode enables frontend validation while preserving production auth constraints.',
+    'Responsive behavior is considered first-class across dashboard, kanban, tables, and forms.',
+    'Build/test verification executed before closing implementation steps.'
   ];
 }

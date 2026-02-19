@@ -18,7 +18,7 @@
     </div>
   </p-card>
 
-  <div class="docs-grid docs-grid--equal">
+  <div class="docs-grid docs-grid--equal docs-grid--two">
     <p-card header="Project Purpose" styleClass="docs-card">
       <p>
         Build a practical collaboration workspace where teams can plan, execute, and track work using boards,
@@ -44,7 +44,7 @@
     </p-card>
   </div>
 
-  <div class="docs-grid docs-grid--equal">
+  <div class="docs-grid docs-grid--equal docs-grid--three">
     <p-card header="Tech Stack" styleClass="docs-card">
       <ul class="docs-list">
         <li *ngFor="let item of techStack">{{ item }}</li>
@@ -60,6 +60,26 @@
     <p-card header="Engineering Principles" styleClass="docs-card">
       <ul class="docs-list">
         <li *ngFor="let item of principles">{{ item }}</li>
+      </ul>
+    </p-card>
+  </div>
+
+  <div class="docs-grid docs-grid--equal docs-grid--three">
+    <p-card header="Navigation Information Architecture" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of navigationGroups">{{ item }}</li>
+      </ul>
+    </p-card>
+
+    <p-card header="Engineering Standards" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of engineeringStandards">{{ item }}</li>
+      </ul>
+    </p-card>
+
+    <p-card header="Quality & Delivery" styleClass="docs-card">
+      <ul class="docs-list">
+        <li *ngFor="let item of qualityAndDelivery">{{ item }}</li>
       </ul>
     </p-card>
   </div>
