@@ -112,11 +112,7 @@
         }
 
         &.layout-topbar-action--notifications {
-            border-radius: 999px;
-            width: 2.5rem;
-            height: 2.5rem;
-            border: 1px solid color-mix(in srgb, var(--surface-border) 88%, transparent);
-            background: color-mix(in srgb, var(--surface-100) 82%, transparent);
+            border-radius: 50%;
         }
     }
 
@@ -195,6 +191,10 @@
     width: min(24rem, calc(100vw - 2rem));
 }
 
+:host ::ng-deep .topbar-notifications-panel .p-overlaypanel-content {
+    padding-top: 1rem;
+}
+
 .topbar-notifications {
     display: flex;
     flex-direction: column;
@@ -207,6 +207,7 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 0.5rem;
+    padding-right: 1.75rem;
 
     small {
         color: var(--text-color-secondary);
