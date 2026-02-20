@@ -4,6 +4,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { AppTopbarComponent } from './app-topbar.component';
 import { AuthService } from '../../../auth/services/auth.service';
+import { AppPreferencesService } from '../../../preferences/app-preferences.service';
 
 describe('AppTopbarComponent', () => {
   let component: AppTopbarComponent;
@@ -26,6 +27,12 @@ describe('AppTopbarComponent', () => {
             }),
             startLoginRedirect: jasmine.createSpy('startLoginRedirect').and.resolveTo(),
             logout: jasmine.createSpy('logout')
+          }
+        },
+        {
+          provide: AppPreferencesService,
+          useValue: {
+            getDefaultHomeRoutePath: jasmine.createSpy('getDefaultHomeRoutePath').and.returnValue('/dashboard')
           }
         }
       ]

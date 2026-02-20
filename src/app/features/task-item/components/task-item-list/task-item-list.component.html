@@ -68,7 +68,7 @@
       dataKey="id"
       [loading]="isLoadingTasks"
       [rowHover]="true"
-      [rows]="10"
+      [rows]="defaultTablePageSize"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 25, 50]"
       [globalFilterFields]="['title', 'description', 'assignedUserName', 'createdByUserName', 'lastModifiedByUserName']">

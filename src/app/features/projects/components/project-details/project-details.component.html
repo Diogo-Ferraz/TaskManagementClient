@@ -14,14 +14,6 @@
             <i class="pi pi-user"></i>
             By {{ project.createdByUserName || 'Unknown' }}
           </span>
-          <span class="meta-pill">
-            <i class="pi pi-calendar"></i>
-            Created {{ project.createdAt | date:'mediumDate' }}
-          </span>
-          <span class="meta-pill">
-            <i class="pi pi-history"></i>
-            Updated {{ project.lastModifiedAt | date:'mediumDate' }}
-          </span>
           <span class="meta-pill" *ngIf="isPreviewMode">
             <i class="pi pi-eye"></i>
             Preview mode
@@ -64,11 +56,46 @@
     <div class="project-details-grid__col project-details-grid__col--overview">
       <p-card header="Project Overview" styleClass="details-card">
         <div class="project-overview" *ngIf="selectedProjectDetails as project; else emptyProjectState">
-          <p>{{ project.description || 'No project description provided yet.' }}</p>
-          <div class="project-overview__meta">
-            <span><strong>Created by:</strong> {{ project.createdByUserName || 'Unknown' }}</span>
-            <span><strong>Last modified by:</strong> {{ project.lastModifiedByUserName || 'Unknown' }}</span>
-            <span><strong>Unassigned tasks:</strong> {{ unassignedTasks }}</span>
+          <div class="project-overview__description">
+            <span class="project-overview__section-title">Project Description</span>
+            <p>{{ project.description || 'No project description provided yet.' }}</p>
+          </div>
+
+          <div class="project-overview__snapshot">
+            <span class="project-overview__section-title">Delivery Snapshot</span>
+            <div class="snapshot-grid">
+              <div class="snapshot-item">
+                <span>Tasks Tracked</span>
+                <strong>{{ totalTasks }}</strong>
+              </div>
+              <div class="snapshot-item snapshot-item--done">
+                <span>Completed</span>
+                <strong>{{ doneTasks }}</strong>
+              </div>
+              <div class="snapshot-item snapshot-item--warning">
+                <span>Unassigned</span>
+                <strong>{{ unassignedTasks }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="project-overview__timeline">
+            <div class="timeline-event">
+              <span class="timeline-event__icon"><i class="pi pi-calendar-plus"></i></span>
+              <div class="timeline-event__content">
+                <small>Created</small>
+                <strong>{{ project.createdAt | date:'MMM d, y, h:mm a' }}</strong>
+                <span>by {{ project.createdByUserName || 'Unknown' }}</span>
+              </div>
+            </div>
+            <div class="timeline-event timeline-event--updated">
+              <span class="timeline-event__icon"><i class="pi pi-history"></i></span>
+              <div class="timeline-event__content">
+                <small>Last Updated</small>
+                <strong>{{ project.lastModifiedAt | date:'MMM d, y, h:mm a' }}</strong>
+                <span>by {{ project.lastModifiedByUserName || 'Unknown' }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </p-card>

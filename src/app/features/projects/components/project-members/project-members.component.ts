@@ -5,6 +5,7 @@ import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.cli
 import { ProjectDto, ProjectMemberDto } from '../../../../core/api/models/project.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
+import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 import { SharedModule } from '../../../../shared/shared.module';
 
 @Component({
@@ -15,9 +16,11 @@ import { SharedModule } from '../../../../shared/shared.module';
   styleUrl: './project-members.component.scss'
 })
 export class ProjectMembersComponent implements OnInit, OnDestroy {
+  private static readonly PROJECT_SELECTION_CONTEXT = 'project-members';
   private readonly projectsApiClient = inject(ProjectsApiClient);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
+  private readonly preferencesService = inject(AppPreferencesService);
   private readonly destroy$ = new Subject<void>();
 
   projects: ProjectDto[] = [];
@@ -79,6 +82,7 @@ export class ProjectMembersComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.preferencesService.setLastSelectedProject(ProjectMembersComponent.PROJECT_SELECTION_CONTEXT, projectId);
     this.loadMembers(projectId);
   }
 
@@ -131,10 +135,15 @@ export class ProjectMembersComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (projects) => {
           this.projects = projects;
-          this.selectedProjectId = projects[0]?.id ?? null;
+          const rememberedProjectId = this.preferencesService.getLastSelectedProject(ProjectMembersComponent.PROJECT_SELECTION_CONTEXT);
+          this.selectedProjectId =
+            (rememberedProjectId && projects.some((project) => project.id === rememberedProjectId) ? rememberedProjectId : null) ??
+            projects[0]?.id ??
+            null;
           this.isLoadingProjects = false;
 
           if (this.selectedProjectId) {
+            this.preferencesService.setLastSelectedProject(ProjectMembersComponent.PROJECT_SELECTION_CONTEXT, this.selectedProjectId);
             this.loadMembers(this.selectedProjectId);
           }
         },

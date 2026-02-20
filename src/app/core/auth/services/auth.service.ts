@@ -232,29 +232,34 @@ export class AuthService {
   }
 
   private extractRolesFromSession(session: AuthSession | null): string[] {
-    if (!session?.accessToken) {
+    if (!session) {
       return [];
     }
 
-    const claims = this.parseJwtPayload(session.accessToken);
     const roleClaimKeys = ['role', 'roles', 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
     const extractedRoles: string[] = [];
-
-    for (const key of roleClaimKeys) {
-      const claimValue = claims[key];
-      if (!claimValue) {
-        continue;
-      }
-
-      if (Array.isArray(claimValue)) {
-        for (const value of claimValue) {
-          if (typeof value === 'string' && !extractedRoles.includes(value)) {
-            extractedRoles.push(value);
-          }
+    const addRolesFromClaims = (claims: Record<string, unknown>) => {
+      for (const key of roleClaimKeys) {
+        const claimValue = claims[key];
+        if (!claimValue) {
+          continue;
         }
-      } else if (typeof claimValue === 'string' && !extractedRoles.includes(claimValue)) {
-        extractedRoles.push(claimValue);
+
+        if (Array.isArray(claimValue)) {
+          for (const value of claimValue) {
+            if (typeof value === 'string' && !extractedRoles.includes(value)) {
+              extractedRoles.push(value);
+            }
+          }
+        } else if (typeof claimValue === 'string' && !extractedRoles.includes(claimValue)) {
+          extractedRoles.push(claimValue);
+        }
       }
+    };
+
+    addRolesFromClaims(this.parseJwtPayload(session.accessToken ?? ''));
+    if (extractedRoles.length === 0) {
+      addRolesFromClaims(this.parseJwtPayload(session.idToken ?? ''));
     }
 
     return extractedRoles;

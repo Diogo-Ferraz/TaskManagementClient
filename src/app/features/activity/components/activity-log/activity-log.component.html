@@ -39,8 +39,8 @@
       [loading]="isLoading"
       [rowHover]="true"
       [paginator]="true"
-      [rows]="15"
-      [rowsPerPageOptions]="[15, 30, 60]"
+      [rows]="defaultTablePageSize"
+      [rowsPerPageOptions]="[10, 25, 50]"
       [tableStyle]="{ 'min-width': '72rem' }"
       [globalFilterFields]="['actorDisplayName', 'projectName', 'taskTitle', 'typeLabel', 'entityType']"
       (onFilter)="onTableFilter($event)">

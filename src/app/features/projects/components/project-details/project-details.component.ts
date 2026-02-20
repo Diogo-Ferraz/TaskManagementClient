@@ -10,6 +10,7 @@ import { TaskItemDto } from '../../../../core/api/models/task-item.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
+import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 import { SharedModule } from '../../../../shared/shared.module';
 
 type TagSeverity = 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast';
@@ -22,10 +23,12 @@ type TagSeverity = 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'co
   styleUrl: './project-details.component.scss'
 })
 export class ProjectDetailsComponent implements OnInit, OnDestroy {
+  private static readonly PROJECT_SELECTION_CONTEXT = 'project-details';
   private readonly projectsApiClient = inject(ProjectsApiClient);
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
+  private readonly preferencesService = inject(AppPreferencesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroy$ = new Subject<void>();
@@ -83,6 +86,14 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     return this.recentTasks.filter((task) => !task.assignedUserId).length;
   }
 
+  get completionRate(): number {
+    if (this.totalTasks === 0) {
+      return 0;
+    }
+
+    return Math.round((this.doneTasks / this.totalTasks) * 100);
+  }
+
   onProjectChange(): void {
     if (!this.selectedProjectId) {
       this.selectedProjectDetails = null;
@@ -92,6 +103,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
     }
 
     this.updateProjectQueryParam(this.selectedProjectId);
+    this.preferencesService.setLastSelectedProject(ProjectDetailsComponent.PROJECT_SELECTION_CONTEXT, this.selectedProjectId);
     this.loadProjectDetails(this.selectedProjectId);
   }
 
@@ -261,6 +273,11 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       return queryProjectId;
     }
 
+    const rememberedProjectId = this.preferencesService.getLastSelectedProject(ProjectDetailsComponent.PROJECT_SELECTION_CONTEXT);
+    if (rememberedProjectId && projects.some((project) => project.id === rememberedProjectId)) {
+      return rememberedProjectId;
+    }
+
     return projects[0]?.id ?? null;
   }
 
@@ -283,6 +300,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
     if (this.selectedProjectId) {
       this.updateProjectQueryParam(this.selectedProjectId);
+      this.preferencesService.setLastSelectedProject(ProjectDetailsComponent.PROJECT_SELECTION_CONTEXT, this.selectedProjectId);
       this.loadProjectDetails(this.selectedProjectId);
     }
   }

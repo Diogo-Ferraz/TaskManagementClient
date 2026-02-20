@@ -46,6 +46,19 @@
     <p-card header="Locale & Date" styleClass="settings-card">
       <div class="settings-form">
         <div class="field">
+          <label for="defaultHomeRoute">Default Home Page</label>
+          <p-dropdown
+            inputId="defaultHomeRoute"
+            [options]="defaultHomeRouteOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="preferences().defaultHomeRoute"
+            [appendTo]="'body'"
+            (onChange)="onDefaultHomeRouteChange($event.value)">
+          </p-dropdown>
+        </div>
+
+        <div class="field">
           <label for="dateFormat">Date Format</label>
           <p-dropdown
             inputId="dateFormat"
@@ -73,36 +86,32 @@
       </div>
     </p-card>
 
-    <p-card header="Kanban Preferences" styleClass="settings-card">
+    <p-card header="Workspace Defaults" styleClass="settings-card">
       <div class="settings-form">
         <div class="field-inline">
-          <span>Show drag preview ghost</span>
+          <span>Remember last selected project</span>
           <p-inputSwitch
-            [ngModel]="preferences().showKanbanDragPreview"
-            (ngModelChange)="onToggle('showKanbanDragPreview', $event)">
-          </p-inputSwitch>
-        </div>
-
-        <div class="field-inline">
-          <span>Show assignee avatars</span>
-          <p-inputSwitch
-            [ngModel]="preferences().showKanbanAssigneeAvatars"
-            (ngModelChange)="onToggle('showKanbanAssigneeAvatars', $event)">
+            [ngModel]="preferences().rememberLastSelectedProject"
+            (ngModelChange)="onToggle('rememberLastSelectedProject', $event)">
           </p-inputSwitch>
         </div>
 
         <div class="field">
-          <label for="taskDialogMode">Task Edit Surface</label>
+          <label for="defaultTablePageSize">Default Table Page Size</label>
           <p-dropdown
-            inputId="taskDialogMode"
-            [options]="taskDialogModeOptions"
+            inputId="defaultTablePageSize"
+            [options]="tablePageSizeOptions"
             optionLabel="label"
             optionValue="value"
-            [ngModel]="preferences().taskDialogMode"
+            [ngModel]="preferences().defaultTablePageSize"
             [appendTo]="'body'"
-            (onChange)="onTaskDialogModeChange($event.value)">
+            (onChange)="onDefaultTablePageSizeChange($event.value)">
           </p-dropdown>
         </div>
+
+        <p class="settings-note">
+          Your last selected project is reused in Kanban, Project Details, Project Members, and All Tasks.
+        </p>
       </div>
     </p-card>
 
@@ -115,22 +124,9 @@
             (ngModelChange)="onToggle('showActivityToasts', $event)">
           </p-inputSwitch>
         </div>
-
-        <div class="field-inline">
-          <span>Calendar reminders</span>
-          <p-inputSwitch
-            [ngModel]="preferences().showCalendarReminders"
-            (ngModelChange)="onToggle('showCalendarReminders', $event)">
-          </p-inputSwitch>
-        </div>
-
-        <div class="field-inline">
-          <span>Desktop notifications</span>
-          <p-inputSwitch
-            [ngModel]="preferences().enableDesktopNotifications"
-            (ngModelChange)="onToggle('enableDesktopNotifications', $event)">
-          </p-inputSwitch>
-        </div>
+        <p class="settings-note">
+          Calendar reminders and desktop push notifications are not enabled yet in the current backend integration.
+        </p>
       </div>
     </p-card>
   </div>

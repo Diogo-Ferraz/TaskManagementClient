@@ -10,6 +10,7 @@ import { TaskItemDto } from '../../../../core/api/models/task-item.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
+import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 import { SharedModule } from '../../../../shared/shared.module';
 
 type TagSeverity = 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast';
@@ -27,10 +28,12 @@ interface StatusOption {
   styleUrl: './task-item-list.component.scss'
 })
 export class TaskItemListComponent implements OnInit, OnDestroy {
+  private static readonly PROJECT_SELECTION_CONTEXT = 'task-list';
   private readonly projectsApiClient = inject(ProjectsApiClient);
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
+  private readonly preferencesService = inject(AppPreferencesService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly destroy$ = new Subject<void>();
@@ -119,12 +122,17 @@ export class TaskItemListComponent implements OnInit, OnDestroy {
     return this.authService.hasAnyRole(['Administrator', 'ProjectManager']);
   }
 
+  get defaultTablePageSize(): number {
+    return this.preferencesService.preferences().defaultTablePageSize;
+  }
+
   onProjectChange(): void {
     if (!this.selectedProjectId) {
       this.tasks = [];
       return;
     }
 
+    this.preferencesService.setLastSelectedProject(TaskItemListComponent.PROJECT_SELECTION_CONTEXT, this.selectedProjectId);
     this.loadTasks(this.selectedProjectId);
   }
 
@@ -298,10 +306,15 @@ export class TaskItemListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (projects) => {
           this.projects = projects;
-          this.selectedProjectId = projects[0]?.id ?? null;
+          const rememberedProjectId = this.preferencesService.getLastSelectedProject(TaskItemListComponent.PROJECT_SELECTION_CONTEXT);
+          this.selectedProjectId =
+            (rememberedProjectId && projects.some((project) => project.id === rememberedProjectId) ? rememberedProjectId : null) ??
+            projects[0]?.id ??
+            null;
           this.isLoadingProjects = false;
 
           if (this.selectedProjectId) {
+            this.preferencesService.setLastSelectedProject(TaskItemListComponent.PROJECT_SELECTION_CONTEXT, this.selectedProjectId);
             this.loadTasks(this.selectedProjectId);
           }
         },

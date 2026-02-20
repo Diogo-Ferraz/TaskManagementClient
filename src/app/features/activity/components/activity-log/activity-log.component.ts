@@ -7,6 +7,7 @@ import { ActivityType } from '../../../../core/api/models/activity-type.enum';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { ActivityHubRealtimeService } from '../../../../core/realtime/activity-hub-realtime.service';
+import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 import { SharedModule } from '../../../../shared/shared.module';
 
 interface ActivityLogRow extends ActivityLogDto {
@@ -32,6 +33,7 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
   private readonly activityHubRealtimeService = inject(ActivityHubRealtimeService);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
+  private readonly preferencesService = inject(AppPreferencesService);
   private readonly destroy$ = new Subject<void>();
 
   readonly entityTypeOptions: SelectOption<string | null>[] = [
@@ -84,6 +86,10 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
 
   get projectEvents(): number {
     return this.rows.filter((item) => item.entityType === 'Project').length;
+  }
+
+  get defaultTablePageSize(): number {
+    return this.preferencesService.preferences().defaultTablePageSize;
   }
 
   ngOnInit(): void {

@@ -2,8 +2,8 @@ import { Component, computed, inject } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import {
   AppPreferencesService,
+  DefaultHomeRoute,
   DateFormatPreference,
-  TaskDialogMode,
   UiDensity
 } from '../../../../core/preferences/app-preferences.service';
 import { LayoutService } from '../../../../core/layout/services/layout.service';
@@ -43,9 +43,16 @@ export class AppSettingsComponent {
     { label: 'ISO (2026-01-01)', value: 'iso' }
   ];
 
-  readonly taskDialogModeOptions: SelectOption<TaskDialogMode>[] = [
-    { label: 'Dialog', value: 'dialog' },
-    { label: 'Drawer', value: 'drawer' }
+  readonly defaultHomeRouteOptions: SelectOption<DefaultHomeRoute>[] = [
+    { label: 'Dashboard', value: 'dashboard' },
+    { label: 'My Tasks', value: 'my-tasks' },
+    { label: 'Kanban Board', value: 'kanban' }
+  ];
+
+  readonly tablePageSizeOptions: SelectOption<10 | 25 | 50>[] = [
+    { label: '10 rows', value: 10 },
+    { label: '25 rows', value: 25 },
+    { label: '50 rows', value: 50 }
   ];
 
   readonly datePreview = computed(() => this.preferencesService.formatDate(new Date('2026-02-19T10:30:00Z')));
@@ -66,8 +73,12 @@ export class AppSettingsComponent {
     this.preferencesService.update({ dateFormat: value });
   }
 
-  onTaskDialogModeChange(value: TaskDialogMode): void {
-    this.preferencesService.update({ taskDialogMode: value });
+  onDefaultHomeRouteChange(value: DefaultHomeRoute): void {
+    this.preferencesService.update({ defaultHomeRoute: value });
+  }
+
+  onDefaultTablePageSizeChange(value: 10 | 25 | 50): void {
+    this.preferencesService.update({ defaultTablePageSize: value });
   }
 
   onToggle<K extends keyof ReturnType<typeof this.preferences>>(key: K, value: ReturnType<typeof this.preferences>[K]): void {
@@ -78,4 +89,3 @@ export class AppSettingsComponent {
     this.preferencesService.reset();
   }
 }
-

@@ -7,6 +7,7 @@ import { MenuModule } from 'primeng/menu';
 import { StyleClassModule } from 'primeng/styleclass';
 import { LayoutService } from '../../services/layout.service';
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { AppPreferencesService } from '../../../preferences/app-preferences.service';
 
 @Component({
   selector: 'app-topbar',
@@ -44,7 +45,8 @@ export class AppTopbarComponent {
   constructor(
     public layoutService: LayoutService,
     public authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly preferencesService: AppPreferencesService
   ) {}
 
   toggleDarkMode() {
@@ -60,7 +62,7 @@ export class AppTopbarComponent {
   }
 
   get homeRoute(): string {
-    return this.authService.isAuthenticated() ? '/dashboard' : '/';
+    return this.authService.isAuthenticated() ? this.preferencesService.getDefaultHomeRoutePath() : '/';
   }
 
   get isPreviewMode(): boolean {

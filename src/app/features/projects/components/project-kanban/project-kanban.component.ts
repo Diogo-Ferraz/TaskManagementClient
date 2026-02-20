@@ -13,6 +13,7 @@ import { CreateTaskItemRequest, PatchTaskItemRequest, TaskItemDto } from '../../
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
+import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 
 interface KanbanColumn {
   status: TaskStatus;
@@ -50,6 +51,7 @@ interface TaskFormModel {
   styleUrl: './project-kanban.component.scss'
 })
 export class ProjectKanbanComponent implements OnInit, OnDestroy {
+  private static readonly PROJECT_SELECTION_CONTEXT = 'kanban';
   private readonly projectsApiClient = inject(ProjectsApiClient);
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -57,6 +59,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
+  private readonly preferencesService = inject(AppPreferencesService);
   private readonly destroy$ = new Subject<void>();
 
   readonly columns: KanbanColumn[] = [
@@ -610,7 +613,13 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
       const queryProjectId = queryParams.get('projectId');
       const hasQueryProject = !!queryProjectId && this.projects.some((project) => project.id === queryProjectId);
-      const resolvedProjectId = hasQueryProject ? queryProjectId : this.projects[0].id;
+      const rememberedProjectId = this.preferencesService.getLastSelectedProject(ProjectKanbanComponent.PROJECT_SELECTION_CONTEXT);
+      const hasRememberedProject = !!rememberedProjectId && this.projects.some((project) => project.id === rememberedProjectId);
+      const resolvedProjectId = hasQueryProject
+        ? queryProjectId
+        : hasRememberedProject
+          ? rememberedProjectId
+          : this.projects[0].id;
 
       if (!hasQueryProject && queryProjectId !== resolvedProjectId) {
         this.updateProjectQueryParam(resolvedProjectId);
@@ -619,6 +628,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
       if (resolvedProjectId !== this.selectedProjectId) {
         this.selectedProjectId = resolvedProjectId;
+        this.preferencesService.setLastSelectedProject(ProjectKanbanComponent.PROJECT_SELECTION_CONTEXT, resolvedProjectId);
         this.loadProjectBoardData(resolvedProjectId);
       }
     });

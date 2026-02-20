@@ -14,6 +14,7 @@ import { AdminUsersApiClient } from '../../../../core/api/clients/admin-users-ap
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { UserSummaryDto } from '../../../../core/api/models/user.model';
+import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 
 interface SelectOption<TValue> {
   label: string;
@@ -42,6 +43,7 @@ export class AdminDashboardComponent implements OnInit {
   private readonly adminUsersApiClient = inject(AdminUsersApiClient);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
+  private readonly preferencesService = inject(AppPreferencesService);
 
   users: UserSummaryDto[] = [];
   isLoading = false;
@@ -97,6 +99,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.rows = this.preferencesService.preferences().defaultTablePageSize;
     this.loadUsers();
   }
 

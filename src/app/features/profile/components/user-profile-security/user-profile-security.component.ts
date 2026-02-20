@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 
 interface ClaimViewModel {
   key: string;
@@ -16,6 +17,7 @@ interface ClaimViewModel {
 })
 export class UserProfileSecurityComponent {
   private readonly authService = inject(AuthService);
+  private readonly preferencesService = inject(AppPreferencesService);
 
   readonly session = computed(() => this.authService.authSession());
   readonly claims = computed(() => this.authService.userClaims());
@@ -107,6 +109,10 @@ export class UserProfileSecurityComponent {
 
   get tokenType(): string {
     return this.session()?.tokenType ?? 'Unknown';
+  }
+
+  get defaultTablePageSize(): number {
+    return this.preferencesService.preferences().defaultTablePageSize;
   }
 
   logout(): void {

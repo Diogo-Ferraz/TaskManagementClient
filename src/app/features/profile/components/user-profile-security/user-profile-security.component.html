@@ -29,7 +29,7 @@
 
   <div class="profile-kpis">
     <div class="profile-kpis__item">
-      <p-card class="kpi-card"><span class="kpi-card__label">User Id</span><span class="kpi-card__value kpi-card__value--small">{{ currentUserId() || '-' }}</span></p-card>
+      <p-card class="kpi-card"><span class="kpi-card__label">Email</span><span class="kpi-card__value kpi-card__value--small">{{ userEmail() }}</span></p-card>
     </div>
     <div class="profile-kpis__item">
       <p-card class="kpi-card"><span class="kpi-card__label">Roles</span><span class="kpi-card__value">{{ roles().length }}</span></p-card>
@@ -76,7 +76,7 @@
 
     <div class="profile-grid__col profile-grid__col--claims">
       <p-card header="Identity Claims" styleClass="profile-panel-card">
-        <p-table [value]="claimRows()" [rows]="8" [paginator]="claimRows().length > 8" [rowsPerPageOptions]="[8, 16, 30]" [scrollable]="true" scrollHeight="22rem">
+        <p-table [value]="claimRows()" [rows]="defaultTablePageSize" [paginator]="claimRows().length > defaultTablePageSize" [rowsPerPageOptions]="[10, 25, 50]" [scrollable]="true" scrollHeight="22rem">
           <ng-template pTemplate="header">
             <tr>
               <th style="width: 30%;">Claim</th>

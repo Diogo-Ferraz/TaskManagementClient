@@ -9,6 +9,7 @@ import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.cli
 import { ProjectDto } from '../../../../core/api/models/project.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
+import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 
 @Component({
   selector: 'app-project-list',
@@ -22,6 +23,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
+  private readonly preferencesService = inject(AppPreferencesService);
   private readonly destroy$ = new Subject<void>();
 
   projects: ProjectDto[] = [];
@@ -54,6 +56,10 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     const lastThirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
     const nowMs = Date.now();
     return this.projects.filter((project) => nowMs - new Date(project.createdAt).getTime() <= lastThirtyDaysMs).length;
+  }
+
+  get defaultTablePageSize(): number {
+    return this.preferencesService.preferences().defaultTablePageSize;
   }
 
   trackByProjectId(_: number, project: ProjectDto): string {
