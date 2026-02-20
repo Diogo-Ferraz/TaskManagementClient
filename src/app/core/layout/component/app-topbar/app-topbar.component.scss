@@ -110,6 +110,14 @@
             background-color: var(--primary-color);
             color: var(--primary-contrast-color);
         }
+
+        &.layout-topbar-action--notifications {
+            border-radius: 999px;
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 1px solid color-mix(in srgb, var(--surface-border) 88%, transparent);
+            background: color-mix(in srgb, var(--surface-100) 82%, transparent);
+        }
     }
 
     .layout-menu-button {
@@ -181,6 +189,86 @@
         display: flex;
         gap: 1rem;
     }
+}
+
+:host ::ng-deep .topbar-notifications-panel {
+    width: min(24rem, calc(100vw - 2rem));
+}
+
+.topbar-notifications {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 8rem;
+}
+
+.topbar-notifications__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    small {
+        color: var(--text-color-secondary);
+        font-size: 0.78rem;
+    }
+}
+
+.topbar-notifications__list {
+    display: flex;
+    flex-direction: column;
+    max-height: 18rem;
+    overflow-y: auto;
+    gap: 0.5rem;
+}
+
+.topbar-notification-item {
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    background: var(--surface-card);
+    padding: 0.6rem 0.7rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    transition: border-color .2s, background-color .2s;
+    cursor: pointer;
+
+    &:hover {
+        border-color: color-mix(in srgb, var(--primary-color) 35%, var(--surface-border));
+        background: color-mix(in srgb, var(--surface-100) 65%, transparent);
+    }
+}
+
+.topbar-notification-item--unread {
+    border-color: color-mix(in srgb, var(--primary-color) 40%, var(--surface-border));
+    background: color-mix(in srgb, var(--primary-color) 6%, var(--surface-0));
+}
+
+.topbar-notification-item__title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.topbar-notification-item__message {
+    font-size: 0.78rem;
+    color: var(--text-color-secondary);
+    line-height: 1.35;
+}
+
+.topbar-notification-item__time {
+    margin-top: 0.05rem;
+    font-size: 0.72rem;
+    color: var(--text-color-secondary);
+}
+
+.topbar-notifications__empty {
+    border: 1px dashed var(--surface-border);
+    border-radius: 10px;
+    padding: 1rem 0.8rem;
+    color: var(--text-color-secondary);
+    text-align: center;
 }
 
 @media (max-width: 991px) {

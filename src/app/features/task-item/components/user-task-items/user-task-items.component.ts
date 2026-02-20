@@ -10,6 +10,7 @@ import { PatchTaskItemRequest, TaskItemDto } from '../../../../core/api/models/t
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
+import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 import { SharedModule } from '../../../../shared/shared.module';
 
 type TagSeverity = 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast';
@@ -32,6 +33,7 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
+  private readonly preferencesService = inject(AppPreferencesService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
@@ -430,27 +432,46 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
   }
 
   private sortTasks(tasks: TaskItemDto[]): TaskItemDto[] {
-    return [...tasks].sort((a, b) => {
-      const statusOrder = (status: TaskStatus): number => {
-        if (status === TaskStatus.Todo) {
-          return 0;
-        }
-
-        if (status === TaskStatus.InProgress) {
-          return 1;
-        }
-
-        return 2;
-      };
-
-      const statusDiff = statusOrder(a.status) - statusOrder(b.status);
-      if (statusDiff !== 0) {
-        return statusDiff;
+    const preference = this.preferencesService.preferences().defaultTaskSort;
+    const statusOrder = (status: TaskStatus): number => {
+      if (status === TaskStatus.Todo) {
+        return 0;
       }
 
-      const dueA = a.dueDate ? new Date(a.dueDate).getTime() : Number.MAX_SAFE_INTEGER;
-      const dueB = b.dueDate ? new Date(b.dueDate).getTime() : Number.MAX_SAFE_INTEGER;
-      return dueA - dueB;
+      if (status === TaskStatus.InProgress) {
+        return 1;
+      }
+
+      return 2;
+    };
+
+    const dueValue = (task: TaskItemDto): number => task.dueDate ? new Date(task.dueDate).getTime() : Number.MAX_SAFE_INTEGER;
+    const updatedValue = (task: TaskItemDto): number => new Date(task.lastModifiedAt).getTime();
+
+    return [...tasks].sort((a, b) => {
+      if (preference === 'dueDateAsc') {
+        const dueDiff = dueValue(a) - dueValue(b);
+        if (dueDiff !== 0) {
+          return dueDiff;
+        }
+        return updatedValue(b) - updatedValue(a);
+      }
+
+      if (preference === 'statusThenDueDate') {
+        const statusDiff = statusOrder(a.status) - statusOrder(b.status);
+        if (statusDiff !== 0) {
+          return statusDiff;
+        }
+
+        const dueDiff = dueValue(a) - dueValue(b);
+        if (dueDiff !== 0) {
+          return dueDiff;
+        }
+
+        return updatedValue(b) - updatedValue(a);
+      }
+
+      return updatedValue(b) - updatedValue(a);
     });
   }
 

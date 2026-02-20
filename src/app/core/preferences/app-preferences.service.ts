@@ -4,15 +4,24 @@ export type UiDensity = 'comfortable' | 'compact';
 export type DateFormatPreference = 'medium' | 'short' | 'iso';
 export type TaskDialogMode = 'dialog' | 'drawer';
 export type DefaultHomeRoute = 'dashboard' | 'my-tasks' | 'kanban';
+export type SidebarBehavior = 'expanded' | 'collapsed';
+export type TaskSortPreference = 'lastUpdatedDesc' | 'dueDateAsc' | 'statusThenDueDate';
+export type KanbanSwimlanePreference = 'none' | 'assignee';
+export type DefaultTaskFilterPreset = 'all' | 'assignedToMe' | 'unassigned';
 
 export interface AppPreferences {
   uiDensity: UiDensity;
+  sidebarBehavior: SidebarBehavior;
   dateFormat: DateFormatPreference;
   defaultHomeRoute: DefaultHomeRoute;
   defaultTablePageSize: 10 | 25 | 50;
+  defaultTaskSort: TaskSortPreference;
+  kanbanSwimlanePreference: KanbanSwimlanePreference;
+  defaultTaskFilterPreset: DefaultTaskFilterPreset;
   rememberLastSelectedProject: boolean;
   useRelativeDates: boolean;
   showActivityToasts: boolean;
+  showTopbarNotificationIndicator: boolean;
   showCalendarReminders: boolean;
   enableDesktopNotifications: boolean;
   showKanbanDragPreview: boolean;
@@ -25,12 +34,17 @@ const LAST_SELECTED_PROJECTS_STORAGE_KEY = 'task_management.last_selected_projec
 
 const DEFAULT_PREFERENCES: AppPreferences = {
   uiDensity: 'comfortable',
+  sidebarBehavior: 'expanded',
   dateFormat: 'medium',
   defaultHomeRoute: 'dashboard',
   defaultTablePageSize: 25,
+  defaultTaskSort: 'lastUpdatedDesc',
+  kanbanSwimlanePreference: 'none',
+  defaultTaskFilterPreset: 'all',
   rememberLastSelectedProject: true,
   useRelativeDates: true,
   showActivityToasts: true,
+  showTopbarNotificationIndicator: true,
   showCalendarReminders: true,
   enableDesktopNotifications: false,
   showKanbanDragPreview: true,

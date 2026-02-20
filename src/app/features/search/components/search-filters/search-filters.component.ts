@@ -10,6 +10,7 @@ import { TaskItemDto } from '../../../../core/api/models/task-item.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
+import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 import { SharedModule } from '../../../../shared/shared.module';
 
 type TaskStateFilter = 'all' | 'pending' | 'completed';
@@ -28,6 +29,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
+  private readonly preferencesService = inject(AppPreferencesService);
   private readonly destroy$ = new Subject<void>();
 
   isLoading = true;
@@ -62,6 +64,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
   readonly pageSizeOptions = [10, 20, 50];
 
   ngOnInit(): void {
+    this.applyPreferenceDefaults();
     this.loadInitialData();
   }
 
@@ -225,7 +228,12 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (members) => {
           this.projectMembers = members;
-          this.selectedUserId = members.find((member) => !member.isOwner)?.userId ?? members[0]?.userId ?? null;
+          const currentUserId = this.authService.currentUserId();
+          const selectedByPreset = this.taskOwnershipFilter === 'selectedUser' && currentUserId
+            ? members.find((member) => member.userId === currentUserId)?.userId
+            : null;
+
+          this.selectedUserId = selectedByPreset ?? members.find((member) => !member.isOwner)?.userId ?? members[0]?.userId ?? null;
           this.isLoading = false;
           this.reloadResults();
         },
@@ -302,9 +310,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (tasks) => {
-          this.userTasks = [...tasks].sort((a, b) => {
-            return new Date(b.lastModifiedAt).getTime() - new Date(a.lastModifiedAt).getTime();
-          });
+          this.userTasks = this.sortTasksByPreference(tasks);
           this.page = 1;
         },
         error: () => {
@@ -316,6 +322,66 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
 
   private shouldUsePreviewMode(): boolean {
     return this.authService.authSession()?.isDebugSession === true && this.authService.canStartDebugSession();
+  }
+
+  private applyPreferenceDefaults(): void {
+    const preferences = this.preferencesService.preferences();
+    switch (preferences.defaultTaskFilterPreset) {
+      case 'assignedToMe':
+        this.taskOwnershipFilter = 'selectedUser';
+        break;
+      case 'unassigned':
+        this.taskOwnershipFilter = 'unassigned';
+        break;
+      case 'all':
+      default:
+        this.taskOwnershipFilter = 'all';
+        break;
+    }
+
+    this.pageSize = preferences.defaultTablePageSize;
+  }
+
+  private sortTasksByPreference(tasks: TaskItemDto[]): TaskItemDto[] {
+    const preference = this.preferencesService.preferences().defaultTaskSort;
+    const statusRank = (status: TaskStatus): number => {
+      switch (status) {
+        case TaskStatus.Todo:
+          return 0;
+        case TaskStatus.InProgress:
+          return 1;
+        case TaskStatus.Done:
+          return 2;
+        default:
+          return 3;
+      }
+    };
+    const dueDateValue = (task: TaskItemDto): number => task.dueDate ? new Date(task.dueDate).getTime() : Number.MAX_SAFE_INTEGER;
+    const lastUpdatedValue = (task: TaskItemDto): number => new Date(task.lastModifiedAt).getTime();
+
+    return [...tasks].sort((a, b) => {
+      if (preference === 'dueDateAsc') {
+        const dueDiff = dueDateValue(a) - dueDateValue(b);
+        if (dueDiff !== 0) {
+          return dueDiff;
+        }
+        return lastUpdatedValue(b) - lastUpdatedValue(a);
+      }
+
+      if (preference === 'statusThenDueDate') {
+        const statusDiff = statusRank(a.status) - statusRank(b.status);
+        if (statusDiff !== 0) {
+          return statusDiff;
+        }
+
+        const dueDiff = dueDateValue(a) - dueDateValue(b);
+        if (dueDiff !== 0) {
+          return dueDiff;
+        }
+      }
+
+      return lastUpdatedValue(b) - lastUpdatedValue(a);
+    });
   }
 
   private loadPreviewData(detail: string): void {
@@ -357,7 +423,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
 
     this.selectedUserId = 'user-3';
     this.userProjects = [projectOne];
-    this.userTasks = [
+    this.userTasks = this.sortTasksByPreference([
       {
         id: 'preview-task-1',
         title: 'Finalize dashboard widgets',
@@ -409,7 +475,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
         lastModifiedByUserId: 'user-3',
         lastModifiedByUserName: 'Liam Carter'
       }
-    ];
+    ]);
 
     this.taskSearch = '';
     this.taskStateFilter = 'all';

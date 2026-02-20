@@ -935,6 +935,12 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
       }
     }
 
+    if (this.preferencesService.preferences().kanbanSwimlanePreference === 'assignee') {
+      columns[TaskStatus.Todo] = this.sortKanbanTasksByAssignee(columns[TaskStatus.Todo]);
+      columns[TaskStatus.InProgress] = this.sortKanbanTasksByAssignee(columns[TaskStatus.InProgress]);
+      columns[TaskStatus.Done] = this.sortKanbanTasksByAssignee(columns[TaskStatus.Done]);
+    }
+
     return columns;
   }
 
@@ -987,6 +993,26 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
     event.dataTransfer?.setDragImage(clone, 20, 20);
     this.dragImageElement = clone;
+  }
+
+  private sortKanbanTasksByAssignee(tasks: TaskItemDto[]): TaskItemDto[] {
+    return [...tasks].sort((a, b) => {
+      const aName = (a.assignedUserName ?? '').trim();
+      const bName = (b.assignedUserName ?? '').trim();
+      const aUnassigned = aName.length === 0 || aName.toLowerCase() === 'unassigned';
+      const bUnassigned = bName.length === 0 || bName.toLowerCase() === 'unassigned';
+
+      if (aUnassigned !== bUnassigned) {
+        return aUnassigned ? 1 : -1;
+      }
+
+      const nameDiff = aName.localeCompare(bName);
+      if (nameDiff !== 0) {
+        return nameDiff;
+      }
+
+      return new Date(b.lastModifiedAt).getTime() - new Date(a.lastModifiedAt).getTime();
+    });
   }
 
   private detachCustomDragImage(): void {

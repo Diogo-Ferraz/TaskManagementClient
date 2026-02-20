@@ -345,9 +345,7 @@ export class TaskItemListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (tasks) => {
-          this.tasks = [...tasks].sort((a, b) => {
-            return new Date(b.lastModifiedAt).getTime() - new Date(a.lastModifiedAt).getTime();
-          });
+          this.tasks = this.sortTasks(tasks);
           this.isLoadingTasks = false;
         },
         error: () => {
@@ -374,7 +372,7 @@ export class TaskItemListComponent implements OnInit, OnDestroy {
   ): void {
     const previousState = { ...task };
     applyLocalUpdate();
-    this.tasks = [...this.tasks];
+    this.tasks = this.sortTasks(this.tasks);
 
     if (this.isPreviewMode) {
       this.messageService.add({ severity: 'success', summary: 'Preview', detail: successMessage });
@@ -407,7 +405,7 @@ export class TaskItemListComponent implements OnInit, OnDestroy {
 
     const nextTasks = [...this.tasks];
     nextTasks[index] = updatedTask;
-    this.tasks = nextTasks;
+    this.tasks = this.sortTasks(nextTasks);
   }
 
   private shouldUsePreviewMode(): boolean {
@@ -428,6 +426,56 @@ export class TaskItemListComponent implements OnInit, OnDestroy {
     }
 
     return 'Current User';
+  }
+
+  private sortTasks(tasks: TaskItemDto[]): TaskItemDto[] {
+    const preference = this.preferencesService.preferences().defaultTaskSort;
+    const rankStatus = (status: TaskStatus): number => {
+      switch (status) {
+        case TaskStatus.Todo:
+          return 0;
+        case TaskStatus.InProgress:
+          return 1;
+        case TaskStatus.Done:
+          return 2;
+        default:
+          return 3;
+      }
+    };
+
+    const dueDateValue = (task: TaskItemDto): number => {
+      if (!task.dueDate) {
+        return Number.MAX_SAFE_INTEGER;
+      }
+
+      return new Date(task.dueDate).getTime();
+    };
+
+    const lastUpdatedValue = (task: TaskItemDto): number => new Date(task.lastModifiedAt).getTime();
+
+    return [...tasks].sort((a, b) => {
+      if (preference === 'dueDateAsc') {
+        const dueDiff = dueDateValue(a) - dueDateValue(b);
+        if (dueDiff !== 0) {
+          return dueDiff;
+        }
+        return lastUpdatedValue(b) - lastUpdatedValue(a);
+      }
+
+      if (preference === 'statusThenDueDate') {
+        const statusDiff = rankStatus(a.status) - rankStatus(b.status);
+        if (statusDiff !== 0) {
+          return statusDiff;
+        }
+        const dueDiff = dueDateValue(a) - dueDateValue(b);
+        if (dueDiff !== 0) {
+          return dueDiff;
+        }
+        return lastUpdatedValue(b) - lastUpdatedValue(a);
+      }
+
+      return lastUpdatedValue(b) - lastUpdatedValue(a);
+    });
   }
 
   private loadPreviewProjects(detail: string): void {

@@ -1,4 +1,4 @@
-import { Component, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, Renderer2, ViewChild, ViewEncapsulation, effect } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { SharedModule } from './shared/shared.module';
 import { AppTopbarComponent } from "./core/layout/component/app-topbar/app-topbar.component";
@@ -6,6 +6,7 @@ import { AppFooterComponent } from "./core/layout/component/app-footer/app-foote
 import { AppSidebarComponent } from './core/layout/component/app-sidebar/app-sidebar.component';
 import { Subscription, filter } from 'rxjs';
 import { LayoutService } from './core/layout/services/layout.service';
+import { AppPreferencesService } from './core/preferences/app-preferences.service';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +24,7 @@ import { LayoutService } from './core/layout/services/layout.service';
 })
 export class AppComponent {
   overlayMenuOpenSubscription: Subscription;
+  private lastAppliedSidebarBehavior: 'expanded' | 'collapsed' | null = null;
 
   menuOutsideClickListener: any;
 
@@ -32,7 +34,8 @@ export class AppComponent {
 
   constructor(public layoutService: LayoutService,
     public renderer: Renderer2,
-    public router: Router) {
+    public router: Router,
+    private readonly preferencesService: AppPreferencesService) {
     this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
       if (!this.menuOutsideClickListener) {
         this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {
@@ -49,6 +52,19 @@ export class AppComponent {
 
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       this.hideMenu();
+    });
+
+    effect(() => {
+      const sidebarBehavior = this.preferencesService.preferences().sidebarBehavior;
+      if (sidebarBehavior === this.lastAppliedSidebarBehavior || !this.layoutService.isDesktop()) {
+        return;
+      }
+
+      this.lastAppliedSidebarBehavior = sidebarBehavior;
+      this.layoutService.layoutState.update((prev) => ({
+        ...prev,
+        staticMenuDesktopInactive: sidebarBehavior === 'collapsed'
+      }));
     });
   }
 

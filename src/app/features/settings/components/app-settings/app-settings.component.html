@@ -3,7 +3,7 @@
     <div class="settings-header">
       <div class="settings-header__title">
         <h2>Settings</h2>
-        <p>Personalize application behavior, visual density, and workspace defaults.</p>
+        <p>Personalize visual behavior, workspace defaults, and notification flow.</p>
       </div>
 
       <div class="settings-header__actions">
@@ -13,10 +13,18 @@
   </p-card>
 
   <div class="settings-grid">
-    <p-card header="Appearance" styleClass="settings-card">
+    <p-card styleClass="settings-card">
+      <div class="settings-section-header">
+        <h3>Appearance</h3>
+        <p>Control visual density, theme mode, and layout behavior.</p>
+      </div>
+
       <div class="settings-form">
-        <div class="field">
-          <label for="themeMode">Theme</label>
+        <div class="setting-row">
+          <div class="setting-row__meta">
+            <label for="themeMode">Theme</label>
+            <small>Switch between light and dark visual modes.</small>
+          </div>
           <p-dropdown
             inputId="themeMode"
             [options]="themeOptions"
@@ -28,8 +36,11 @@
           </p-dropdown>
         </div>
 
-        <div class="field">
-          <label for="densityMode">Density</label>
+        <div class="setting-row">
+          <div class="setting-row__meta">
+            <label for="densityMode">Density</label>
+            <small>Choose compact or comfortable spacing across pages.</small>
+          </div>
           <p-dropdown
             inputId="densityMode"
             [options]="densityOptions"
@@ -40,64 +51,90 @@
             (onChange)="onDensityChange($event.value)">
           </p-dropdown>
         </div>
+
+        <div class="setting-row">
+          <div class="setting-row__meta">
+            <label for="sidebarBehavior">Sidebar Behavior</label>
+            <small>Define default sidebar state when opening the app.</small>
+          </div>
+          <p-dropdown
+            inputId="sidebarBehavior"
+            [options]="sidebarBehaviorOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="preferences().sidebarBehavior"
+            [appendTo]="'body'"
+            (onChange)="onSidebarBehaviorChange($event.value)">
+          </p-dropdown>
+        </div>
       </div>
     </p-card>
 
-    <p-card header="Locale & Date" styleClass="settings-card">
+    <p-card styleClass="settings-card">
+      <div class="settings-section-header">
+        <h3>Notifications</h3>
+        <p>Control how activity updates surface in your workspace.</p>
+      </div>
+
       <div class="settings-form">
-        <div class="field">
-          <label for="defaultHomeRoute">Default Home Page</label>
-          <p-dropdown
-            inputId="defaultHomeRoute"
-            [options]="defaultHomeRouteOptions"
-            optionLabel="label"
-            optionValue="value"
-            [ngModel]="preferences().defaultHomeRoute"
-            [appendTo]="'body'"
-            (onChange)="onDefaultHomeRouteChange($event.value)">
-          </p-dropdown>
-        </div>
-
-        <div class="field">
-          <label for="dateFormat">Date Format</label>
-          <p-dropdown
-            inputId="dateFormat"
-            [options]="dateFormatOptions"
-            optionLabel="label"
-            optionValue="value"
-            [ngModel]="preferences().dateFormat"
-            [appendTo]="'body'"
-            (onChange)="onDateFormatChange($event.value)">
-          </p-dropdown>
-        </div>
-
-        <div class="field-inline">
-          <span>Use relative dates</span>
+        <div class="setting-row setting-row--switch">
+          <div class="setting-row__meta">
+            <span>Activity toasts</span>
+            <small>Show short popup messages for important activity events.</small>
+          </div>
           <p-inputSwitch
-            [ngModel]="preferences().useRelativeDates"
-            (ngModelChange)="onToggle('useRelativeDates', $event)">
+            [ngModel]="preferences().showActivityToasts"
+            (ngModelChange)="onToggle('showActivityToasts', $event)">
           </p-inputSwitch>
         </div>
 
-        <div class="preview-line">
-          <span>Preview:</span>
-          <strong>{{ datePreview() }}</strong>
+        <div class="setting-row setting-row--switch">
+          <div class="setting-row__meta">
+            <span>Topbar notification indicator</span>
+            <small>Display unread activity count in the top navigation bar.</small>
+          </div>
+          <p-inputSwitch
+            [ngModel]="preferences().showTopbarNotificationIndicator"
+            (ngModelChange)="onToggle('showTopbarNotificationIndicator', $event)">
+          </p-inputSwitch>
+        </div>
+
+        <div class="setting-row setting-row--switch">
+          <div class="setting-row__meta">
+            <span>Desktop notifications</span>
+            <small>Allow browser-level notifications for background updates.</small>
+          </div>
+          <p-inputSwitch
+            [ngModel]="preferences().enableDesktopNotifications"
+            (ngModelChange)="onToggle('enableDesktopNotifications', $event)">
+          </p-inputSwitch>
         </div>
       </div>
     </p-card>
 
-    <p-card header="Workspace Defaults" styleClass="settings-card">
+    <p-card styleClass="settings-card">
+      <div class="settings-section-header">
+        <h3>Workspace Defaults</h3>
+        <p>Set default behavior for task views and Kanban workflow.</p>
+      </div>
+
       <div class="settings-form">
-        <div class="field-inline">
-          <span>Remember last selected project</span>
+        <div class="setting-row setting-row--switch">
+          <div class="setting-row__meta">
+            <span>Remember last selected project</span>
+            <small>Reuse context across Kanban, project details, and task pages.</small>
+          </div>
           <p-inputSwitch
             [ngModel]="preferences().rememberLastSelectedProject"
             (ngModelChange)="onToggle('rememberLastSelectedProject', $event)">
           </p-inputSwitch>
         </div>
 
-        <div class="field">
-          <label for="defaultTablePageSize">Default Table Page Size</label>
+        <div class="setting-row">
+          <div class="setting-row__meta">
+            <label for="defaultTablePageSize">Default Table Page Size</label>
+            <small>Apply a preferred row count to data tables.</small>
+          </div>
           <p-dropdown
             inputId="defaultTablePageSize"
             [options]="tablePageSizeOptions"
@@ -109,24 +146,110 @@
           </p-dropdown>
         </div>
 
-        <p class="settings-note">
-          Your last selected project is reused in Kanban, Project Details, Project Members, and All Tasks.
-        </p>
+        <div class="setting-row">
+          <div class="setting-row__meta">
+            <label for="defaultTaskSort">Default Task Sort</label>
+            <small>Choose how task lists are ordered by default.</small>
+          </div>
+          <p-dropdown
+            inputId="defaultTaskSort"
+            [options]="taskSortOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="preferences().defaultTaskSort"
+            [appendTo]="'body'"
+            (onChange)="onDefaultTaskSortChange($event.value)">
+          </p-dropdown>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row__meta">
+            <label for="kanbanSwimlanePreference">Kanban Swimlane Preference</label>
+            <small>Control grouping style inside each status column.</small>
+          </div>
+          <p-dropdown
+            inputId="kanbanSwimlanePreference"
+            [options]="kanbanSwimlaneOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="preferences().kanbanSwimlanePreference"
+            [appendTo]="'body'"
+            (onChange)="onKanbanSwimlaneChange($event.value)">
+          </p-dropdown>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row__meta">
+            <label for="defaultTaskFilterPreset">Default Filter Preset</label>
+            <small>Apply a filter baseline when loading search and task views.</small>
+          </div>
+          <p-dropdown
+            inputId="defaultTaskFilterPreset"
+            [options]="defaultTaskFilterPresetOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="preferences().defaultTaskFilterPreset"
+            [appendTo]="'body'"
+            (onChange)="onDefaultTaskFilterPresetChange($event.value)">
+          </p-dropdown>
+        </div>
       </div>
     </p-card>
 
-    <p-card header="Notifications" styleClass="settings-card">
+    <p-card styleClass="settings-card">
+      <div class="settings-section-header">
+        <h3>Locale & Date</h3>
+        <p>Manage date format and timeline readability.</p>
+      </div>
+
       <div class="settings-form">
-        <div class="field-inline">
-          <span>Activity toasts</span>
+        <div class="setting-row">
+          <div class="setting-row__meta">
+            <label for="defaultHomeRoute">Default Home Page</label>
+            <small>Choose where you land after sign-in.</small>
+          </div>
+          <p-dropdown
+            inputId="defaultHomeRoute"
+            [options]="defaultHomeRouteOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="preferences().defaultHomeRoute"
+            [appendTo]="'body'"
+            (onChange)="onDefaultHomeRouteChange($event.value)">
+          </p-dropdown>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row__meta">
+            <label for="dateFormat">Date Format</label>
+            <small>Set how dates render across tables and cards.</small>
+          </div>
+          <p-dropdown
+            inputId="dateFormat"
+            [options]="dateFormatOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="preferences().dateFormat"
+            [appendTo]="'body'"
+            (onChange)="onDateFormatChange($event.value)">
+          </p-dropdown>
+        </div>
+
+        <div class="setting-row setting-row--switch">
+          <div class="setting-row__meta">
+            <span>Use relative dates</span>
+            <small>Examples: 5m ago, 2h ago, 1d ago.</small>
+          </div>
           <p-inputSwitch
-            [ngModel]="preferences().showActivityToasts"
-            (ngModelChange)="onToggle('showActivityToasts', $event)">
+            [ngModel]="preferences().useRelativeDates"
+            (ngModelChange)="onToggle('useRelativeDates', $event)">
           </p-inputSwitch>
         </div>
-        <p class="settings-note">
-          Calendar reminders and desktop push notifications are not enabled yet in the current backend integration.
-        </p>
+
+        <div class="preview-line">
+          <span>Preview:</span>
+          <strong>{{ datePreview() }}</strong>
+        </div>
       </div>
     </p-card>
   </div>

@@ -2,8 +2,12 @@ import { Component, computed, inject } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import {
   AppPreferencesService,
+  DefaultTaskFilterPreset,
   DefaultHomeRoute,
   DateFormatPreference,
+  KanbanSwimlanePreference,
+  SidebarBehavior,
+  TaskSortPreference,
   UiDensity
 } from '../../../../core/preferences/app-preferences.service';
 import { LayoutService } from '../../../../core/layout/services/layout.service';
@@ -37,6 +41,11 @@ export class AppSettingsComponent {
     { label: 'Compact', value: 'compact' }
   ];
 
+  readonly sidebarBehaviorOptions: SelectOption<SidebarBehavior>[] = [
+    { label: 'Expanded by default', value: 'expanded' },
+    { label: 'Collapsed by default', value: 'collapsed' }
+  ];
+
   readonly dateFormatOptions: SelectOption<DateFormatPreference>[] = [
     { label: 'Medium (Jan 01, 2026)', value: 'medium' },
     { label: 'Short (01/01/2026)', value: 'short' },
@@ -55,6 +64,23 @@ export class AppSettingsComponent {
     { label: '50 rows', value: 50 }
   ];
 
+  readonly taskSortOptions: SelectOption<TaskSortPreference>[] = [
+    { label: 'Last Updated (Newest)', value: 'lastUpdatedDesc' },
+    { label: 'Due Date (Earliest First)', value: 'dueDateAsc' },
+    { label: 'Status then Due Date', value: 'statusThenDueDate' }
+  ];
+
+  readonly kanbanSwimlaneOptions: SelectOption<KanbanSwimlanePreference>[] = [
+    { label: 'None', value: 'none' },
+    { label: 'Assignee', value: 'assignee' }
+  ];
+
+  readonly defaultTaskFilterPresetOptions: SelectOption<DefaultTaskFilterPreset>[] = [
+    { label: 'All Tasks', value: 'all' },
+    { label: 'Assigned to Me', value: 'assignedToMe' },
+    { label: 'Unassigned', value: 'unassigned' }
+  ];
+
   readonly datePreview = computed(() => this.preferencesService.formatDate(new Date('2026-02-19T10:30:00Z')));
 
   onThemeChange(mode: 'light' | 'dark'): void {
@@ -69,6 +95,10 @@ export class AppSettingsComponent {
     this.preferencesService.update({ uiDensity: value });
   }
 
+  onSidebarBehaviorChange(value: SidebarBehavior): void {
+    this.preferencesService.update({ sidebarBehavior: value });
+  }
+
   onDateFormatChange(value: DateFormatPreference): void {
     this.preferencesService.update({ dateFormat: value });
   }
@@ -79,6 +109,18 @@ export class AppSettingsComponent {
 
   onDefaultTablePageSizeChange(value: 10 | 25 | 50): void {
     this.preferencesService.update({ defaultTablePageSize: value });
+  }
+
+  onDefaultTaskSortChange(value: TaskSortPreference): void {
+    this.preferencesService.update({ defaultTaskSort: value });
+  }
+
+  onKanbanSwimlaneChange(value: KanbanSwimlanePreference): void {
+    this.preferencesService.update({ kanbanSwimlanePreference: value });
+  }
+
+  onDefaultTaskFilterPresetChange(value: DefaultTaskFilterPreset): void {
+    this.preferencesService.update({ defaultTaskFilterPreset: value });
   }
 
   onToggle<K extends keyof ReturnType<typeof this.preferences>>(key: K, value: ReturnType<typeof this.preferences>[K]): void {

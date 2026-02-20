@@ -31,6 +31,14 @@
                     <span>Due Dates</span>
                 </button>
                 <button
+                    *ngIf="showNotificationIndicator"
+                    type="button"
+                    class="layout-topbar-action layout-topbar-action--notifications"
+                    (click)="notificationsPanel.toggle($event)">
+                    <i class="pi pi-bell" pBadge [value]="unreadNotifications" [badgeDisabled]="unreadNotifications === 0" severity="danger"></i>
+                    <span>Notifications</span>
+                </button>
+                <button
                     *ngIf="authService.isAuthenticated(); else signInButton"
                     type="button"
                     class="layout-topbar-account"
@@ -51,5 +59,30 @@
             </div>
         </div>
         <p-menu #accountMenu [popup]="true" [model]="accountMenuItems"></p-menu>
+        <p-overlayPanel #notificationsPanel styleClass="topbar-notifications-panel" [showCloseIcon]="true" (onShow)="markNotificationsAsRead()">
+            <div class="topbar-notifications">
+                <div class="topbar-notifications__header">
+                    <strong>Notifications</strong>
+                    <small>{{ unreadNotifications }} unread</small>
+                </div>
+
+                <div *ngIf="notificationItems.length > 0; else emptyNotifications" class="topbar-notifications__list">
+                    <button
+                        type="button"
+                        class="topbar-notification-item"
+                        *ngFor="let item of notificationItems"
+                        [class.topbar-notification-item--unread]="item.unread"
+                        (click)="openNotification(item, notificationsPanel)">
+                        <span class="topbar-notification-item__title">{{ item.title }}</span>
+                        <span class="topbar-notification-item__message">{{ item.message }}</span>
+                        <span class="topbar-notification-item__time">{{ notificationTime(item.occurredAt) }}</span>
+                    </button>
+                </div>
+
+                <ng-template #emptyNotifications>
+                    <div class="topbar-notifications__empty">No notifications yet.</div>
+                </ng-template>
+            </div>
+        </p-overlayPanel>
     </div>
 </div>
