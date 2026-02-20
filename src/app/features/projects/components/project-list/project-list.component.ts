@@ -62,6 +62,10 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return this.preferencesService.preferences().defaultTablePageSize;
   }
 
+  get canManageProjects(): boolean {
+    return this.authService.hasAnyRole(['Administrator', 'ProjectManager']);
+  }
+
   trackByProjectId(_: number, project: ProjectDto): string {
     return project.id;
   }
@@ -84,6 +88,10 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   createProject(): void {
+    if (!this.canManageProjects) {
+      return;
+    }
+
     void this.router.navigate(['/projects/create']);
   }
 

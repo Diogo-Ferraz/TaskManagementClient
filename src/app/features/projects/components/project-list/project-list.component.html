@@ -15,7 +15,7 @@
 
       <div class="projects-header__actions">
         <button pButton type="button" label="Refresh" icon="pi pi-refresh" class="p-button-outlined" (click)="refreshProjects()" [loading]="loading"></button>
-        <button pButton type="button" label="Create Project" icon="pi pi-plus" (click)="createProject()"></button>
+        <button *ngIf="canManageProjects" pButton type="button" label="Create Project" icon="pi pi-plus" (click)="createProject()"></button>
       </div>
     </div>
   </p-card>

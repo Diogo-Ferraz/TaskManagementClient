@@ -25,9 +25,19 @@ export class AppMenuComponent {
         label: 'Workspaces',
         items: [
           { label: 'All Projects', icon: 'pi pi-fw pi-list', routerLink: ['/projects'] },
-          { label: 'Project Details', icon: 'pi pi-fw pi-folder-open', routerLink: ['/projects/details'] },
+          {
+            label: 'Project Details',
+            icon: 'pi pi-fw pi-folder-open',
+            routerLink: ['/projects/details'],
+            visible: this.authService.hasAnyRole(['Administrator', 'ProjectManager'])
+          },
           { label: 'Project Members', icon: 'pi pi-fw pi-users', routerLink: ['/projects/members'] },
-          { label: 'Create Project', icon: 'pi pi-fw pi-plus', routerLink: ['/projects/create'] },
+          {
+            label: 'Create Project',
+            icon: 'pi pi-fw pi-plus',
+            routerLink: ['/projects/create'],
+            visible: this.authService.hasAnyRole(['Administrator', 'ProjectManager'])
+          },
           { label: 'Kanban Board', icon: 'pi pi-fw pi-th-large', routerLink: ['/projects/kanban'] }
         ]
       },
@@ -36,7 +46,12 @@ export class AppMenuComponent {
         items: [
           { label: 'All Tasks', icon: 'pi pi-fw pi-list', routerLink: ['/tasks'] },
           { label: 'My Tasks', icon: 'pi pi-fw pi-user', routerLink: ['/tasks/my-tasks'] },
-          { label: 'Create Task', icon: 'pi pi-fw pi-plus', routerLink: ['/tasks/create'] }
+          {
+            label: 'Create Task',
+            icon: 'pi pi-fw pi-plus',
+            routerLink: ['/tasks/create'],
+            visible: this.authService.hasAnyRole(['Administrator', 'ProjectManager', 'User'])
+          }
         ]
       },
       {
