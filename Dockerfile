@@ -7,7 +7,7 @@ RUN npm ci
 
 COPY . .
 
-ARG BUILD_CONFIGURATION=production
+ARG BUILD_CONFIGURATION=docker
 RUN npm run build -- --configuration=${BUILD_CONFIGURATION}
 
 FROM nginx:1.27-alpine AS runtime
