@@ -13,11 +13,17 @@
   <div class="heatmap-footer">
     <span class="heatmap-meta">{{ hoverText || (totalActivities + ' activity events in the last 12 weeks') }}</span>
 
-    <div class="heatmap-legend">
-      <div class="heatmap-legend-item" *ngFor="let range of legendRanges">
-        <span class="heatmap-legend-swatch" [style.background-color]="'var(' + range.colorVar + ')'"></span>
-        <span class="heatmap-legend-label">{{ range.label }}</span>
+    <div class="heatmap-scale">
+      <span class="heatmap-scale__label">Low</span>
+      <div class="heatmap-scale__swatches">
+        <span
+          *ngFor="let range of legendRanges"
+          class="heatmap-scale__swatch"
+          [style.background-color]="range.color"
+          [attr.aria-label]="'Intensity ' + range.label">
+        </span>
       </div>
+      <span class="heatmap-scale__label">High</span>
     </div>
   </div>
 </div>

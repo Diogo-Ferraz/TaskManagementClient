@@ -96,44 +96,14 @@ export class ActivityHeatmapComponent implements AfterViewInit, OnChanges, OnDes
     this.hoverText = '';
   }
 
-  get legendRanges(): Array<{ colorVar: string; label: string }> {
-    const maxCount = this.maxDailyCount;
-    if (maxCount <= 0) {
-      return [
-        { colorVar: '--p-primary-200', label: '0' },
-        { colorVar: '--p-primary-300', label: '0' },
-        { colorVar: '--p-primary-400', label: '0' },
-        { colorVar: '--p-primary-color', label: '0' }
-      ];
-    }
-
-    const step = Math.max(1, Math.ceil(maxCount / 4));
-    const starts = [1, 1 + step, 1 + step * 2, 1 + step * 3];
-    const ends = [
-      Math.min(maxCount, step),
-      Math.min(maxCount, step * 2),
-      Math.min(maxCount, step * 3),
-      maxCount
-    ];
-
+  get legendRanges(): Array<{ color: string; label: string }> {
+    const palette = this.resolvePalette();
     return [
-      { colorVar: '--p-primary-200', label: `${starts[0]} - ${ends[0]}` },
-      { colorVar: '--p-primary-300', label: `${starts[1]} - ${ends[1]}` },
-      { colorVar: '--p-primary-400', label: `${starts[2]} - ${ends[2]}` },
-      { colorVar: '--p-primary-color', label: `${starts[3]} - ${ends[3]}` }
+      { color: palette[1], label: '1-2' },
+      { color: palette[2], label: '3-5' },
+      { color: palette[3], label: '6-8' },
+      { color: palette[4], label: '9+' }
     ];
-  }
-
-  private get maxDailyCount(): number {
-    let max = 0;
-    for (const week of this.weeks) {
-      for (const day of week) {
-        if (day.count > max) {
-          max = day.count;
-        }
-      }
-    }
-    return max;
   }
 
   private renderHeatmap(): void {
@@ -215,11 +185,22 @@ export class ActivityHeatmapComponent implements AfterViewInit, OnChanges, OnDes
 
     return [
       this.readVar(style, '--surface-200', fallback[0]),
-      this.readVar(style, '--p-primary-200', fallback[1]),
-      this.readVar(style, '--p-primary-300', fallback[2]),
-      this.readVar(style, '--p-primary-400', fallback[3]),
-      this.readVar(style, '--p-primary-color', fallback[4])
+      this.readFirstDefinedVar(style, ['--p-primary-200', '--primary-200'], fallback[1]),
+      this.readFirstDefinedVar(style, ['--p-primary-300', '--primary-300'], fallback[2]),
+      this.readFirstDefinedVar(style, ['--p-primary-400', '--primary-400'], fallback[3]),
+      this.readFirstDefinedVar(style, ['--p-primary-color', '--primary-color'], fallback[4])
     ];
+  }
+
+  private readFirstDefinedVar(style: CSSStyleDeclaration, tokens: string[], fallback: string): string {
+    for (const token of tokens) {
+      const value = style.getPropertyValue(token).trim();
+      if (value) {
+        return value;
+      }
+    }
+
+    return fallback;
   }
 
   private readVar(style: CSSStyleDeclaration, token: string, fallback: string): string {

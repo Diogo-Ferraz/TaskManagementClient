@@ -34,8 +34,8 @@
               <span class="block text-muted-color font-medium mb-3">{{ item.title }}</span>
               <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ item.value }}</div>
             </div>
-            <div class="flex align-items-center justify-content-center border-round" [ngClass]="item.bgColor" style="width: 2.5rem; height: 2.5rem;">
-              <i class="{{ item.icon }} text-xl" [ngClass]="item.iconColor"></i>
+            <div class="dashboard-metric-card__icon" [ngClass]="'dashboard-metric-card__icon--' + item.tone">
+              <i class="{{ item.icon }}"></i>
             </div>
           </div>
           <span *ngIf="item.description" class="text-muted-color">{{ item.description }}</span>
@@ -53,7 +53,7 @@
 
     <p-card header="Activity Event Distribution" class="dashboard-panel-card">
       <ng-template pTemplate="content">
-        <div class="dashboard-panel-card__body">
+        <div class="dashboard-panel-card__body dashboard-panel-card__body--lined">
           <ng-container *ngIf="taskStatusChartData?.datasets?.[0]?.data?.length > 0; else chartEmpty">
             <p-chart type="doughnut" [data]="taskStatusChartData" [options]="taskStatusChartOptions" height="240px" class="flex justify-content-center"></p-chart>
           </ng-container>
@@ -67,27 +67,30 @@
 
   <div class="dashboard-row dashboard-row-2">
     <p-card header="Focus Today" class="dashboard-panel-card dashboard-panel-card--compact">
-      <div class="focus-list">
-        <div class="focus-item">
-          <span class="text-muted-color">Completion rate</span>
-          <strong>{{ completionRateValue }}%</strong>
+      <div class="focus-list dashboard-panel-card__body--lined">
+        <div class="focus-head">
+          <div class="focus-item">
+            <span class="text-muted-color">Completion rate</span>
+            <strong>{{ completionRateValue }}%</strong>
+          </div>
+          <p-progressBar styleClass="focus-progress" [value]="completionRateValue"></p-progressBar>
         </div>
-        <p-progressBar [value]="completionRateValue"></p-progressBar>
 
-        <div class="focus-tags">
-          <p-tag [value]="'Assigned: ' + (summarySnapshot?.assignedTasksCount ?? 0)" severity="info"></p-tag>
-          <p-tag [value]="'Closed: ' + (summarySnapshot?.tasksClosedThisWeekCount ?? 0)" severity="success"></p-tag>
-          <p-tag [value]="'Overdue: ' + (summarySnapshot?.overdueAssignedTasksCount ?? 0)" severity="warning"></p-tag>
+        <div class="focus-insights">
+          <div class="focus-insight" *ngFor="let insight of focusInsights" [ngClass]="'focus-insight--' + insight.tone">
+            <span>{{ insight.label }}</span>
+            <strong>{{ insight.value }}</strong>
+          </div>
         </div>
       </div>
     </p-card>
 
     <p-card [header]="isPreviewMode ? 'Recent Activity (Preview)' : 'Recent Activity (Live)'" class="dashboard-panel-card dashboard-panel-card--compact dashboard-activity-card">
       <ng-template pTemplate="content">
-        <ul class="list-none p-0 m-0">
+        <ul class="list-none p-0 m-0 dashboard-panel-card__body--lined">
           <li *ngFor="let activity of recentActivities; let isLast = last" class="flex align-items-center py-3" [ngClass]="{'border-bottom-1 surface-border': !isLast}">
-            <div class="w-3rem h-3rem flex align-items-center justify-content-center border-circle mr-3 flex-shrink-0" [ngClass]="activity.bgColor">
-              <i class="{{ activity.icon }} text-xl" [ngClass]="activity.iconColor"></i>
+            <div class="dashboard-activity-icon mr-3 flex-shrink-0" [ngClass]="getActivityToneClass(activity)">
+              <i class="{{ activity.icon }}"></i>
             </div>
             <div class="flex-1">
               <span class="block text-surface-900 dark:text-surface-0" [innerHTML]="activity.summary"></span>

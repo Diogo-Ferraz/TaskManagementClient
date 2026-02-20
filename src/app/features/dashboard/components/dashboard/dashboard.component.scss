@@ -58,6 +58,50 @@ $grid-gap: 2rem;
         gap: 0.75rem;
     }
 
+    .dashboard-metric-card__icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--surface-border);
+        background: color-mix(in srgb, var(--surface-100) 78%, transparent);
+        flex-shrink: 0;
+
+        i {
+            font-size: 1rem;
+        }
+    }
+
+    .dashboard-metric-card__icon--todo {
+        color: #1976d2;
+        border-color: color-mix(in srgb, #1976d2 35%, var(--surface-border));
+        background: color-mix(in srgb, #1976d2 12%, var(--surface-100));
+    }
+
+    .dashboard-metric-card__icon--progress {
+        color: #6f42c1;
+        border-color: color-mix(in srgb, #6f42c1 35%, var(--surface-border));
+        background: color-mix(in srgb, #6f42c1 12%, var(--surface-100));
+    }
+
+    .dashboard-metric-card__icon--done {
+        color: #2e7d32;
+        border-color: color-mix(in srgb, #2e7d32 35%, var(--surface-border));
+        background: color-mix(in srgb, #2e7d32 12%, var(--surface-100));
+    }
+
+    .dashboard-metric-card__icon--warning {
+        color: #f57c00;
+        border-color: color-mix(in srgb, #f57c00 35%, var(--surface-border));
+        background: color-mix(in srgb, #f57c00 12%, var(--surface-100));
+    }
+
+    .dashboard-metric-card__icon--neutral {
+        color: var(--text-color-secondary);
+    }
+
     .dashboard-panel-card {
         height: 25rem;
     }
@@ -77,10 +121,39 @@ $grid-gap: 2rem;
         justify-content: center;
     }
 
+    .dashboard-panel-card__body--lined {
+        border-top: 1px solid var(--surface-border);
+        border-bottom: 1px solid var(--surface-border);
+        padding: 0.75rem 0;
+    }
+
     .focus-list {
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
+    }
+
+    .focus-head {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    ::ng-deep .focus-progress.p-progressbar {
+        height: 0.85rem;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--surface-200) 86%, transparent);
+        border: 1px solid color-mix(in srgb, var(--surface-border) 92%, transparent);
+        overflow: hidden;
+    }
+
+    ::ng-deep .focus-progress.p-progressbar .p-progressbar-value {
+        background: linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--primary-color) 82%, #ffffff),
+            color-mix(in srgb, var(--primary-color) 58%, #1f3a8a)
+        );
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
     }
 
     .focus-item {
@@ -93,6 +166,44 @@ $grid-gap: 2rem;
         display: flex;
         gap: 0.5rem;
         flex-wrap: wrap;
+    }
+
+    .focus-insights {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.6rem;
+    }
+
+    .focus-insight {
+        border: 1px solid var(--surface-border);
+        border-radius: 10px;
+        padding: 0.55rem 0.6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        background: color-mix(in srgb, var(--surface-100) 72%, transparent);
+
+        span {
+            font-size: 0.76rem;
+            color: var(--text-color-secondary);
+        }
+
+        strong {
+            font-size: 0.96rem;
+            line-height: 1;
+        }
+    }
+
+    .focus-insight--todo {
+        border-color: color-mix(in srgb, #1976d2 30%, var(--surface-border));
+    }
+
+    .focus-insight--done {
+        border-color: color-mix(in srgb, #2e7d32 30%, var(--surface-border));
+    }
+
+    .focus-insight--warning {
+        border-color: color-mix(in srgb, #f57c00 30%, var(--surface-border));
     }
 
     ::ng-deep .p-card {
@@ -136,12 +247,47 @@ $grid-gap: 2rem;
         padding-right: 0.25rem;
     }
 
-    ::ng-deep .p-progressbar {
-        height: 0.5rem; 
-        background-color: var(--surface-border, #dee2e6); 
-        .p-progressbar-value {
-           background: var(--primary-color);
+    ::ng-deep .dashboard-activity-card .p-card-content > .dashboard-panel-card__body--lined {
+        min-height: 100%;
+    }
+
+    .dashboard-activity-icon {
+        width: 2.45rem;
+        height: 2.45rem;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--surface-border);
+        background: color-mix(in srgb, var(--surface-100) 78%, transparent);
+
+        i {
+            font-size: 1rem;
         }
+    }
+
+    .dashboard-activity-icon--todo {
+        color: #1976d2;
+        border-color: color-mix(in srgb, #1976d2 35%, var(--surface-border));
+        background: color-mix(in srgb, #1976d2 12%, var(--surface-100));
+    }
+
+    .dashboard-activity-icon--progress {
+        color: #6f42c1;
+        border-color: color-mix(in srgb, #6f42c1 35%, var(--surface-border));
+        background: color-mix(in srgb, #6f42c1 12%, var(--surface-100));
+    }
+
+    .dashboard-activity-icon--done {
+        color: #2e7d32;
+        border-color: color-mix(in srgb, #2e7d32 35%, var(--surface-border));
+        background: color-mix(in srgb, #2e7d32 12%, var(--surface-100));
+    }
+
+    .dashboard-activity-icon--warning {
+        color: #f57c00;
+        border-color: color-mix(in srgb, #f57c00 35%, var(--surface-border));
+        background: color-mix(in srgb, #f57c00 12%, var(--surface-100));
     }
     
     .text-muted-color {
@@ -154,5 +300,11 @@ $grid-gap: 2rem;
         border-radius: 10px;
         padding: 0.8rem;
         text-align: center;
+    }
+
+    @media (max-width: $md) {
+        .focus-insights {
+            grid-template-columns: 1fr;
+        }
     }
 }

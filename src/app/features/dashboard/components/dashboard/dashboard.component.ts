@@ -26,8 +26,7 @@ interface DashboardCard {
   title: string;
   value: string | number;
   icon: string;
-  iconColor: string;
-  bgColor: string;
+  tone: 'todo' | 'progress' | 'done' | 'warning' | 'neutral';
   description: string;
 }
 
@@ -134,32 +133,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
         title: 'Assigned Tasks',
         value: summary.assignedTasksCount,
         icon: 'pi pi-user-edit',
-        iconColor: 'text-blue-500',
-        bgColor: 'bg-blue-100',
+        tone: 'todo',
         description: 'Tasks currently assigned to you'
       },
       {
         title: 'Closed This Week',
         value: summary.tasksClosedThisWeekCount,
         icon: 'pi pi-check-circle',
-        iconColor: 'text-green-500',
-        bgColor: 'bg-green-100',
+        tone: 'done',
         description: 'Tasks completed in the current week'
       },
       {
         title: 'Projects Count',
         value: summary.projectsCount,
         icon: 'pi pi-folder-open',
-        iconColor: 'text-purple-500',
-        bgColor: 'bg-purple-100',
+        tone: 'progress',
         description: 'Projects visible in your scope'
       },
       {
         title: 'Overdue Assigned',
         value: summary.overdueAssignedTasksCount,
         icon: 'pi pi-exclamation-triangle',
-        iconColor: 'text-orange-500',
-        bgColor: 'bg-orange-100',
+        tone: 'warning',
         description: 'Assigned tasks past due date'
       }
     ];
@@ -167,10 +162,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getDefaultCards(): DashboardCard[] {
     return [
-      { title: 'Assigned Tasks', value: '-', icon: 'pi pi-user-edit', iconColor: 'text-gray-500', bgColor: 'bg-gray-100', description: '-' },
-      { title: 'Closed This Week', value: '-', icon: 'pi pi-check-circle', iconColor: 'text-gray-500', bgColor: 'bg-gray-100', description: '-' },
-      { title: 'Projects Count', value: '-', icon: 'pi pi-folder-open', iconColor: 'text-gray-500', bgColor: 'bg-gray-100', description: '-' },
-      { title: 'Overdue Assigned', value: '-', icon: 'pi pi-exclamation-triangle', iconColor: 'text-gray-500', bgColor: 'bg-gray-100', description: '-' }
+      { title: 'Assigned Tasks', value: '-', icon: 'pi pi-user-edit', tone: 'neutral', description: '-' },
+      { title: 'Closed This Week', value: '-', icon: 'pi pi-check-circle', tone: 'neutral', description: '-' },
+      { title: 'Projects Count', value: '-', icon: 'pi pi-folder-open', tone: 'neutral', description: '-' },
+      { title: 'Overdue Assigned', value: '-', icon: 'pi pi-exclamation-triangle', tone: 'neutral', description: '-' }
     ];
   }
 
@@ -180,32 +175,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
         title: 'Assigned Tasks',
         value: 9,
         icon: 'pi pi-user-edit',
-        iconColor: 'text-blue-500',
-        bgColor: 'bg-blue-100',
+        tone: 'todo',
         description: 'Preview data for UI validation'
       },
       {
         title: 'Closed This Week',
         value: 6,
         icon: 'pi pi-check-circle',
-        iconColor: 'text-green-500',
-        bgColor: 'bg-green-100',
+        tone: 'done',
         description: 'Preview data for UI validation'
       },
       {
         title: 'Projects Count',
         value: 4,
         icon: 'pi pi-folder-open',
-        iconColor: 'text-purple-500',
-        bgColor: 'bg-purple-100',
+        tone: 'progress',
         description: 'Preview data for UI validation'
       },
       {
         title: 'Overdue Assigned',
         value: 2,
         icon: 'pi pi-exclamation-triangle',
-        iconColor: 'text-orange-500',
-        bgColor: 'bg-orange-100',
+        tone: 'warning',
         description: 'Preview data for UI validation'
       }
     ];
@@ -268,6 +259,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     return Math.round((this.summarySnapshot.tasksClosedThisWeekCount / denominator) * 100);
+  }
+
+  get focusInsights(): Array<{ label: string; value: string; tone: 'todo' | 'done' | 'warning' }> {
+    const assigned = this.summarySnapshot?.assignedTasksCount ?? 0;
+    const closed = this.summarySnapshot?.tasksClosedThisWeekCount ?? 0;
+    const overdue = this.summarySnapshot?.overdueAssignedTasksCount ?? 0;
+    const onTrack = Math.max(0, assigned - overdue);
+
+    return [
+      { label: 'On Track', value: `${onTrack}`, tone: 'todo' },
+      { label: 'Closed (7d)', value: `${closed}`, tone: 'done' },
+      { label: 'Needs Attention', value: `${overdue}`, tone: 'warning' }
+    ];
+  }
+
+  getActivityToneClass(activity: RecentActivityViewModel): string {
+    switch (activity.rawEvent.type) {
+      case ActivityType.TaskCreated:
+      case ActivityType.ProjectCreated:
+        return 'dashboard-activity-icon--todo';
+      case ActivityType.TaskStatusChanged:
+      case ActivityType.TaskDueDateChanged:
+      case ActivityType.ProjectRenamed:
+        return 'dashboard-activity-icon--progress';
+      case ActivityType.TaskDeleted:
+      case ActivityType.ProjectDeleted:
+        return 'dashboard-activity-icon--warning';
+      case ActivityType.TaskAssigneeChanged:
+      case ActivityType.TaskRenamed:
+      default:
+        return 'dashboard-activity-icon--done';
+    }
   }
 
   get heatmapWeeks(): HeatmapDayCell[][] {
@@ -391,10 +414,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private formatActivityTypeLabel(type: ActivityType): string {
-    const raw = ActivityType[type] ?? 'Activity';
-    return raw
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+    const labelMap: Partial<Record<ActivityType, string>> = {
+      [ActivityType.ProjectCreated]: 'Project Created',
+      [ActivityType.ProjectRenamed]: 'Project Renamed',
+      [ActivityType.ProjectDeleted]: 'Project Deleted',
+      [ActivityType.TaskCreated]: 'Task Created',
+      [ActivityType.TaskStatusChanged]: 'Status Changed',
+      [ActivityType.TaskRenamed]: 'Task Renamed',
+      [ActivityType.TaskDeleted]: 'Task Deleted',
+      [ActivityType.TaskAssigneeChanged]: 'Assignee Changed',
+      [ActivityType.TaskDueDateChanged]: 'Due Date Changed'
+    };
+
+    return labelMap[type] ?? 'Activity';
   }
 
   private startOfDay(value: Date): Date {
