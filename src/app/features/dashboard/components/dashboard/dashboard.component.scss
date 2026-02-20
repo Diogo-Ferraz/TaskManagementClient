@@ -233,6 +233,20 @@ $grid-gap: 2rem;
         height: 25rem;
     }
 
+    ::ng-deep .dashboard-heatmap-card .p-card-body {
+        min-height: 0;
+    }
+
+    ::ng-deep .dashboard-heatmap-card .p-card-content {
+        display: flex;
+        min-height: 0;
+    }
+
+    ::ng-deep .dashboard-heatmap-card app-activity-heatmap {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
     ::ng-deep .dashboard-panel-card--compact .p-card {
         height: 16rem;
     }

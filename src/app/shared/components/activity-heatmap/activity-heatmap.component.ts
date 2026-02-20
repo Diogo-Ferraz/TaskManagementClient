@@ -20,7 +20,8 @@ interface HeatmapPoint {
   day: HeatmapDayCell;
   x: number;
   y: number;
-  size: number;
+  width: number;
+  height: number;
 }
 
 @Component({
@@ -79,7 +80,7 @@ export class ActivityHeatmapComponent implements AfterViewInit, OnChanges, OnDes
     const y = event.clientY - rect.top;
 
     const active = this.drawPoints.find(
-      (point) => x >= point.x && x <= point.x + point.size && y >= point.y && y <= point.y + point.size
+      (point) => x >= point.x && x <= point.x + point.width && y >= point.y && y <= point.y + point.height
     );
 
     if (!active) {
@@ -136,18 +137,13 @@ export class ActivityHeatmapComponent implements AfterViewInit, OnChanges, OnDes
 
     const cols = Math.max(1, this.weeks.length);
     const rows = 7;
-    const horizontalGap = 4;
-    const verticalGap = 4;
-    const gridWidth = width - horizontalGap * Math.max(0, cols - 1);
-    const gridHeight = height - verticalGap * Math.max(0, rows - 1);
-    const cellWidth = gridWidth / cols;
-    const cellHeight = gridHeight / rows;
-    const cellSize = Math.max(4, Math.floor(Math.min(cellWidth, cellHeight)));
-    const totalGridWidth = cellSize * cols + horizontalGap * Math.max(0, cols - 1);
-    const totalGridHeight = cellSize * rows + verticalGap * Math.max(0, rows - 1);
-    const offsetX = Math.max(0, (width - totalGridWidth) / 2);
-    const offsetY = Math.max(0, (height - totalGridHeight) / 2);
-    const radius = Math.max(2, Math.floor(cellSize * 0.2));
+    const horizontalGap = 5;
+    const verticalGap = 5;
+    const availableWidth = width - horizontalGap * Math.max(0, cols - 1);
+    const availableHeight = height - verticalGap * Math.max(0, rows - 1);
+    const cellWidth = Math.max(4, availableWidth / cols);
+    const cellHeight = Math.max(4, availableHeight / rows);
+    const radius = Math.max(2, Math.floor(Math.min(cellWidth, cellHeight) * 0.2));
     const palette = this.resolvePalette();
 
     this.drawPoints = [];
@@ -159,22 +155,22 @@ export class ActivityHeatmapComponent implements AfterViewInit, OnChanges, OnDes
           continue;
         }
 
-        const x = offsetX + col * (cellSize + horizontalGap);
-        const y = offsetY + row * (cellSize + verticalGap);
+        const x = col * (cellWidth + horizontalGap);
+        const y = row * (cellHeight + verticalGap);
         const color = palette[Math.max(0, Math.min(4, day.intensityLevel))];
 
-        this.roundedRect(ctx, x, y, cellSize, cellSize, radius);
+        this.roundedRect(ctx, x, y, cellWidth, cellHeight, radius);
         ctx.fillStyle = color;
         ctx.fill();
 
         if (day.intensityLevel > 0) {
-          this.roundedRect(ctx, x + 0.5, y + 0.5, cellSize - 1, cellSize - 1, radius);
+          this.roundedRect(ctx, x + 0.5, y + 0.5, Math.max(2, cellWidth - 1), Math.max(2, cellHeight - 1), radius);
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
           ctx.lineWidth = 1;
           ctx.stroke();
         }
 
-        this.drawPoints.push({ day, x, y, size: cellSize });
+        this.drawPoints.push({ day, x, y, width: cellWidth, height: cellHeight });
       }
     }
   }
