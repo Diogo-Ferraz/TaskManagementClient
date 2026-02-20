@@ -233,17 +233,17 @@ export class ProjectMembersComponent implements OnInit, OnDestroy {
   private buildPreviewMembers(projectId: string): ProjectMemberDto[] {
     if (projectId === 'preview-mobile-portal') {
       return [
-        { userId: 'user-3', displayName: 'Noah Sanders', isOwner: true },
-        { userId: 'user-4', displayName: 'Mia Foster', isOwner: false },
-        { userId: 'user-5', displayName: 'Ethan Brooks', isOwner: false }
+        { userId: 'user-3', displayName: 'Noah Sanders', email: 'noah.sanders@example.com', isOwner: true },
+        { userId: 'user-4', displayName: 'Mia Foster', email: 'mia.foster@example.com', isOwner: false },
+        { userId: 'user-5', displayName: 'Ethan Brooks', email: 'ethan.brooks@example.com', isOwner: false }
       ];
     }
 
     return [
-      { userId: 'user-1', displayName: 'Ava Mitchell', isOwner: true },
-      { userId: 'user-2', displayName: 'Liam Carter', isOwner: false },
-      { userId: 'user-6', displayName: 'Sophia Reed', isOwner: false },
-      { userId: 'user-7', displayName: 'Oliver Grant', isOwner: false }
+      { userId: 'user-1', displayName: 'Ava Mitchell', email: 'ava.mitchell@example.com', isOwner: true },
+      { userId: 'user-2', displayName: 'Liam Carter', email: 'liam.carter@example.com', isOwner: false },
+      { userId: 'user-6', displayName: 'Sophia Reed', email: 'sophia.reed@example.com', isOwner: false },
+      { userId: 'user-7', displayName: 'Oliver Grant', email: 'oliver.grant@example.com', isOwner: false }
     ];
   }
 }

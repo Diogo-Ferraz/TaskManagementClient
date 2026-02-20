@@ -100,8 +100,8 @@
           </th>
           <th style="min-width: 12rem;">
             <div class="column-head">
-              User Id
-              <p-columnFilter type="text" field="userId" display="menu"></p-columnFilter>
+              Email
+              <p-columnFilter type="text" field="email" display="menu"></p-columnFilter>
             </div>
           </th>
         </tr>
@@ -118,7 +118,7 @@
           <td>
             <p-tag [value]="member.isOwner ? 'Owner' : 'Member'" [severity]="member.isOwner ? 'info' : 'contrast'"></p-tag>
           </td>
-          <td><code>{{ member.userId }}</code></td>
+          <td>{{ member.email || 'Not available' }}</td>
         </tr>
       </ng-template>
 

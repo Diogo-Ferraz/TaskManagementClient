@@ -56,15 +56,16 @@ export class AppMenuComponent {
         ]
       },
       {
-        label: 'About',
-        items: [
-          { label: 'Project Docs', icon: 'pi pi-fw pi-book', routerLink: ['/docs'] }
-        ]
-      },
-      {
         label: 'Administration',
         visible: this.authService.hasRole('Administrator'),
         items: [{ label: 'Admin Dashboard', icon: 'pi pi-fw pi-shield', routerLink: ['/admin'] }]
+      },
+      {
+        label: 'About',
+        items: [
+          { label: 'Documentation', icon: 'pi pi-fw pi-book', routerLink: ['/docs'] },
+          { label: 'View Source', icon: 'pi pi-fw pi-github', url: 'https://github.com/Diogo-Ferraz/TaskManagementClient', target: '_blank' }
+        ]
       }
     ];
   }

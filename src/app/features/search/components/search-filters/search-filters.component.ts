@@ -13,7 +13,7 @@ import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { SharedModule } from '../../../../shared/shared.module';
 
 type TaskStateFilter = 'all' | 'pending' | 'completed';
-type TaskOwnershipFilter = 'selectedUser' | 'unassigned';
+type TaskOwnershipFilter = 'all' | 'selectedUser' | 'unassigned';
 type TagSeverity = 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast';
 
 @Component({
@@ -43,11 +43,12 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
 
   taskSearch = '';
   taskStateFilter: TaskStateFilter = 'all';
-  taskOwnershipFilter: TaskOwnershipFilter = 'selectedUser';
+  taskOwnershipFilter: TaskOwnershipFilter = 'all';
   pageSize = 10;
   page = 1;
 
   readonly taskOwnershipOptions = [
+    { label: 'All in Project', value: 'all' as const },
     { label: 'Selected User', value: 'selectedUser' as const },
     { label: 'Unassigned in Project', value: 'unassigned' as const }
   ];
@@ -277,6 +278,12 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
       query$ = this.taskItemsApiClient.getTasks({
         projectId: this.selectedProjectId,
         unassignedOnly: true,
+        page: 1,
+        pageSize: 500
+      });
+    } else if (this.taskOwnershipFilter === 'all') {
+      query$ = this.taskItemsApiClient.getTasks({
+        projectId: this.selectedProjectId,
         page: 1,
         pageSize: 500
       });

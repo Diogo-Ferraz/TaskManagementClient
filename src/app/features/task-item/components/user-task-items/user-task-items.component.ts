@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Message, MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextareaModule } from 'primeng/inputtextarea';
+import { MessagesModule } from 'primeng/messages';
 import { Subject, takeUntil } from 'rxjs';
 import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.client';
 import { PatchTaskItemRequest, TaskItemDto } from '../../../../core/api/models/task-item.model';
@@ -23,7 +24,7 @@ interface TaskEditForm {
 @Component({
   selector: 'app-user-task-items',
   standalone: true,
-  imports: [SharedModule, DialogModule, InputTextareaModule],
+  imports: [SharedModule, DialogModule, InputTextareaModule, MessagesModule],
   templateUrl: './user-task-items.component.html',
   styleUrl: './user-task-items.component.scss'
 })

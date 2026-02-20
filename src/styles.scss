@@ -42,3 +42,11 @@ a {
         font-size: 0.92rem;
     }
 }
+
+.p-dialog-mask {
+    z-index: 1102 !important;
+}
+
+.p-dialog {
+    z-index: 1103 !important;
+}

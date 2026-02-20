@@ -95,7 +95,12 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
 
     const currentUserId = this.authService.currentUserId();
     if (!currentUserId) {
-      this.loadPreviewData();
+      if (this.shouldUsePreviewMode()) {
+        this.loadPreviewData();
+      } else {
+        this.loadError = 'Could not resolve current user identity.';
+        this.isLoading = false;
+      }
       return;
     }
 
@@ -108,7 +113,7 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: () => {
-          if (this.authService.authSession()?.isDebugSession) {
+          if (this.shouldUsePreviewMode()) {
             this.loadPreviewData();
             return;
           }
@@ -124,6 +129,10 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
     this.previewDetail = 'Showing preview tasks.';
     this.applyTasks(this.createPreviewTasks());
     this.isLoading = false;
+  }
+
+  private shouldUsePreviewMode(): boolean {
+    return this.authService.authSession()?.isDebugSession === true && this.authService.canStartDebugSession();
   }
 
   private applyTasks(tasks: TaskItemDto[]): void {

@@ -646,11 +646,11 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: ({ tasks, members }) => {
-          this.setAllTasks(this.normalizeTasksOrder(tasks));
           this.assigneeOptions = [
             { label: 'Unassigned', value: null },
             ...members.map((member) => ({ label: member.displayName, value: member.userId }))
           ];
+          this.setAllTasks(this.normalizeTasksOrder(tasks));
           this.isLoadingTasks = false;
         },
         error: () => {
@@ -698,7 +698,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   private replaceTask(updatedTask: TaskItemDto): void {
-    this.setAllTasks(this.allTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
+    this.setAllTasks(this.allTasks.map((task) => (task.id === updatedTask.id ? this.normalizeAssigneeDisplay(updatedTask) : task)));
   }
 
   private moveTaskLocally(taskId: string, targetStatus: TaskStatus, targetIndex: number): { moved: boolean; statusChanged: boolean } {
@@ -933,16 +933,29 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   private setAllTasks(tasks: TaskItemDto[]): void {
-    this.allTasks = tasks;
-    this.columnTasks[TaskStatus.Todo] = tasks.filter((task) => task.status === TaskStatus.Todo);
-    this.columnTasks[TaskStatus.InProgress] = tasks.filter((task) => task.status === TaskStatus.InProgress);
-    this.columnTasks[TaskStatus.Done] = tasks.filter((task) => task.status === TaskStatus.Done);
+    const normalizedTasks = tasks.map((task) => this.normalizeAssigneeDisplay(task));
+    this.allTasks = normalizedTasks;
+    this.columnTasks[TaskStatus.Todo] = normalizedTasks.filter((task) => task.status === TaskStatus.Todo);
+    this.columnTasks[TaskStatus.InProgress] = normalizedTasks.filter((task) => task.status === TaskStatus.InProgress);
+    this.columnTasks[TaskStatus.Done] = normalizedTasks.filter((task) => task.status === TaskStatus.Done);
 
     const dueDates = new Map<string, Date | null>();
-    for (const task of tasks) {
+    for (const task of normalizedTasks) {
       dueDates.set(task.id, task.dueDate ? new Date(task.dueDate) : null);
     }
     this.dueDateModels = dueDates;
+  }
+
+  private normalizeAssigneeDisplay(task: TaskItemDto): TaskItemDto {
+    if (!task.assignedUserId) {
+      return { ...task, assignedUserName: 'Unassigned' };
+    }
+
+    if (task.assignedUserName && task.assignedUserName.trim().length > 0) {
+      return task;
+    }
+
+    return { ...task, assignedUserName: this.resolveAssigneeName(task.assignedUserId) };
   }
 
   private attachCustomDragImage(event: DragEvent, dragSource: HTMLElement): void {

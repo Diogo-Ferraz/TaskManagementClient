@@ -17,6 +17,7 @@ export interface ProjectDto {
 export interface ProjectMemberDto {
   userId: string;
   displayName: string;
+  email?: string | null;
   isOwner: boolean;
 }
 

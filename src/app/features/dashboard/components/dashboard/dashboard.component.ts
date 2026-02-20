@@ -239,7 +239,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const labels: string[] = [];
     const values: number[] = [];
     for (const [type, count] of countsByType.entries()) {
-      labels.push(ActivityType[type]);
+      labels.push(this.formatActivityTypeLabel(type));
       values.push(count);
     }
 
@@ -388,6 +388,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return 3;
     }
     return 4;
+  }
+
+  private formatActivityTypeLabel(type: ActivityType): string {
+    const raw = ActivityType[type] ?? 'Activity';
+    return raw
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
   private startOfDay(value: Date): Date {

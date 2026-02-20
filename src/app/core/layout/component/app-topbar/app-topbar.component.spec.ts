@@ -20,6 +20,10 @@ describe('AppTopbarComponent', () => {
           useValue: {
             isAuthenticated: () => true,
             authSession: () => null,
+            userClaims: () => ({
+              name: 'Demo Admin',
+              email: 'demo-admin@example.com'
+            }),
             startLoginRedirect: jasmine.createSpy('startLoginRedirect').and.resolveTo(),
             logout: jasmine.createSpy('logout')
           }

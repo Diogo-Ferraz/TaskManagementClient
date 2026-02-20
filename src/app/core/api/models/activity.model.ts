@@ -22,4 +22,5 @@ export interface ActivityFeedQuery {
   limit?: number;
   page?: number;
   pageSize?: number;
+  mineOnly?: boolean;
 }

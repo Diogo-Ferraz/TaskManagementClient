@@ -29,9 +29,25 @@
         font-weight: 500;
         gap: 0.5rem;
 
-        svg {
-            width: 3rem;
-        }
+    }
+
+    .topbar-logo-mark {
+        width: 2.15rem;
+        height: 2.15rem;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary-contrast-color);
+        background:
+            linear-gradient(140deg, color-mix(in srgb, var(--primary-color) 92%, #fff), color-mix(in srgb, var(--primary-color) 65%, #1b3a8a));
+        box-shadow:
+            0 8px 16px -11px color-mix(in srgb, var(--primary-color) 65%, transparent),
+            inset 0 1px 1px color-mix(in srgb, #fff 35%, transparent);
     }
 
     .topbar-preview-badge {
@@ -115,6 +131,50 @@
         gap: 1rem;
     }
 
+    .layout-topbar-account {
+        border: 1px solid var(--surface-border);
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--surface-100) 72%, transparent);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.25rem 0.45rem 0.25rem 0.25rem;
+        color: var(--text-color);
+        cursor: pointer;
+        transition: background-color .2s, border-color .2s;
+        max-width: 23rem;
+
+        &:hover {
+            background: var(--surface-hover);
+            border-color: color-mix(in srgb, var(--primary-color) 40%, var(--surface-border));
+        }
+    }
+
+    .layout-topbar-account__text {
+        display: inline-flex;
+        flex-direction: column;
+        min-width: 0;
+
+        strong,
+        small {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 12.5rem;
+            text-align: left;
+        }
+
+        strong {
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        small {
+            font-size: 0.73rem;
+            color: var(--text-color-secondary);
+        }
+    }
+
     .layout-config-menu {
         display: flex;
         gap: 1rem;
@@ -181,6 +241,11 @@
                     font-weight: medium;
                     display: block;
                 }
+            }
+
+            .layout-topbar-account {
+                width: 100%;
+                justify-content: flex-start;
             }
         }
 

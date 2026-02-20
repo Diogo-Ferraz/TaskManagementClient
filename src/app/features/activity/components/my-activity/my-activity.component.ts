@@ -158,12 +158,15 @@ export class MyActivityComponent implements OnInit, OnDestroy {
     this.activityApiClient
       .getFeed({
         page: 1,
-        pageSize: this.activityLimit
+        pageSize: this.activityLimit,
+        mineOnly: true
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (events) => {
-          this.allActivities = this.filterCurrentUserEvents(events);
+          this.allActivities = events.sort(
+            (a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime()
+          );
           this.recentActivities = this.allActivities.map((event) => mapActivityToRecentActivity(event));
           this.isLoading = false;
         },
@@ -186,8 +189,7 @@ export class MyActivityComponent implements OnInit, OnDestroy {
       .activityCreated$()
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
-        const currentUserId = this.authService.currentUserId();
-        if (!currentUserId || event.actorUserId !== currentUserId) {
+        if (!this.isCurrentUserEvent(event)) {
           return;
         }
 
@@ -205,15 +207,19 @@ export class MyActivityComponent implements OnInit, OnDestroy {
       });
   }
 
-  private filterCurrentUserEvents(events: ActivityLogDto[]): ActivityLogDto[] {
+  private isCurrentUserEvent(event: ActivityLogDto): boolean {
     const currentUserId = this.authService.currentUserId();
-    if (!currentUserId) {
-      return [];
+    if (currentUserId && event.actorUserId === currentUserId) {
+      return true;
     }
 
-    return events
-      .filter((event) => event.actorUserId === currentUserId)
-      .sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime());
+    const claims = this.authService.userClaims();
+    const nameValue = claims['name'];
+    if (typeof nameValue === 'string' && nameValue.trim().length > 0) {
+      return event.actorDisplayName === nameValue.trim();
+    }
+
+    return false;
   }
 
   private shouldUsePreviewMode(): boolean {

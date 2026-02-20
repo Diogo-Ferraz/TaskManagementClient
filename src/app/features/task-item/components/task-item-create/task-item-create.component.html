@@ -78,17 +78,34 @@
             </div>
           </div>
 
-          <div class="field">
-            <label for="dueDate">Due Date</label>
-            <p-calendar
-              inputId="dueDate"
-              formControlName="dueDate"
-              [showIcon]="true"
-              [showButtonBar]="true"
-              dateFormat="yy-mm-dd"
-              placeholder="Pick a due date"
-              [appendTo]="'body'">
-            </p-calendar>
+          <div class="task-create-grid-row">
+            <div class="field">
+              <label for="assignedUserId">Assign To</label>
+              <p-dropdown
+                inputId="assignedUserId"
+                formControlName="assignedUserId"
+                [options]="assigneeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select assignee"
+                [showClear]="true"
+                [loading]="isLoadingMembers"
+                [appendTo]="'body'">
+              </p-dropdown>
+            </div>
+
+            <div class="field">
+              <label for="dueDate">Due Date</label>
+              <p-calendar
+                inputId="dueDate"
+                formControlName="dueDate"
+                [showIcon]="true"
+                [showButtonBar]="true"
+                dateFormat="yy-mm-dd"
+                placeholder="Pick a due date"
+                [appendTo]="'body'">
+              </p-calendar>
+            </div>
           </div>
 
           <div class="field">

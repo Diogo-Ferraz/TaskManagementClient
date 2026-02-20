@@ -10,6 +10,7 @@ import {
 
 const SESSION_STORAGE_KEY = 'task_management.auth.session';
 const PKCE_REQUEST_STORAGE_KEY = 'task_management.auth.pkce_request';
+const DEBUG_SESSION_FLAG_STORAGE_KEY = 'task_management.auth.debug_session_enabled';
 const PKCE_STATE_TTL_MS = 10 * 60 * 1000;
 
 @Injectable({ providedIn: 'root' })
@@ -21,7 +22,14 @@ export class AuthService {
   readonly authSession = this.authSessionSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.hasValidSession(this.authSessionSignal()));
   readonly accessToken = computed(() => this.authSessionSignal()?.accessToken ?? null);
-  readonly userClaims = computed(() => this.parseJwtPayload(this.authSessionSignal()?.accessToken ?? ''));
+  readonly userClaims = computed(() => {
+    const accessClaims = this.parseJwtPayload(this.authSessionSignal()?.accessToken ?? '');
+    if (Object.keys(accessClaims).length > 0) {
+      return accessClaims;
+    }
+
+    return this.parseJwtPayload(this.authSessionSignal()?.idToken ?? '');
+  });
   readonly userRoles = computed(() => this.extractRolesFromSession(this.authSessionSignal()));
   readonly currentUserId = computed(() => this.extractUserId(this.userClaims()));
   readonly canStartDebugSession = computed(() => this.isDebugAuthAllowed());
@@ -136,6 +144,7 @@ export class AuthService {
     };
 
     this.setSession(session);
+    sessionStorage.setItem(DEBUG_SESSION_FLAG_STORAGE_KEY, '1');
   }
 
   hasRole(role: string): boolean {
@@ -252,7 +261,13 @@ export class AuthService {
   }
 
   private extractUserId(claims: Record<string, unknown>): string | null {
-    const value = claims['sub'] ?? claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+    const value =
+      claims['sub'] ??
+      claims['nameid'] ??
+      claims['nameidentifier'] ??
+      claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ??
+      claims['uid'] ??
+      claims['user_id'];
     return typeof value === 'string' && value.trim().length > 0 ? value : null;
   }
 
@@ -309,7 +324,7 @@ export class AuthService {
       return false;
     }
 
-    if (session.isDebugSession && !this.isDebugAuthAllowed()) {
+    if (session.isDebugSession && (!this.isDebugAuthAllowed() || !this.hasDebugSessionFlag())) {
       return false;
     }
 
@@ -360,6 +375,11 @@ export class AuthService {
   private clearSession(): void {
     localStorage.removeItem(SESSION_STORAGE_KEY);
     sessionStorage.removeItem(PKCE_REQUEST_STORAGE_KEY);
+    sessionStorage.removeItem(DEBUG_SESSION_FLAG_STORAGE_KEY);
     this.authSessionSignal.set(null);
+  }
+
+  private hasDebugSessionFlag(): boolean {
+    return sessionStorage.getItem(DEBUG_SESSION_FLAG_STORAGE_KEY) === '1';
   }
 }

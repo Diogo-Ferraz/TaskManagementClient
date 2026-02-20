@@ -5,7 +5,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.client';
 import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.client';
-import { ProjectDto } from '../../../../core/api/models/project.model';
+import { ProjectDto, ProjectMemberDto } from '../../../../core/api/models/project.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
@@ -31,7 +31,9 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
   taskForm!: FormGroup;
   isSubmitting = false;
   isLoadingProjects = false;
+  isLoadingMembers = false;
   projects: ProjectDto[] = [];
+  assigneeOptions: Array<{ label: string; value: string | null }> = [{ label: 'Unassigned', value: null }];
   isPreviewMode = false;
   previewDetail: string | null = null;
 
@@ -52,6 +54,7 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     this.isPreviewMode = this.shouldUsePreviewMode();
     this.previewDetail = this.isPreviewMode ? 'Creates tasks locally for UI/debug workflows.' : null;
     this.initializeForm();
+    this.observeProjectSelection();
     this.loadProjects();
   }
 
@@ -107,6 +110,7 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     const projectId = this.taskForm.get('projectId')?.value as string;
     const status = this.taskForm.get('status')?.value as TaskStatus;
     const dueDate = this.taskForm.get('dueDate')?.value as Date | null;
+    const assignedUserId = this.taskForm.get('assignedUserId')?.value as string | null;
 
     if (!title) {
       this.taskForm.get('title')?.setErrors({ required: true });
@@ -129,7 +133,8 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
         description: description || null,
         projectId,
         status,
-        dueDate: dueDate ? dueDate.toISOString() : null
+        dueDate: dueDate ? dueDate.toISOString() : null,
+        assignedUserId
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -155,8 +160,18 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
       projectId: ['', Validators.required],
       status: [TaskStatus.Todo, Validators.required],
       dueDate: [null],
+      assignedUserId: [null],
       description: ['', [Validators.maxLength(this.maxDescriptionLength)]]
     });
+  }
+
+  private observeProjectSelection(): void {
+    this.taskForm
+      .get('projectId')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((projectId: string | null) => {
+        this.loadProjectMembers(projectId);
+      });
   }
 
   private loadProjects(): void {
@@ -164,6 +179,7 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
 
     if (this.isPreviewMode) {
       this.projects = this.buildPreviewProjects();
+      this.assigneeOptions = this.buildPreviewAssigneeOptions();
       this.isLoadingProjects = false;
       if (this.projects.length > 0) {
         this.taskForm.patchValue({ projectId: this.projects[0].id });
@@ -190,6 +206,7 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
             if (this.projects.length > 0) {
               this.taskForm.patchValue({ projectId: this.projects[0].id });
             }
+            this.assigneeOptions = this.buildPreviewAssigneeOptions();
             this.isLoadingProjects = false;
             return;
           }
@@ -230,6 +247,52 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
         lastModifiedByUserId: 'user-2',
         lastModifiedByUserName: 'Noah Sanders'
       }
+    ];
+  }
+
+  private loadProjectMembers(projectId: string | null): void {
+    this.taskForm.patchValue({ assignedUserId: null }, { emitEvent: false });
+
+    if (!projectId) {
+      this.assigneeOptions = [{ label: 'Unassigned', value: null }];
+      return;
+    }
+
+    if (this.isPreviewMode) {
+      this.assigneeOptions = this.buildPreviewAssigneeOptions();
+      return;
+    }
+
+    this.isLoadingMembers = true;
+    this.projectsApiClient
+      .getMembers(projectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (members) => {
+          this.assigneeOptions = this.mapAssigneeOptions(members);
+          this.isLoadingMembers = false;
+        },
+        error: () => {
+          this.assigneeOptions = [{ label: 'Unassigned', value: null }];
+          this.isLoadingMembers = false;
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Members Unavailable',
+            detail: 'Could not load project members for assignee selection.'
+          });
+        }
+      });
+  }
+
+  private mapAssigneeOptions(members: ProjectMemberDto[]): Array<{ label: string; value: string | null }> {
+    return [{ label: 'Unassigned', value: null }, ...members.map((member) => ({ label: member.displayName, value: member.userId }))];
+  }
+
+  private buildPreviewAssigneeOptions(): Array<{ label: string; value: string | null }> {
+    return [
+      { label: 'Unassigned', value: null },
+      { label: 'Ava Mitchell', value: 'user-1' },
+      { label: 'Noah Sanders', value: 'user-2' }
     ];
   }
 }
