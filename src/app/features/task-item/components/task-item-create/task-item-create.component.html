@@ -148,6 +148,18 @@
         <i class="pi pi-check-circle"></i>
         <span>Set due dates only when a concrete deadline exists.</span>
       </div>
+
+      <div class="task-preview-card">
+        <div class="task-preview-card__title">Live Preview</div>
+        <div class="task-preview-card__name">{{ previewTitle }}</div>
+        <div class="task-preview-card__description">{{ previewDescription }}</div>
+        <div class="task-preview-card__meta">
+          <span class="preview-pill"><i class="pi pi-folder"></i> {{ previewProjectName }}</span>
+          <span class="preview-pill"><i class="pi pi-flag"></i> {{ previewStatusLabel }}</span>
+          <span class="preview-pill"><i class="pi pi-user"></i> {{ previewAssigneeLabel }}</span>
+          <span class="preview-pill"><i class="pi pi-calendar"></i> {{ previewDueDateLabel }}</span>
+        </div>
+      </div>
     </p-card>
   </div>
 </div>

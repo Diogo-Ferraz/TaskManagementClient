@@ -93,6 +93,40 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     return this.taskForm.valid ? 2 : 1;
   }
 
+  get previewTitle(): string {
+    const value = (this.taskForm.get('title')?.value as string | null)?.trim();
+    return value && value.length > 0 ? value : 'Untitled task';
+  }
+
+  get previewDescription(): string {
+    const value = (this.taskForm.get('description')?.value as string | null)?.trim();
+    return value && value.length > 0 ? value : 'Add context and acceptance criteria to improve handoff quality.';
+  }
+
+  get previewProjectName(): string {
+    const selectedProjectId = this.taskForm.get('projectId')?.value as string | null;
+    if (!selectedProjectId) {
+      return 'No project selected';
+    }
+
+    return this.projects.find((project) => project.id === selectedProjectId)?.name ?? 'Selected project';
+  }
+
+  get previewStatusLabel(): string {
+    const status = this.taskForm.get('status')?.value as TaskStatus | null;
+    return this.statusOptions.find((option) => option.value === status)?.label ?? 'To Do';
+  }
+
+  get previewAssigneeLabel(): string {
+    const assignedUserId = this.taskForm.get('assignedUserId')?.value as string | null;
+    return this.assigneeOptions.find((option) => option.value === assignedUserId)?.label ?? 'Unassigned';
+  }
+
+  get previewDueDateLabel(): string {
+    const dueDate = this.taskForm.get('dueDate')?.value as Date | null;
+    return dueDate ? dueDate.toLocaleDateString() : 'No due date';
+  }
+
   isInvalid(controlName: string): boolean {
     const control = this.taskForm.get(controlName);
     return !!control && control.invalid && (control.dirty || control.touched);

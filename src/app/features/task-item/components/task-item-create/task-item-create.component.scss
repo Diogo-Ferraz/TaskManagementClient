@@ -206,6 +206,53 @@
   margin-top: 0.1rem;
 }
 
+.task-preview-card {
+  margin-top: 1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 0.8rem;
+  background: color-mix(in srgb, var(--surface-100) 58%, transparent);
+}
+
+.task-preview-card__title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-color-secondary);
+  margin-bottom: 0.45rem;
+}
+
+.task-preview-card__name {
+  font-size: 0.98rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.task-preview-card__description {
+  font-size: 0.84rem;
+  line-height: 1.35;
+  color: var(--text-color-secondary);
+}
+
+.task-preview-card__meta {
+  margin-top: 0.7rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.preview-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  padding: 0.16rem 0.52rem;
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+  background: var(--surface-0);
+}
+
 :host ::ng-deep .task-create-form .p-inputtext,
 :host ::ng-deep .task-create-form .p-inputtextarea,
 :host ::ng-deep .task-create-form .p-dropdown,
