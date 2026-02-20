@@ -26,10 +26,13 @@
       </div>
 
       <div class="project-console" *ngIf="selectedProject as project">
-        <label for="projectPicker" class="project-console__label">Switch Project</label>
+        <div class="project-console__top">
+          <span class="project-console__heading">Project Context</span>
+          <span class="project-console__counter">{{ selectedProjectIndex + 1 }} / {{ projects.length }}</span>
+        </div>
 
-        <div class="project-console__controls">
-          <button pButton type="button" icon="pi pi-angle-left" class="p-button-text p-button-sm" [disabled]="!canSelectPreviousProject || isLoadingProjects" (click)="selectPreviousProject()"></button>
+        <div class="project-console__picker">
+          <button pButton type="button" icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-sm project-console__nav" [disabled]="!canSelectPreviousProject || isLoadingProjects" (click)="selectPreviousProject()"></button>
 
           <p-dropdown
             inputId="projectPicker"
@@ -41,14 +44,15 @@
             filterBy="name"
             [showClear]="false"
             [disabled]="isLoadingProjects || projects.length === 0"
-            placeholder="Switch project..."
+            placeholder="Select project"
+            styleClass="project-console__dropdown"
             (onChange)="onProjectSelected($event.value)">
           </p-dropdown>
 
-          <button pButton type="button" icon="pi pi-angle-right" class="p-button-text p-button-sm" [disabled]="!canSelectNextProject || isLoadingProjects" (click)="selectNextProject()"></button>
+          <button pButton type="button" icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-sm project-console__nav" [disabled]="!canSelectNextProject || isLoadingProjects" (click)="selectNextProject()"></button>
         </div>
 
-        <span class="project-console__counter">{{ selectedProjectIndex + 1 }} of {{ projects.length }}</span>
+        <span class="project-console__hint">Use arrows or search to switch project scope.</span>
       </div>
     </div>
   </p-card>
@@ -96,6 +100,26 @@
 
             <div class="kanban-column-body">
               <div class="task-stack">
+                <div
+                  *ngIf="getColumnTaskCount(column.status) === 0"
+                  class="kanban-empty-drop-target"
+                  [class.kanban-empty-drop-target--active]="isDropSlotActive(column.status, 0)"
+                  (dragover)="onDropSlotDragOver(column.status, 0, $event)"
+                  (drop)="onDropAt(column.status, 0, $event)">
+                  <article
+                    *ngIf="isDropSlotActive(column.status, 0) && draggedTaskPreview as previewTask"
+                    class="task-card task-card--ghost"
+                    [class.task-card--todo]="column.status === 0"
+                    [class.task-card--in-progress]="column.status === 1"
+                    [class.task-card--done]="column.status === 2">
+                    <div class="task-card__header">
+                      <span class="task-card__title">{{ previewTask.title }}</span>
+                    </div>
+                    <div class="task-card__description">{{ previewTask.description || 'Drop task here' }}</div>
+                  </article>
+                  <span *ngIf="!isDropSlotActive(column.status, 0)">Drop task here</span>
+                </div>
+
                 <ng-container *ngFor="let task of getTasksByStatus(column.status); let taskIndex = index; trackBy: trackByTaskId">
                   <div
                     class="kanban-drop-slot"
