@@ -198,6 +198,12 @@
   gap: 0.45rem;
 }
 
+.project-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .empty-cell {
   padding: 2rem 1rem;
 }

@@ -1,4 +1,6 @@
 <div class="projects-page">
+  <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
+
   <p-card class="projects-header-card">
     <div class="projects-header">
       <div class="projects-header__title">
@@ -133,7 +135,19 @@
           </td>
 
           <td>
-            <button pButton type="button" label="Open Board" icon="pi pi-arrow-right" class="p-button-sm p-button-outlined" (click)="openKanban(project.id)"></button>
+            <div class="project-actions">
+              <button pButton type="button" label="Open Board" icon="pi pi-arrow-right" class="p-button-sm p-button-outlined" (click)="openKanban(project.id)"></button>
+              <button
+                *ngIf="canDeleteProject(project)"
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-sm p-button-danger p-button-text"
+                [disabled]="isProjectDeletePending(project.id)"
+                (click)="deleteProject(project)"
+                pTooltip="Delete project">
+              </button>
+            </div>
           </td>
         </tr>
       </ng-template>

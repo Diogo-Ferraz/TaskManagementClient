@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Message } from 'primeng/api';
+import { ConfirmationService, Message, MessageService } from 'primeng/api';
 import { SharedModule } from '../../../../shared/shared.module';
 import { Table } from 'primeng/table';
 import { Subject, takeUntil } from 'rxjs';
 import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.client';
 import { ProjectDto } from '../../../../core/api/models/project.model';
-import { MANAGEMENT_ROLES } from '../../../../core/auth/models/app-role.model';
+import { AppRole, MANAGEMENT_ROLES } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
@@ -23,6 +23,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   private readonly projectsApiClient = inject(ProjectsApiClient);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
   private readonly preferencesService = inject(AppPreferencesService);
   private readonly destroy$ = new Subject<void>();
@@ -34,6 +36,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   isPreviewMode = false;
   previewDetail: string | null = null;
   errors: Message[] = [];
+  pendingProjectDeletionIds = new Set<string>();
   private readonly previewTaskCounts: Record<string, number> = {};
 
   ngOnInit(): void {
@@ -98,6 +101,63 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   openKanban(projectId: string): void {
     void this.router.navigate(['/projects/kanban'], { queryParams: { projectId } });
+  }
+
+  canDeleteProject(project: ProjectDto): boolean {
+    if (this.authService.hasRole(AppRole.Administrator)) {
+      return true;
+    }
+
+    return this.authService.hasRole(AppRole.ProjectManager) && project.ownerUserId === this.authService.currentUserId();
+  }
+
+  isProjectDeletePending(projectId: string): boolean {
+    return this.pendingProjectDeletionIds.has(projectId);
+  }
+
+  deleteProject(project: ProjectDto): void {
+    if (!this.canDeleteProject(project) || this.isProjectDeletePending(project.id)) {
+      return;
+    }
+
+    this.confirmationService.confirm({
+      header: 'Delete Project',
+      message: `Delete project "${project.name}"? This will remove related project data.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        const previousProjects = [...this.projects];
+        const previousSelection = [...this.selectedProjects];
+
+        this.pendingProjectDeletionIds.add(project.id);
+        this.projects = this.projects.filter((entry) => entry.id !== project.id);
+        this.selectedProjects = this.selectedProjects.filter((entry) => entry.id !== project.id);
+
+        if (this.isPreviewMode) {
+          this.pendingProjectDeletionIds.delete(project.id);
+          this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Project deleted in preview mode.' });
+          return;
+        }
+
+        this.projectsApiClient
+          .delete(project.id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: () => {
+              this.pendingProjectDeletionIds.delete(project.id);
+              this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Project deleted successfully.' });
+            },
+            error: () => {
+              this.pendingProjectDeletionIds.delete(project.id);
+              this.projects = previousProjects;
+              this.selectedProjects = previousSelection;
+              this.messageService.add({ severity: 'error', summary: 'Delete Failed', detail: 'Could not delete project.' });
+            }
+          });
+      }
+    });
   }
 
   loadProjects(): void {
