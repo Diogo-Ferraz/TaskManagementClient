@@ -21,7 +21,7 @@ export class LandingPageComponent {
   }
 
   register(): void {
-    this.authService.openRegisterPage();
+    void this.authService.openRegisterPage();
   }
 
   startDebugMode(): void {

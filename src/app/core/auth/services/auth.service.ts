@@ -39,19 +39,7 @@ export class AuthService {
   }
 
   async startLoginRedirect(): Promise<void> {
-    const state = this.createRandomUrlSafeString(32);
-    const verifier = this.createRandomUrlSafeString(64);
-    const challenge = await this.createPkceChallenge(verifier);
-
-    const requestState: PkceAuthorizationRequestState = {
-      state,
-      verifier,
-      createdAtUtcMs: Date.now()
-    };
-
-    sessionStorage.setItem(PKCE_REQUEST_STORAGE_KEY, JSON.stringify(requestState));
-
-    const authorizeUrl = this.createAuthorizeUrl(state, challenge);
+    const authorizeUrl = await this.createAuthorizeRedirectUrl();
     window.location.assign(authorizeUrl);
   }
 
@@ -111,8 +99,9 @@ export class AuthService {
     window.location.assign(logoutUrl);
   }
 
-  openRegisterPage(): void {
-    const registerUrl = `${this.appEnvironment.auth.authority.replace(/\/$/, '')}/Identity/Account/Register`;
+  async openRegisterPage(): Promise<void> {
+    const authorizePath = await this.createAuthorizeRedirectPath();
+    const registerUrl = `${this.appEnvironment.auth.authority.replace(/\/$/, '')}/Identity/Account/Register?returnUrl=${encodeURIComponent(authorizePath)}`;
     window.location.assign(registerUrl);
   }
 
@@ -158,18 +147,47 @@ export class AuthService {
 
   private createAuthorizeUrl(state: string, challenge: string): string {
     const authorizeEndpoint = `${this.appEnvironment.auth.authority.replace(/\/$/, '')}/connect/authorize`;
-    const scopes = this.appEnvironment.auth.scopes.join(' ');
-    const params = new URLSearchParams({
+    const params = this.createAuthorizeParams(state, challenge);
+
+    return `${authorizeEndpoint}?${params.toString()}`;
+  }
+
+  private async createAuthorizeRedirectUrl(): Promise<string> {
+    const { state, challenge } = await this.createPkceAuthorizationRequestState();
+    return this.createAuthorizeUrl(state, challenge);
+  }
+
+  private async createAuthorizeRedirectPath(): Promise<string> {
+    const { state, challenge } = await this.createPkceAuthorizationRequestState();
+    const params = this.createAuthorizeParams(state, challenge);
+    return `/connect/authorize?${params.toString()}`;
+  }
+
+  private createAuthorizeParams(state: string, challenge: string): URLSearchParams {
+    return new URLSearchParams({
       response_type: this.appEnvironment.auth.responseType,
       client_id: this.appEnvironment.auth.clientId,
       redirect_uri: this.appEnvironment.auth.redirectUri,
-      scope: scopes,
+      scope: this.appEnvironment.auth.scopes.join(' '),
       state,
       code_challenge: challenge,
       code_challenge_method: 'S256'
     });
+  }
 
-    return `${authorizeEndpoint}?${params.toString()}`;
+  private async createPkceAuthorizationRequestState(): Promise<{ state: string; challenge: string }> {
+    const state = this.createRandomUrlSafeString(32);
+    const verifier = this.createRandomUrlSafeString(64);
+    const challenge = await this.createPkceChallenge(verifier);
+
+    const requestState: PkceAuthorizationRequestState = {
+      state,
+      verifier,
+      createdAtUtcMs: Date.now()
+    };
+
+    sessionStorage.setItem(PKCE_REQUEST_STORAGE_KEY, JSON.stringify(requestState));
+    return { state, challenge };
   }
 
   private createLogoutUrl(idTokenHint?: string): string {

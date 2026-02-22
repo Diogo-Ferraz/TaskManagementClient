@@ -121,7 +121,7 @@ export class UserProfileSecurityComponent {
   }
 
   register(): void {
-    this.authService.openRegisterPage();
+    void this.authService.openRegisterPage();
   }
 
   private serializeClaimValue(value: unknown): string {
