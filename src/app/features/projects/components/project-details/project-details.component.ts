@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Message } from 'primeng/api';
+import { ConfirmationService, Message, MessageService } from 'primeng/api';
 import { Subject, forkJoin, of, takeUntil } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.client';
@@ -8,6 +8,7 @@ import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.
 import { ProjectDto, ProjectMemberDto } from '../../../../core/api/models/project.model';
 import { TaskItemDto } from '../../../../core/api/models/task-item.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
+import { AppRole } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
@@ -27,6 +28,8 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   private readonly projectsApiClient = inject(ProjectsApiClient);
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
   private readonly authService = inject(AuthService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
   private readonly preferencesService = inject(AppPreferencesService);
   private readonly router = inject(Router);
@@ -44,6 +47,7 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
   isPreviewMode = false;
   previewDetail: string | null = null;
   errors: Message[] = [];
+  isProjectDeletePending = false;
 
   ngOnInit(): void {
     this.loadProjects();
@@ -128,6 +132,36 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
 
   openTasks(): void {
     void this.router.navigate(['/tasks']);
+  }
+
+  canDeleteSelectedProject(): boolean {
+    const project = this.selectedProjectDetails ?? this.selectedProject;
+    if (!project) {
+      return false;
+    }
+
+    if (this.authService.hasRole(AppRole.Administrator)) {
+      return true;
+    }
+
+    return this.authService.hasRole(AppRole.ProjectManager) && project.ownerUserId === this.authService.currentUserId();
+  }
+
+  deleteSelectedProject(): void {
+    const project = this.selectedProjectDetails ?? this.selectedProject;
+    if (!project || this.isProjectDeletePending || !this.canDeleteSelectedProject()) {
+      return;
+    }
+
+    this.confirmationService.confirm({
+      header: 'Delete Project',
+      message: `Delete project "${project.name}"? This will remove related project data.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.executeProjectDeletion(project)
+    });
   }
 
   getStatusName(status: TaskStatus): string {
@@ -288,6 +322,58 @@ export class ProjectDetailsComponent implements OnInit, OnDestroy {
       queryParamsHandling: 'merge',
       replaceUrl: true
     });
+  }
+
+  private executeProjectDeletion(project: ProjectDto): void {
+    const previousProjects = [...this.projects];
+    const previousSelectedProjectId = this.selectedProjectId;
+    const previousSelectedDetails = this.selectedProjectDetails;
+    const previousMembers = [...this.projectMembers];
+    const previousRecentTasks = [...this.recentTasks];
+
+    this.isProjectDeletePending = true;
+    this.projects = this.projects.filter((entry) => entry.id !== project.id);
+    this.selectedProjectDetails = null;
+    this.projectMembers = [];
+    this.recentTasks = [];
+
+    const nextProjectId = this.projects[0]?.id ?? null;
+    this.selectedProjectId = nextProjectId;
+    if (nextProjectId) {
+      this.updateProjectQueryParam(nextProjectId);
+      this.preferencesService.setLastSelectedProject(ProjectDetailsComponent.PROJECT_SELECTION_CONTEXT, nextProjectId);
+    }
+
+    if (this.isPreviewMode) {
+      this.isProjectDeletePending = false;
+      if (nextProjectId) {
+        this.loadPreviewProjectData(nextProjectId);
+      }
+      this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Project deleted in preview mode.' });
+      return;
+    }
+
+    this.projectsApiClient
+      .delete(project.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.isProjectDeletePending = false;
+          if (nextProjectId) {
+            this.loadProjectDetails(nextProjectId);
+          }
+          this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Project deleted successfully.' });
+        },
+        error: () => {
+          this.isProjectDeletePending = false;
+          this.projects = previousProjects;
+          this.selectedProjectId = previousSelectedProjectId;
+          this.selectedProjectDetails = previousSelectedDetails;
+          this.projectMembers = previousMembers;
+          this.recentTasks = previousRecentTasks;
+          this.messageService.add({ severity: 'error', summary: 'Delete Failed', detail: 'Could not delete project.' });
+        }
+      });
   }
 
   private loadPreviewProjects(detail: string): void {

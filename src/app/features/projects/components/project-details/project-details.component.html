@@ -1,4 +1,6 @@
 <div class="project-details-page">
+  <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
+
   <p-card class="project-details-header-card">
     <div class="project-details-header">
       <div class="project-details-header__title">
@@ -39,6 +41,16 @@
         <button pButton type="button" icon="pi pi-refresh" class="p-button-outlined" (click)="refresh()" [loading]="isLoadingProjects || isLoadingDetails"></button>
         <button pButton type="button" label="Open Kanban" icon="pi pi-th-large" class="p-button-outlined" (click)="openKanban()" [disabled]="!selectedProjectId"></button>
         <button pButton type="button" label="Open Tasks" icon="pi pi-list" class="p-button-outlined" (click)="openTasks()"></button>
+        <button
+          *ngIf="canDeleteSelectedProject()"
+          pButton
+          type="button"
+          label="Delete Project"
+          icon="pi pi-trash"
+          class="p-button-outlined p-button-danger"
+          [disabled]="isProjectDeletePending || !selectedProjectId"
+          (click)="deleteSelectedProject()">
+        </button>
       </div>
     </div>
   </p-card>
