@@ -330,8 +330,17 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     allUsers: UserSummaryDto[]
   ): Array<{ label: string; value: string | null }> {
     const optionsByUserId = new Map<string, { label: string; value: string | null }>();
+    const projectManagerUserIds = new Set(
+      allUsers
+        .filter((user) => (user.roles ?? []).includes('ProjectManager'))
+        .map((user) => user.id)
+    );
 
     for (const member of members) {
+      if (projectManagerUserIds.has(member.userId)) {
+        continue;
+      }
+
       optionsByUserId.set(member.userId, {
         label: member.displayName,
         value: member.userId
@@ -339,6 +348,10 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     }
 
     for (const user of allUsers) {
+      if ((user.roles ?? []).includes('ProjectManager')) {
+        continue;
+      }
+
       if (!optionsByUserId.has(user.id)) {
         optionsByUserId.set(user.id, {
           label: this.resolveUserLabel(user.displayName, user.userName, user.email, user.id),
@@ -348,7 +361,8 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     }
 
     const currentUserId = this.authService.currentUserId();
-    if (currentUserId && !optionsByUserId.has(currentUserId)) {
+    const currentUserIsProjectManager = this.authService.hasRole('ProjectManager');
+    if (currentUserId && !currentUserIsProjectManager && !optionsByUserId.has(currentUserId)) {
       optionsByUserId.set(currentUserId, {
         label: this.currentUserLabel(),
         value: currentUserId

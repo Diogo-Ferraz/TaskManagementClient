@@ -4,13 +4,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService, Message, MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextareaModule } from 'primeng/inputtextarea';
-import { Subject, forkJoin, takeUntil } from 'rxjs';
+import { Subject, forkJoin, of, takeUntil } from 'rxjs';
 import { SharedModule } from '../../../../shared/shared.module';
+import { AdminUsersApiClient } from '../../../../core/api/clients/admin-users-api.client';
 import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.client';
 import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.client';
 import { ProjectDto } from '../../../../core/api/models/project.model';
 import { CreateTaskItemRequest, PatchTaskItemRequest, TaskItemDto } from '../../../../core/api/models/task-item.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
+import { UserSummaryDto } from '../../../../core/api/models/user.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
@@ -52,7 +54,9 @@ interface TaskFormModel {
 })
 export class ProjectKanbanComponent implements OnInit, OnDestroy {
   private static readonly PROJECT_SELECTION_CONTEXT = 'kanban';
+  private static readonly ASSIGNEE_PAGE_SIZE = 500;
   private readonly projectsApiClient = inject(ProjectsApiClient);
+  private readonly adminUsersApiClient = inject(AdminUsersApiClient);
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -712,15 +716,15 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
     forkJoin({
       tasks: this.taskItemsApiClient.getTasks({ projectId, page: 1, pageSize: 500 }),
-      members: this.projectsApiClient.getMembers(projectId)
+      members: this.projectsApiClient.getMembers(projectId),
+      assignableUsers: this.authService.hasRole('Administrator')
+        ? this.adminUsersApiClient.getUsers({ role: 'User', page: 1, pageSize: ProjectKanbanComponent.ASSIGNEE_PAGE_SIZE })
+        : of(null)
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({ tasks, members }) => {
-          this.assigneeOptions = [
-            { label: 'Unassigned', value: null },
-            ...members.map((member) => ({ label: member.displayName, value: member.userId }))
-          ];
+        next: ({ tasks, members, assignableUsers }) => {
+          this.assigneeOptions = this.buildAssigneeOptions(members, assignableUsers?.items ?? []);
           this.setAllTasks(this.normalizeTasksOrder(tasks));
           this.isLoadingTasks = false;
         },
@@ -734,6 +738,57 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
           this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load tasks for selected project.' }];
         }
       });
+  }
+
+  private buildAssigneeOptions(
+    members: Array<{ userId: string; displayName: string }>,
+    assignableUsers: UserSummaryDto[]
+  ): AssigneeOption[] {
+    const options = new Map<string, AssigneeOption>();
+
+    for (const member of members) {
+      if (!options.has(member.userId)) {
+        options.set(member.userId, { label: member.displayName, value: member.userId });
+      }
+    }
+
+    for (const user of assignableUsers) {
+      if (!this.isAssignableUserRole(user)) {
+        continue;
+      }
+
+      const label = this.resolveUserDisplayLabel(user);
+      if (!options.has(user.id)) {
+        options.set(user.id, { label, value: user.id });
+      }
+    }
+
+    return [{ label: 'Unassigned', value: null }, ...Array.from(options.values()).sort((a, b) => a.label.localeCompare(b.label))];
+  }
+
+  private isAssignableUserRole(user: UserSummaryDto): boolean {
+    const roles = user.roles ?? [];
+    const isProjectManager = roles.includes('ProjectManager');
+    return !isProjectManager;
+  }
+
+  private resolveUserDisplayLabel(user: UserSummaryDto): string {
+    const displayName = user.displayName?.trim();
+    if (displayName) {
+      return displayName;
+    }
+
+    const email = user.email?.trim();
+    if (email) {
+      return email;
+    }
+
+    const userName = user.userName?.trim();
+    if (userName) {
+      return userName;
+    }
+
+    return user.id;
   }
 
   private patchTaskWithOptimisticUpdate(
