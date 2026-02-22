@@ -641,7 +641,10 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (projects) => {
           if (projects.length === 0) {
-            this.loadPreviewBoard('No projects were returned. Showing preview Kanban board.');
+            this.projects = [];
+            this.selectedProjectId = null;
+            this.clearTasks();
+            this.isLoadingProjects = false;
             return;
           }
 
