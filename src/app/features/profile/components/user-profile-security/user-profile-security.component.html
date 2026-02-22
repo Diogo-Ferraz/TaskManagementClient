@@ -86,12 +86,23 @@
 
     <div class="profile-grid__col profile-grid__col--security">
       <p-card header="Security Notes" styleClass="profile-panel-card">
-        <ul class="security-list">
-          <li *ngFor="let item of securityChecklist">
-            <i class="pi pi-check-circle"></i>
-            <span>{{ item }}</span>
-          </li>
-        </ul>
+        <section class="security-panel">
+          <header class="security-panel__intro">
+            <span class="security-panel__icon"><i class="pi pi-shield"></i></span>
+            <div>
+              <h4>Security Baseline</h4>
+              <p>Active controls currently enforced for authentication, authorization, and API request handling.</p>
+            </div>
+          </header>
+
+          <ul class="security-list">
+            <li *ngFor="let item of securityChecklist; let itemIndex = index">
+              <span class="security-note-index">{{ itemIndex + 1 }}</span>
+              <span class="security-note-text">{{ item }}</span>
+              <i class="pi pi-check-circle"></i>
+            </li>
+          </ul>
+        </section>
       </p-card>
     </div>
 
