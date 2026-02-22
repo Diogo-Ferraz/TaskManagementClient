@@ -1,4 +1,6 @@
 <div class="kanban-page">
+  <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
+
   <p-card class="kanban-header-card">
     <div class="kanban-toolbar">
       <div class="kanban-toolbar__title">
@@ -101,7 +103,7 @@
             <div class="kanban-column-body">
               <div class="task-stack">
                 <div
-                  *ngIf="getColumnTaskCount(column.status) === 0"
+                  *ngIf="getColumnTaskCount(column.status) === 0 && selectedProjectTaskCount > 0"
                   class="kanban-empty-drop-target"
                   [class.kanban-empty-drop-target--active]="isDropSlotActive(column.status, 0)"
                   (dragover)="onDropSlotDragOver(column.status, 0, $event)"
@@ -156,6 +158,14 @@
                       <div class="task-card__header-actions">
                         <p-tag *ngIf="isTaskPending(task.id)" severity="info" value="Saving"></p-tag>
                         <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" [disabled]="isTaskPending(task.id)" (click)="openEditTask(task)"></button>
+                        <button
+                          pButton
+                          type="button"
+                          icon="pi pi-trash"
+                          class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                          [disabled]="!canDeleteTask(task) || isTaskPending(task.id)"
+                          (click)="deleteTask(task)">
+                        </button>
                       </div>
                     </div>
 
@@ -178,6 +188,7 @@
                 </ng-container>
 
                 <div
+                  *ngIf="selectedProjectTaskCount > 0"
                   class="kanban-drop-slot kanban-drop-slot--end"
                   [class.kanban-drop-slot--active]="isDropSlotActive(column.status, getColumnTaskCount(column.status))"
                   (dragover)="onDropSlotDragOver(column.status, getColumnTaskCount(column.status), $event)"

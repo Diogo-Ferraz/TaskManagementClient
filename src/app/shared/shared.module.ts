@@ -27,6 +27,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
 import { CalendarModule } from 'primeng/calendar';
 import { StepsModule } from 'primeng/steps';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @NgModule({
   exports: [
@@ -62,7 +63,8 @@ import { StepsModule } from 'primeng/steps';
     SkeletonModule,
     ToastModule,
     CalendarModule,
-    StepsModule
+    StepsModule,
+    ConfirmDialogModule
   ],
 })
 export class SharedModule {}

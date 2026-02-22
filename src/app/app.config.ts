@@ -4,7 +4,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { environment } from '../environments/environment';
 import { APP_ENVIRONMENT } from './core/config/app-environment.token';
 import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
@@ -16,6 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor, problemDetailsInterceptor])),
     provideAnimations(),
+    ConfirmationService,
     MessageService,
     {
       provide: APP_ENVIRONMENT,

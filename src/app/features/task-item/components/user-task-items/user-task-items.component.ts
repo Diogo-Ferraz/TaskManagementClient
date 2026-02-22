@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Message, MessageService } from 'primeng/api';
+import { ConfirmationService, Message, MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MessagesModule } from 'primeng/messages';
@@ -35,6 +35,7 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
   private readonly preferencesService = inject(AppPreferencesService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
 
@@ -138,6 +139,10 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
     }
 
     return !!this.authService.currentUserId() && task.assignedUserId === this.authService.currentUserId();
+  }
+
+  canDeleteTask(task: TaskItemDto): boolean {
+    return this.canEditTask(task);
   }
 
   getTagSeverity(status: TaskStatus): TagSeverity {
@@ -290,6 +295,47 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
   openTaskBoard(task: TaskItemDto): void {
     void this.router.navigate(['/projects/kanban'], {
       queryParams: { projectId: task.projectId }
+    });
+  }
+
+  deleteTask(task: TaskItemDto): void {
+    if (!this.canDeleteTask(task) || this.isTaskPending(task.id)) {
+      return;
+    }
+
+    this.confirmationService.confirm({
+      header: 'Delete Task',
+      message: `Delete task "${task.title}"? This action cannot be undone.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        const previousTasks = [...this.tasks];
+        this.pendingTaskIds.add(task.id);
+        this.tasks = this.tasks.filter((entry) => entry.id !== task.id);
+
+        if (this.isPreviewMode) {
+          this.pendingTaskIds.delete(task.id);
+          this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Task deleted in preview mode.' });
+          return;
+        }
+
+        this.taskItemsApiClient
+          .delete(task.id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: () => {
+              this.pendingTaskIds.delete(task.id);
+              this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Task deleted successfully.' });
+            },
+            error: () => {
+              this.pendingTaskIds.delete(task.id);
+              this.tasks = previousTasks;
+              this.messageService.add({ severity: 'error', summary: 'Delete Failed', detail: 'Could not delete task.' });
+            }
+          });
+      }
     });
   }
 

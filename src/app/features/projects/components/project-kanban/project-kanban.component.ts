@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Message, MessageService } from 'primeng/api';
+import { ConfirmationService, Message, MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
@@ -57,6 +57,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
   private readonly preferencesService = inject(AppPreferencesService);
@@ -136,6 +137,14 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
   get canSelectNextProject(): boolean {
     return this.selectedProjectIndex >= 0 && this.selectedProjectIndex < this.projects.length - 1;
+  }
+
+  get currentUserId(): string | null {
+    return this.authService.currentUserId();
+  }
+
+  get canManageAllTasks(): boolean {
+    return this.authService.hasAnyRole(['Administrator', 'ProjectManager']);
   }
 
   ngOnInit(): void {
@@ -320,6 +329,55 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
           this.isSavingTask = false;
         }
       });
+  }
+
+  isAssignedToMe(task: TaskItemDto): boolean {
+    return !!this.currentUserId && task.assignedUserId === this.currentUserId;
+  }
+
+  canDeleteTask(task: TaskItemDto): boolean {
+    return this.canManageAllTasks || this.isAssignedToMe(task);
+  }
+
+  deleteTask(task: TaskItemDto): void {
+    if (!this.canDeleteTask(task) || this.isTaskPending(task.id)) {
+      return;
+    }
+
+    this.confirmationService.confirm({
+      header: 'Delete Task',
+      message: `Delete task "${task.title}"? This action cannot be undone.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        const previousTasksSnapshot = this.allTasks.map((entry) => ({ ...entry }));
+        this.pendingTaskIds.add(task.id);
+        this.setAllTasks(this.allTasks.filter((entry) => entry.id !== task.id));
+
+        if (this.isPreviewMode) {
+          this.pendingTaskIds.delete(task.id);
+          this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Task deleted in preview mode.' });
+          return;
+        }
+
+        this.taskItemsApiClient
+          .delete(task.id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: () => {
+              this.pendingTaskIds.delete(task.id);
+              this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Task deleted successfully.' });
+            },
+            error: () => {
+              this.pendingTaskIds.delete(task.id);
+              this.setAllTasks(previousTasksSnapshot);
+              this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: 'Could not delete task.' });
+            }
+          });
+      }
+    });
   }
 
   getTasksByStatus(status: TaskStatus): TaskItemDto[] {

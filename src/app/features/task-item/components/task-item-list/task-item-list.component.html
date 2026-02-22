@@ -1,4 +1,6 @@
 <div class="tasks-page">
+  <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
+
   <p-card class="tasks-header-card">
     <div class="tasks-header">
       <div class="tasks-header__title">
@@ -162,6 +164,16 @@
                 [disabled]="isTaskPending(task.id)"
                 (click)="unassignTask(task)"
                 pTooltip="Unassign">
+              </button>
+
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger"
+                [disabled]="!canDeleteTask(task) || isTaskPending(task.id)"
+                (click)="deleteTask(task)"
+                pTooltip="Delete task">
               </button>
             </div>
           </td>
