@@ -59,9 +59,27 @@
     <div class="profile-grid__col profile-grid__col--session">
       <p-card header="Session Details" styleClass="profile-panel-card">
         <div class="session-details">
-          <div class="session-item"><span>Token Type</span><strong>{{ tokenType }}</strong></div>
-          <div class="session-item"><span>Expires At</span><strong>{{ expiresAt() ? (expiresAt() | date:'medium') : '-' }}</strong></div>
-          <div class="session-item"><span>Debug Session</span><strong>{{ isDebugSession ? 'Yes' : 'No' }}</strong></div>
+          <div class="session-item">
+            <div class="session-item__meta">
+              <span>Token Type</span>
+              <small>Token scheme for this authenticated session.</small>
+            </div>
+            <strong>{{ tokenType }}</strong>
+          </div>
+          <div class="session-item">
+            <div class="session-item__meta">
+              <span>Expires At</span>
+              <small>Estimated token expiration timestamp.</small>
+            </div>
+            <strong>{{ expiresAt() ? (expiresAt() | date:'medium') : '-' }}</strong>
+          </div>
+          <div class="session-item">
+            <div class="session-item__meta">
+              <span>Debug Session</span>
+              <small>Indicates local preview/debug access.</small>
+            </div>
+            <strong>{{ isDebugSession ? 'Yes' : 'No' }}</strong>
+          </div>
         </div>
       </p-card>
     </div>
@@ -69,7 +87,10 @@
     <div class="profile-grid__col profile-grid__col--security">
       <p-card header="Security Notes" styleClass="profile-panel-card">
         <ul class="security-list">
-          <li *ngFor="let item of securityChecklist">{{ item }}</li>
+          <li *ngFor="let item of securityChecklist">
+            <i class="pi pi-check-circle"></i>
+            <span>{{ item }}</span>
+          </li>
         </ul>
       </p-card>
     </div>

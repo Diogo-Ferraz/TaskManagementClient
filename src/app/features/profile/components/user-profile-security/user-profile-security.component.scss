@@ -149,16 +149,17 @@
 .roles-list {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .role-item {
   border: 1px solid var(--surface-border);
-  border-radius: 10px;
-  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-100) 65%, transparent);
+  padding: 0.72rem 0.78rem;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.35rem;
 }
 
 .role-item__head {
@@ -188,31 +189,77 @@
 
 .session-item {
   border: 1px solid var(--surface-border);
-  border-radius: 10px;
-  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-100) 65%, transparent);
+  padding: 0.72rem 0.78rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
-.session-item span {
+.session-item__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.session-item__meta span {
   color: var(--text-color-secondary);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.session-item__meta small {
+  color: var(--text-color-secondary);
+  font-size: 0.76rem;
+  line-height: 1.3;
 }
 
 .session-item strong {
   color: var(--text-color);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  text-align: right;
 }
 
 .security-list {
   margin: 0;
-  padding-left: 1rem;
+  padding: 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.65rem;
   color: var(--text-color-secondary);
+}
+
+.security-list li {
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-100) 65%, transparent);
+  padding: 0.72rem 0.78rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.security-list li i {
+  color: color-mix(in srgb, var(--primary-color) 70%, var(--text-color-secondary));
+  margin-top: 0.08rem;
+}
+
+.security-list li span {
+  line-height: 1.35;
+}
+
+:host ::ng-deep .profile-panel-card .p-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+:host ::ng-deep .profile-grid__col--claims .profile-panel-card .p-card-content {
+  gap: 0;
 }
 
 .claim-value {
