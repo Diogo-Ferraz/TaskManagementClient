@@ -28,6 +28,7 @@ import { ToastModule } from 'primeng/toast';
 import { CalendarModule } from 'primeng/calendar';
 import { StepsModule } from 'primeng/steps';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessagesModule } from 'primeng/messages';
 
 @NgModule({
   exports: [
@@ -64,7 +65,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ToastModule,
     CalendarModule,
     StepsModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    MessagesModule
   ],
 })
 export class SharedModule {}

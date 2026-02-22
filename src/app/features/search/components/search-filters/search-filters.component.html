@@ -18,9 +18,7 @@
     </div>
   </p-card>
 
-  <p-card *ngIf="errors.length > 0" styleClass="search-alert-card">
-    <div class="search-error">{{ errors[0].detail }}</div>
-  </p-card>
+  <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
 
   <div class="search-kpis">
     <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--info"><div class="kpi-card__head"><span class="kpi-card__label">Users In Project</span><span class="kpi-card__tag">People</span></div><span class="kpi-card__value">{{ usersInProjectCount }}</span></div></article>

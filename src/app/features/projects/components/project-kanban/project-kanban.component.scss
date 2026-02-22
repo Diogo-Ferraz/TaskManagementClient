@@ -538,13 +538,16 @@
   text-align: center;
 }
 
-.kanban-inline-error {
-  border: 1px solid color-mix(in srgb, var(--orange-500) 35%, transparent);
-  background: color-mix(in srgb, var(--orange-100) 68%, transparent);
-  color: var(--orange-700);
-  border-radius: 10px;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
+.kanban-column-empty--no-project {
+  min-height: 4.5rem;
+  border: 1px dashed var(--surface-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-100) 62%, transparent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.8rem;
 }
 
 :host ::ng-deep .custom-card .p-card-body {

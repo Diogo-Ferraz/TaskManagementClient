@@ -60,9 +60,7 @@
   </p-card>
 
   <div class="kanban-content">
-    <div class="kanban-inline-error" *ngIf="errors.length > 0">
-      {{ errors[0].detail }}
-    </div>
+    <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
 
     <div *ngIf="isLoadingProjects || isLoadingTasks" class="kanban-grid">
       <p-card class="custom-card" *ngFor="let placeholder of [1,2,3]">
@@ -76,12 +74,7 @@
       </p-card>
     </div>
 
-    <div *ngIf="!isLoadingProjects && projects.length === 0" class="kanban-empty">
-      <i class="pi pi-folder-open"></i>
-      <p>No projects found in your current scope.</p>
-    </div>
-
-    <div *ngIf="!isLoadingProjects && projects.length > 0 && !isLoadingTasks" class="kanban-grid">
+    <div *ngIf="!isLoadingProjects && !isLoadingTasks" class="kanban-grid">
       <ng-container *ngFor="let column of columns">
         <div class="kanban-column">
           <p-card class="custom-card kanban-column-card">
@@ -207,12 +200,21 @@
                 </div>
               </div>
 
-              <button type="button" class="task-create-placeholder" (click)="openCreateTask(column.status)">
+              <button
+                type="button"
+                class="task-create-placeholder"
+                [disabled]="!selectedProjectId"
+                (click)="openCreateTask(column.status)">
                 <i class="pi pi-plus"></i>
                 <span>Create task</span>
               </button>
 
-              <div *ngIf="getColumnTaskCount(column.status) === 0" class="kanban-column-empty">
+              <div *ngIf="!selectedProjectId" class="kanban-column-empty kanban-column-empty--no-project">
+                <i class="pi pi-database"></i>
+                No project data available. Connect backend and select a project.
+              </div>
+
+              <div *ngIf="selectedProjectId && getColumnTaskCount(column.status) === 0" class="kanban-column-empty">
                 No tasks in this column yet.
               </div>
             </div>
