@@ -764,7 +764,15 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
       }
     }
 
-    return [{ label: 'Unassigned', value: null }, ...Array.from(options.values()).sort((a, b) => a.label.localeCompare(b.label))];
+    const sortedOptions = Array.from(options.values()).sort((a, b) => a.label.localeCompare(b.label));
+    if (this.canManageAllTasks) {
+      return [{ label: 'Unassigned', value: null }, ...sortedOptions];
+    }
+
+    const currentUserOption = this.buildCurrentUserAssigneeOption(sortedOptions);
+    return currentUserOption
+      ? [{ label: 'Unassigned', value: null }, currentUserOption]
+      : [{ label: 'Unassigned', value: null }];
   }
 
   private isAssignableUserRole(user: UserSummaryDto): boolean {
@@ -790,6 +798,32 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     }
 
     return user.id;
+  }
+
+  private buildCurrentUserAssigneeOption(options: AssigneeOption[]): AssigneeOption | null {
+    const currentUserId = this.currentUserId;
+    if (!currentUserId) {
+      return null;
+    }
+
+    const existingOption = options.find((option) => option.value === currentUserId);
+    if (existingOption) {
+      return existingOption;
+    }
+
+    const claims = this.authService.userClaims();
+    const name = claims['name'];
+    const preferredUserName = claims['preferred_username'];
+    const email = claims['email'];
+    const label = typeof name === 'string' && name.trim().length > 0
+      ? name
+      : typeof preferredUserName === 'string' && preferredUserName.trim().length > 0
+        ? preferredUserName
+        : typeof email === 'string' && email.trim().length > 0
+          ? email
+          : 'Current User';
+
+    return { label, value: currentUserId };
   }
 
   private patchTaskWithOptimisticUpdate(

@@ -9,7 +9,7 @@ import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.
 import { ProjectDto, ProjectMemberDto } from '../../../../core/api/models/project.model';
 import { UserSummaryDto } from '../../../../core/api/models/user.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
-import { AppRole } from '../../../../core/auth/models/app-role.model';
+import { AppRole, MANAGEMENT_ROLES } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -370,10 +370,22 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
       });
     }
 
-    return [
-      { label: 'Unassigned', value: null },
-      ...Array.from(optionsByUserId.values()).sort((a, b) => a.label.localeCompare(b.label))
-    ];
+    const sortedOptions = Array.from(optionsByUserId.values()).sort((a, b) => a.label.localeCompare(b.label));
+    if (this.authService.hasAnyRole([...MANAGEMENT_ROLES])) {
+      return [{ label: 'Unassigned', value: null }, ...sortedOptions];
+    }
+
+    const currentUserIdForRegularRole = this.authService.currentUserId();
+    const currentUserOption = currentUserIdForRegularRole
+      ? sortedOptions.find((option) => option.value === currentUserIdForRegularRole) ?? {
+        label: this.currentUserLabel(),
+        value: currentUserIdForRegularRole
+      }
+      : null;
+
+    return currentUserOption
+      ? [{ label: 'Unassigned', value: null }, currentUserOption]
+      : [{ label: 'Unassigned', value: null }];
   }
 
   private currentUserLabel(): string {
