@@ -146,6 +146,12 @@
   flex-wrap: wrap;
 }
 
+.column-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .table-search {
   margin-left: auto;
   position: relative;

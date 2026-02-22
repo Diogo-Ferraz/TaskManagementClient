@@ -89,11 +89,49 @@
 
       <ng-template pTemplate="header">
         <tr>
-          <th style="min-width: 17rem;">Task</th>
-          <th style="min-width: 8rem;">Status</th>
-          <th style="min-width: 8rem;">Due Date</th>
-          <th style="min-width: 12rem;">Assignee</th>
-          <th style="min-width: 10rem;">Last Updated</th>
+          <th style="min-width: 17rem;">
+            <div class="column-head">
+              Task
+              <p-columnFilter type="text" field="title" display="menu"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 8rem;">
+            <div class="column-head">
+              Status
+              <p-columnFilter field="status" matchMode="equals" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="statusOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="value"
+                    [appendTo]="'body'"
+                    [showClear]="true"
+                    placeholder="Status"
+                    (onChange)="filter($event.value)">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 8rem;">
+            <div class="column-head">
+              Due Date
+              <p-columnFilter type="text" field="dueDate" display="menu"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 12rem;">
+            <div class="column-head">
+              Assignee
+              <p-columnFilter type="text" field="assignedUserName" display="menu"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 10rem;">
+            <div class="column-head">
+              Last Updated
+              <p-columnFilter type="text" field="lastModifiedAt" display="menu"></p-columnFilter>
+            </div>
+          </th>
           <th style="min-width: 16rem;">Actions</th>
         </tr>
       </ng-template>
