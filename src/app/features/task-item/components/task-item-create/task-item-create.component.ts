@@ -2,10 +2,12 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, forkJoin, of, takeUntil } from 'rxjs';
+import { AdminUsersApiClient } from '../../../../core/api/clients/admin-users-api.client';
 import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.client';
 import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.client';
 import { ProjectDto, ProjectMemberDto } from '../../../../core/api/models/project.model';
+import { UserSummaryDto } from '../../../../core/api/models/user.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
@@ -22,6 +24,7 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
   private readonly projectsApiClient = inject(ProjectsApiClient);
+  private readonly adminUsersApiClient = inject(AdminUsersApiClient);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
@@ -298,16 +301,20 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     }
 
     this.isLoadingMembers = true;
-    this.projectsApiClient
-      .getMembers(projectId)
+    const members$ = this.projectsApiClient.getMembers(projectId);
+    const allUsers$ = this.authService.hasAnyRole(['Administrator'])
+      ? this.adminUsersApiClient.getUsers({ page: 1, pageSize: 500 })
+      : of(null);
+
+    forkJoin({ members: members$, usersResponse: allUsers$ })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (members) => {
-          this.assigneeOptions = this.mapAssigneeOptions(members);
+        next: ({ members, usersResponse }) => {
+          this.assigneeOptions = this.mapAssigneeOptions(members, usersResponse?.items ?? []);
           this.isLoadingMembers = false;
         },
         error: () => {
-          this.assigneeOptions = [{ label: 'Unassigned', value: null }];
+          this.assigneeOptions = this.mapAssigneeOptions([], []);
           this.isLoadingMembers = false;
           this.messageService.add({
             severity: 'warn',
@@ -318,8 +325,82 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
       });
   }
 
-  private mapAssigneeOptions(members: ProjectMemberDto[]): Array<{ label: string; value: string | null }> {
-    return [{ label: 'Unassigned', value: null }, ...members.map((member) => ({ label: member.displayName, value: member.userId }))];
+  private mapAssigneeOptions(
+    members: ProjectMemberDto[],
+    allUsers: UserSummaryDto[]
+  ): Array<{ label: string; value: string | null }> {
+    const optionsByUserId = new Map<string, { label: string; value: string | null }>();
+
+    for (const member of members) {
+      optionsByUserId.set(member.userId, {
+        label: member.displayName,
+        value: member.userId
+      });
+    }
+
+    for (const user of allUsers) {
+      if (!optionsByUserId.has(user.id)) {
+        optionsByUserId.set(user.id, {
+          label: this.resolveUserLabel(user.displayName, user.userName, user.email, user.id),
+          value: user.id
+        });
+      }
+    }
+
+    const currentUserId = this.authService.currentUserId();
+    if (currentUserId && !optionsByUserId.has(currentUserId)) {
+      optionsByUserId.set(currentUserId, {
+        label: this.currentUserLabel(),
+        value: currentUserId
+      });
+    }
+
+    return [
+      { label: 'Unassigned', value: null },
+      ...Array.from(optionsByUserId.values()).sort((a, b) => a.label.localeCompare(b.label))
+    ];
+  }
+
+  private currentUserLabel(): string {
+    const claims = this.authService.userClaims();
+    const name = claims['name'];
+    const userName = claims['preferred_username'];
+    const email = claims['email'];
+
+    if (typeof name === 'string' && name.trim().length > 0) {
+      return name;
+    }
+
+    if (typeof userName === 'string' && userName.trim().length > 0) {
+      return userName;
+    }
+
+    if (typeof email === 'string' && email.trim().length > 0) {
+      return email;
+    }
+
+    return 'Current User';
+  }
+
+  private resolveUserLabel(
+    displayName: string | null | undefined,
+    userName: string | null | undefined,
+    email: string | null | undefined,
+    fallback: string
+  ): string {
+    if (displayName && displayName.trim().length > 0) {
+      return displayName;
+    }
+
+    if (userName && userName.trim().length > 0) {
+      return userName;
+    }
+
+    if (email && email.trim().length > 0) {
+      return email;
+    }
+
+    return fallback;
   }
 
   private buildPreviewAssigneeOptions(): Array<{ label: string; value: string | null }> {
