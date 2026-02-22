@@ -8,6 +8,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.client';
 import { PatchTaskItemRequest, TaskItemDto } from '../../../../core/api/models/task-item.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
+import { MANAGEMENT_ROLES } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
@@ -134,7 +135,7 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
   }
 
   canEditTask(task: TaskItemDto): boolean {
-    if (this.authService.hasAnyRole(['Administrator', 'ProjectManager'])) {
+    if (this.authService.hasAnyRole([...MANAGEMENT_ROLES])) {
       return true;
     }
 

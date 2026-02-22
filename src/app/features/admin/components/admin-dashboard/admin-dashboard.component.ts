@@ -11,6 +11,7 @@ import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { finalize, firstValueFrom } from 'rxjs';
 import { AdminUsersApiClient } from '../../../../core/api/clients/admin-users-api.client';
+import { AppRole } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { UserSummaryDto } from '../../../../core/api/models/user.model';
@@ -55,7 +56,7 @@ export class AdminDashboardComponent implements OnInit {
   rows = 25;
   search = '';
   selectedStatus: boolean | null = null;
-  selectedRole: string | null = null;
+  selectedRole: AppRole | null = null;
   displayNameFilter = '';
   emailFilter = '';
   updatingUserIds = new Set<string>();
@@ -66,11 +67,11 @@ export class AdminDashboardComponent implements OnInit {
     { label: 'Inactive', value: false }
   ];
 
-  readonly roleOptions: SelectOption<string | null>[] = [
+  readonly roleOptions: SelectOption<AppRole | null>[] = [
     { label: 'All Roles', value: null },
-    { label: 'Administrator', value: 'Administrator' },
-    { label: 'ProjectManager', value: 'ProjectManager' },
-    { label: 'User', value: 'User' }
+    { label: AppRole.Administrator, value: AppRole.Administrator },
+    { label: AppRole.ProjectManager, value: AppRole.ProjectManager },
+    { label: AppRole.User, value: AppRole.User }
   ];
 
   get exportFileName(): string {
@@ -87,15 +88,15 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   get adminUsersCount(): number {
-    return this.users.filter((user) => user.roles.includes('Administrator')).length;
+    return this.users.filter((user) => user.roles.includes(AppRole.Administrator)).length;
   }
 
   get projectManagerUsersCount(): number {
-    return this.users.filter((user) => user.roles.includes('ProjectManager')).length;
+    return this.users.filter((user) => user.roles.includes(AppRole.ProjectManager)).length;
   }
 
   get standardUsersCount(): number {
-    return this.users.filter((user) => user.roles.includes('User')).length;
+    return this.users.filter((user) => user.roles.includes(AppRole.User)).length;
   }
 
   ngOnInit(): void {
@@ -108,7 +109,7 @@ export class AdminDashboardComponent implements OnInit {
     this.rows = event.rows ?? this.rows;
     this.displayNameFilter = this.getFilterTextValue(event.filters?.['displayName']);
     this.emailFilter = this.getFilterTextValue(event.filters?.['email']);
-    this.selectedRole = this.getFilterTextValue(event.filters?.['roles']) || null;
+    this.selectedRole = (this.getFilterTextValue(event.filters?.['roles']) as AppRole) || null;
     this.selectedStatus = this.getFilterBooleanValue(event.filters?.['isActive']);
     this.loadUsers();
   }
@@ -385,7 +386,7 @@ export class AdminDashboardComponent implements OnInit {
         userName: 'ava.mitchell',
         email: 'ava.mitchell@example.com',
         isActive: true,
-        roles: ['Administrator']
+        roles: [AppRole.Administrator]
       },
       {
         id: 'user-2',
@@ -393,7 +394,7 @@ export class AdminDashboardComponent implements OnInit {
         userName: 'noah.sanders',
         email: 'noah.sanders@example.com',
         isActive: true,
-        roles: ['ProjectManager']
+        roles: [AppRole.ProjectManager]
       },
       {
         id: 'user-3',
@@ -401,7 +402,7 @@ export class AdminDashboardComponent implements OnInit {
         userName: 'liam.carter',
         email: 'liam.carter@example.com',
         isActive: true,
-        roles: ['User']
+        roles: [AppRole.User]
       },
       {
         id: 'user-4',
@@ -409,7 +410,7 @@ export class AdminDashboardComponent implements OnInit {
         userName: 'mia.foster',
         email: 'mia.foster@example.com',
         isActive: false,
-        roles: ['User']
+        roles: [AppRole.User]
       },
       {
         id: 'user-5',
@@ -417,7 +418,7 @@ export class AdminDashboardComponent implements OnInit {
         userName: 'ethan.brooks',
         email: 'ethan.brooks@example.com',
         isActive: true,
-        roles: ['ProjectManager', 'User']
+        roles: [AppRole.ProjectManager, AppRole.User]
       }
     ];
   }

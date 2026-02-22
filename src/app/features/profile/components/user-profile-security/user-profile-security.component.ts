@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { AppRole } from '../../../../core/auth/models/app-role.model';
 import { SharedModule } from '../../../../shared/shared.module';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
@@ -23,7 +24,7 @@ export class UserProfileSecurityComponent {
   readonly claims = computed(() => this.authService.userClaims());
   readonly roles = computed(() => this.authService.userRoles());
   readonly currentUserId = computed(() => this.authService.currentUserId());
-  readonly canCreateAccount = computed(() => this.authService.hasRole('Administrator'));
+  readonly canCreateAccount = computed(() => this.authService.hasRole(AppRole.Administrator));
 
   readonly userDisplayName = computed(() => {
     const claims = this.claims();
@@ -93,11 +94,11 @@ export class UserProfileSecurityComponent {
 
   getRoleDescription(role: string): string {
     switch (role) {
-      case 'Administrator':
+      case AppRole.Administrator:
         return 'Full platform access, including admin operations.';
-      case 'ProjectManager':
+      case AppRole.ProjectManager:
         return 'Can manage project flow, tasks, and team delivery.';
-      case 'User':
+      case AppRole.User:
         return 'Standard collaborator with task-level execution permissions.';
       default:
         return 'Custom role from identity provider.';

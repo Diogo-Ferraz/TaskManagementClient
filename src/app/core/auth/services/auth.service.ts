@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { APP_ENVIRONMENT } from '../../config/app-environment.token';
+import { AppRole } from '../models/app-role.model';
 import {
   AuthSession,
   PkceAuthorizationRequestState,
@@ -116,7 +117,7 @@ export class AuthService {
       name: 'Debug User',
       preferred_username: 'debug.user',
       email: 'debug.user@local.test',
-      role: ['Administrator', 'ProjectManager', 'User']
+      role: [AppRole.Administrator, AppRole.ProjectManager, AppRole.User]
     };
 
     const session: AuthSession = {

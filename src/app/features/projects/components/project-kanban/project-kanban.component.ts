@@ -13,6 +13,7 @@ import { ProjectDto } from '../../../../core/api/models/project.model';
 import { CreateTaskItemRequest, PatchTaskItemRequest, TaskItemDto } from '../../../../core/api/models/task-item.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
 import { UserSummaryDto } from '../../../../core/api/models/user.model';
+import { AppRole, MANAGEMENT_ROLES } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
@@ -148,7 +149,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   get canManageAllTasks(): boolean {
-    return this.authService.hasAnyRole(['Administrator', 'ProjectManager']);
+    return this.authService.hasAnyRole([...MANAGEMENT_ROLES]);
   }
 
   ngOnInit(): void {
@@ -717,8 +718,8 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     forkJoin({
       tasks: this.taskItemsApiClient.getTasks({ projectId, page: 1, pageSize: 500 }),
       members: this.projectsApiClient.getMembers(projectId),
-      assignableUsers: this.authService.hasRole('Administrator')
-        ? this.adminUsersApiClient.getUsers({ role: 'User', page: 1, pageSize: ProjectKanbanComponent.ASSIGNEE_PAGE_SIZE })
+      assignableUsers: this.authService.hasRole(AppRole.Administrator)
+        ? this.adminUsersApiClient.getUsers({ role: AppRole.User, page: 1, pageSize: ProjectKanbanComponent.ASSIGNEE_PAGE_SIZE })
         : of(null)
     })
       .pipe(takeUntil(this.destroy$))
@@ -768,7 +769,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
   private isAssignableUserRole(user: UserSummaryDto): boolean {
     const roles = user.roles ?? [];
-    const isProjectManager = roles.includes('ProjectManager');
+    const isProjectManager = roles.includes(AppRole.ProjectManager);
     return !isProjectManager;
   }
 

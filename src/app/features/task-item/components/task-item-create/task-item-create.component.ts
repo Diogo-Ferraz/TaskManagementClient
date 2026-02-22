@@ -9,6 +9,7 @@ import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.
 import { ProjectDto, ProjectMemberDto } from '../../../../core/api/models/project.model';
 import { UserSummaryDto } from '../../../../core/api/models/user.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
+import { AppRole } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -302,7 +303,7 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
 
     this.isLoadingMembers = true;
     const members$ = this.projectsApiClient.getMembers(projectId);
-    const allUsers$ = this.authService.hasAnyRole(['Administrator'])
+    const allUsers$ = this.authService.hasAnyRole([AppRole.Administrator])
       ? this.adminUsersApiClient.getUsers({ page: 1, pageSize: 500 })
       : of(null);
 
@@ -332,7 +333,7 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     const optionsByUserId = new Map<string, { label: string; value: string | null }>();
     const projectManagerUserIds = new Set(
       allUsers
-        .filter((user) => (user.roles ?? []).includes('ProjectManager'))
+        .filter((user) => (user.roles ?? []).includes(AppRole.ProjectManager))
         .map((user) => user.id)
     );
 
@@ -348,7 +349,7 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     }
 
     for (const user of allUsers) {
-      if ((user.roles ?? []).includes('ProjectManager')) {
+      if ((user.roles ?? []).includes(AppRole.ProjectManager)) {
         continue;
       }
 
@@ -361,7 +362,7 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     }
 
     const currentUserId = this.authService.currentUserId();
-    const currentUserIsProjectManager = this.authService.hasRole('ProjectManager');
+    const currentUserIsProjectManager = this.authService.hasRole(AppRole.ProjectManager);
     if (currentUserId && !currentUserIsProjectManager && !optionsByUserId.has(currentUserId)) {
       optionsByUserId.set(currentUserId, {
         label: this.currentUserLabel(),

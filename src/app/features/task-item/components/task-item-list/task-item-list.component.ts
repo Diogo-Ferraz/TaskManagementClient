@@ -8,6 +8,7 @@ import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.
 import { ProjectDto } from '../../../../core/api/models/project.model';
 import { TaskItemDto } from '../../../../core/api/models/task-item.model';
 import { TaskStatus } from '../../../../core/api/models/task-status.enum';
+import { MANAGEMENT_ROLES } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
@@ -120,7 +121,7 @@ export class TaskItemListComponent implements OnInit, OnDestroy {
   }
 
   get canManageAllTasks(): boolean {
-    return this.authService.hasAnyRole(['Administrator', 'ProjectManager']);
+    return this.authService.hasAnyRole([...MANAGEMENT_ROLES]);
   }
 
   get defaultTablePageSize(): number {

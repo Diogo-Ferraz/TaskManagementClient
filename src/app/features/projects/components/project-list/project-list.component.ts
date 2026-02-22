@@ -7,6 +7,7 @@ import { Table } from 'primeng/table';
 import { Subject, takeUntil } from 'rxjs';
 import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.client';
 import { ProjectDto } from '../../../../core/api/models/project.model';
+import { MANAGEMENT_ROLES } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
@@ -63,7 +64,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   get canManageProjects(): boolean {
-    return this.authService.hasAnyRole(['Administrator', 'ProjectManager']);
+    return this.authService.hasAnyRole([...MANAGEMENT_ROLES]);
   }
 
   trackByProjectId(_: number, project: ProjectDto): string {

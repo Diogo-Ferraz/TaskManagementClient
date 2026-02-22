@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MenuItem } from 'primeng/api';
+import { ALL_ROLES, AppRole, MANAGEMENT_ROLES } from '../../../auth/models/app-role.model';
 import { AppMenuitemComponent } from '../app-menuitem/app-menuitem.component';
 import { AuthService } from '../../../auth/services/auth.service';
 
@@ -29,14 +30,14 @@ export class AppMenuComponent {
             label: 'Project Details',
             icon: 'pi pi-fw pi-folder-open',
             routerLink: ['/projects/details'],
-            visible: this.authService.hasAnyRole(['Administrator', 'ProjectManager'])
+            visible: this.authService.hasAnyRole([...MANAGEMENT_ROLES])
           },
           { label: 'Project Members', icon: 'pi pi-fw pi-users', routerLink: ['/projects/members'] },
           {
             label: 'Create Project',
             icon: 'pi pi-fw pi-plus',
             routerLink: ['/projects/create'],
-            visible: this.authService.hasAnyRole(['Administrator', 'ProjectManager'])
+            visible: this.authService.hasAnyRole([...MANAGEMENT_ROLES])
           },
           { label: 'Kanban Board', icon: 'pi pi-fw pi-th-large', routerLink: ['/projects/kanban'] }
         ]
@@ -50,7 +51,7 @@ export class AppMenuComponent {
             label: 'Create Task',
             icon: 'pi pi-fw pi-plus',
             routerLink: ['/tasks/create'],
-            visible: this.authService.hasAnyRole(['Administrator', 'ProjectManager', 'User'])
+            visible: this.authService.hasAnyRole([...ALL_ROLES])
           }
         ]
       },
@@ -58,7 +59,7 @@ export class AppMenuComponent {
         label: 'Activity',
         items: [
           { label: 'My Activity', icon: 'pi pi-fw pi-history', routerLink: ['/activity/my'] },
-          { label: 'Activity Log', icon: 'pi pi-fw pi-database', routerLink: ['/activity/log'], visible: this.authService.hasAnyRole(['Administrator', 'ProjectManager']) },
+          { label: 'Activity Log', icon: 'pi pi-fw pi-database', routerLink: ['/activity/log'], visible: this.authService.hasAnyRole([...MANAGEMENT_ROLES]) },
           { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/calendar'] },
           { label: 'Search & Filters', icon: 'pi pi-fw pi-search', routerLink: ['/search'] }
         ]
@@ -72,7 +73,7 @@ export class AppMenuComponent {
       },
       {
         label: 'Administration',
-        visible: this.authService.hasRole('Administrator'),
+        visible: this.authService.hasRole(AppRole.Administrator),
         items: [{ label: 'Admin Dashboard', icon: 'pi pi-fw pi-shield', routerLink: ['/admin'] }]
       },
       {
