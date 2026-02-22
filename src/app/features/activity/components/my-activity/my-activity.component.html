@@ -74,13 +74,19 @@
 
     <p-card class="activity-filters-card">
       <div class="activity-filters-card__header">
-        <h3>Filters</h3>
+        <div>
+          <h3>Filters</h3>
+          <p>Narrow activity by type or keywords.</p>
+        </div>
         <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-filter-slash" label="Clear" (click)="clearFilters()"></button>
       </div>
 
       <div class="filters-form">
-        <div class="field">
-          <label for="typeFilter">Event Type</label>
+        <div class="filter-row">
+          <div class="filter-row__meta">
+            <label for="typeFilter">Event Type</label>
+            <small>Pick an activity category.</small>
+          </div>
           <p-dropdown
             inputId="typeFilter"
             [options]="typeOptions"
@@ -91,15 +97,24 @@
           </p-dropdown>
         </div>
 
-        <div class="field">
-          <label for="searchFilter">Search</label>
-          <span class="filter-search">
+        <div class="filter-row">
+          <div class="filter-row__meta">
+            <label for="searchFilter">Search</label>
+            <small>Project, task, or action keywords.</small>
+          </div>
+          <span class="filter-search filter-search--row">
             <i class="pi pi-search"></i>
             <input id="searchFilter" pInputText type="text" [(ngModel)]="search" placeholder="Project, task, or action" />
           </span>
         </div>
 
-        <button pButton type="button" icon="pi pi-refresh" label="Refresh" class="p-button-outlined" [loading]="isLoading" (click)="refresh()"></button>
+        <div class="filter-row filter-row--action">
+          <div class="filter-row__meta">
+            <label>Data</label>
+            <small>Reload timeline from server.</small>
+          </div>
+          <button pButton type="button" icon="pi pi-refresh" label="Refresh" class="p-button-outlined" [loading]="isLoading" (click)="refresh()"></button>
+        </div>
       </div>
     </p-card>
   </div>
