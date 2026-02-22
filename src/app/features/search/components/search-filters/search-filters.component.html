@@ -52,7 +52,6 @@
           <i class="pi pi-sliders-h"></i>
           <span>Filter Workspace</span>
         </div>
-        <small>Tune project, user, ownership, and task state in one place.</small>
       </div>
 
       <div class="search-controls">
@@ -127,12 +126,21 @@
 
   <div class="results-grid">
     <p-card styleClass="results-card">
-      <div class="results-card__title">Users In Project</div>
+      <div class="results-card__title">
+        <h3>Users In Project</h3>
+        <p>Members available in the selected project.</p>
+      </div>
       <div class="results-card__body">
         <ul class="simple-list">
           <li *ngFor="let member of projectMembers">
-            <p-avatar [label]="member.displayName.charAt(0)" shape="circle"></p-avatar>
-            <span>{{ member.displayName }}</span>
+            <div class="simple-list__meta">
+              <p-avatar [label]="member.displayName.charAt(0)" shape="circle"></p-avatar>
+              <div class="simple-list__text">
+                <span>{{ member.displayName }}</span>
+                <small>{{ member.email || 'No email available' }}</small>
+              </div>
+            </div>
+            <p-tag *ngIf="member.isOwner" value="Owner" severity="info"></p-tag>
           </li>
           <li *ngIf="projectMembers.length === 0" class="muted">No users found.</li>
         </ul>
@@ -140,13 +148,30 @@
     </p-card>
 
     <p-card styleClass="results-card">
-      <div class="results-card__title">Projects For User</div>
-      <div class="muted mb-2" *ngIf="selectedUserId">Showing projects for {{ selectedUserName }}</div>
+      <div class="results-card__title">
+        <h3>Projects For User</h3>
+        <p *ngIf="selectedUserId; else projectsHint">Showing projects for {{ selectedUserName }}.</p>
+        <ng-template #projectsHint>
+          <p>Select a user to list matching projects.</p>
+        </ng-template>
+      </div>
       <div class="results-card__body">
         <ul class="simple-list">
-          <li *ngFor="let project of userProjects">
-            <i class="pi pi-folder text-color-secondary"></i>
-            <span>{{ project.name }}</span>
+          <li *ngFor="let project of userProjects" class="project-list-item">
+            <div class="simple-list__meta simple-list__meta--top">
+              <i class="pi pi-folder text-color-secondary"></i>
+              <div class="simple-list__text">
+                <span>{{ project.name }}</span>
+              </div>
+            </div>
+            <div class="project-meta-chips project-meta-chips--below-icon">
+              <span class="project-meta-chip">
+                Created {{ project.createdAt | date: 'mediumDate' }} by {{ project.createdByUserName || 'Unknown' }}
+              </span>
+              <span class="project-meta-chip">
+                Updated {{ project.lastModifiedAt | date: 'mediumDate' }} by {{ project.lastModifiedByUserName || 'Unknown' }}
+              </span>
+            </div>
           </li>
           <li *ngIf="userProjects.length === 0" class="muted">No matching projects.</li>
         </ul>

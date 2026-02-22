@@ -53,10 +53,8 @@
 
 .filters-shell__header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.6rem;
+  align-items: flex-start;
+  gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
@@ -64,12 +62,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-weight: 600;
 }
-
-.filters-shell__header small {
-  color: var(--text-color-secondary);
-}
+.filters-shell__title span { font-weight: 600; }
 
 .search-controls {
   display: grid;
@@ -128,13 +122,23 @@
 }
 
 .results-card__title {
+  margin-bottom: 0.75rem;
+}
+
+.results-card__title h3 {
+  margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+}
+
+.results-card__title p {
+  margin: 0.25rem 0 0;
+  color: var(--text-color-secondary);
+  font-size: 0.82rem;
 }
 
 .results-card__body {
-  max-height: 11.5rem;
+  max-height: 12.2rem;
   overflow-y: auto;
   padding-right: 0.2rem;
 }
@@ -149,9 +153,77 @@
 }
 
 .simple-list li {
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-100) 65%, transparent);
+  padding: 0.62rem 0.72rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.project-list-item {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.45rem;
+}
+
+.simple-list__meta {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+}
+
+.simple-list__meta--top {
+  align-items: flex-start;
+}
+
+.simple-list__text {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.simple-list__text span {
+  color: var(--text-color);
+  line-height: 1.2;
+}
+
+.simple-list__text small {
+  color: var(--text-color-secondary);
+  font-size: 0.76rem;
+  line-height: 1.2;
+}
+
+.project-meta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.project-meta-chips--below-icon {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.project-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  padding: 0.16rem 0.46rem;
+  font-size: 0.72rem;
+  color: var(--text-color-secondary);
+  background: color-mix(in srgb, var(--surface-100) 75%, transparent);
+  line-height: 1.25;
+}
+
+.simple-list li.muted {
+  border-style: dashed;
+  justify-content: center;
 }
 
 .tasks-meta {
