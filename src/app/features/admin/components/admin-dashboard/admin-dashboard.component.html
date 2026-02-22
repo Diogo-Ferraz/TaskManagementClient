@@ -16,11 +16,11 @@
   </p-card>
 
   <div class="admin-kpis">
-    <p-card class="kpi-card"><span class="kpi-card__label">Active Users</span><span class="kpi-card__value">{{ activeUsersCount }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Inactive Users</span><span class="kpi-card__value">{{ inactiveUsersCount }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Administrators</span><span class="kpi-card__value">{{ adminUsersCount }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Project Managers</span><span class="kpi-card__value">{{ projectManagerUsersCount }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Users</span><span class="kpi-card__value">{{ standardUsersCount }}</span></p-card>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--done"><div class="kpi-card__head"><span class="kpi-card__label">Active Users</span><span class="kpi-card__tag">Enabled</span></div><span class="kpi-card__value">{{ activeUsersCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--warning"><div class="kpi-card__head"><span class="kpi-card__label">Inactive Users</span><span class="kpi-card__tag">Blocked</span></div><span class="kpi-card__value">{{ inactiveUsersCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--accent"><div class="kpi-card__head"><span class="kpi-card__label">Administrators</span><span class="kpi-card__tag">Role</span></div><span class="kpi-card__value">{{ adminUsersCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--info"><div class="kpi-card__head"><span class="kpi-card__label">Project Managers</span><span class="kpi-card__tag">Role</span></div><span class="kpi-card__value">{{ projectManagerUsersCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--neutral"><div class="kpi-card__head"><span class="kpi-card__label">Users</span><span class="kpi-card__tag">Role</span></div><span class="kpi-card__value">{{ standardUsersCount }}</span></div></article>
   </div>
 
   <p-card class="admin-table-card">

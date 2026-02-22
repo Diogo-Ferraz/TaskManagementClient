@@ -23,26 +23,11 @@
   </p-card>
 
   <div class="search-kpis">
-    <p-card class="kpi-card">
-      <span class="kpi-card__label">Users In Project</span>
-      <span class="kpi-card__value">{{ usersInProjectCount }}</span>
-    </p-card>
-    <p-card class="kpi-card">
-      <span class="kpi-card__label">Projects For User</span>
-      <span class="kpi-card__value">{{ projectsForUserCount }}</span>
-    </p-card>
-    <p-card class="kpi-card">
-      <span class="kpi-card__label">Filtered Tasks</span>
-      <span class="kpi-card__value">{{ filteredTasks.length }}</span>
-    </p-card>
-    <p-card class="kpi-card">
-      <span class="kpi-card__label">Completed</span>
-      <span class="kpi-card__value">{{ completedTasksCount }}</span>
-    </p-card>
-    <p-card class="kpi-card">
-      <span class="kpi-card__label">Unassigned</span>
-      <span class="kpi-card__value">{{ unassignedTasksCount }}</span>
-    </p-card>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--info"><div class="kpi-card__head"><span class="kpi-card__label">Users In Project</span><span class="kpi-card__tag">People</span></div><span class="kpi-card__value">{{ usersInProjectCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--neutral"><div class="kpi-card__head"><span class="kpi-card__label">Projects For User</span><span class="kpi-card__tag">Scope</span></div><span class="kpi-card__value">{{ projectsForUserCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--accent"><div class="kpi-card__head"><span class="kpi-card__label">Filtered Tasks</span><span class="kpi-card__tag">Results</span></div><span class="kpi-card__value">{{ filteredTasks.length }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--done"><div class="kpi-card__head"><span class="kpi-card__label">Completed</span><span class="kpi-card__tag">Done</span></div><span class="kpi-card__value">{{ completedTasksCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--warning"><div class="kpi-card__head"><span class="kpi-card__label">Unassigned</span><span class="kpi-card__tag">Risk</span></div><span class="kpi-card__value">{{ unassignedTasksCount }}</span></div></article>
   </div>
 
   <p-card styleClass="search-filters-card">

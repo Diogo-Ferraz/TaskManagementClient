@@ -44,12 +44,12 @@
   </p-card>
 
   <div class="project-kpis">
-    <p-card class="kpi-card"><span class="kpi-card__label">Team Members</span><span class="kpi-card__value">{{ projectMembers.length }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Recent Tasks</span><span class="kpi-card__value">{{ totalTasks }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">To Do</span><span class="kpi-card__value">{{ todoTasks }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">In Progress</span><span class="kpi-card__value">{{ inProgressTasks }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Done</span><span class="kpi-card__value">{{ doneTasks }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Overdue</span><span class="kpi-card__value">{{ overdueTasks }}</span></p-card>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--info"><div class="kpi-card__head"><span class="kpi-card__label">Team Members</span><span class="kpi-card__tag">People</span></div><span class="kpi-card__value">{{ projectMembers.length }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--neutral"><div class="kpi-card__head"><span class="kpi-card__label">Recent Tasks</span><span class="kpi-card__tag">Scope</span></div><span class="kpi-card__value">{{ totalTasks }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--todo"><div class="kpi-card__head"><span class="kpi-card__label">To Do</span><span class="kpi-card__tag">Queue</span></div><span class="kpi-card__value">{{ todoTasks }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--progress"><div class="kpi-card__head"><span class="kpi-card__label">In Progress</span><span class="kpi-card__tag">Flow</span></div><span class="kpi-card__value">{{ inProgressTasks }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--done"><div class="kpi-card__head"><span class="kpi-card__label">Done</span><span class="kpi-card__tag">Output</span></div><span class="kpi-card__value">{{ doneTasks }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--warning"><div class="kpi-card__head"><span class="kpi-card__label">Overdue</span><span class="kpi-card__tag">Risk</span></div><span class="kpi-card__value">{{ overdueTasks }}</span></div></article>
   </div>
 
   <div class="project-details-grid">

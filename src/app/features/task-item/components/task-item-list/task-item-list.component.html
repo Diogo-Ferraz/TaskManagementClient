@@ -47,12 +47,12 @@
   </p-card>
 
   <div class="tasks-kpis">
-    <p-card class="kpi-card"><span class="kpi-card__label">Total</span><span class="kpi-card__value">{{ totalTasks }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">To Do</span><span class="kpi-card__value">{{ todoTasks }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">In Progress</span><span class="kpi-card__value">{{ inProgressTasks }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Done</span><span class="kpi-card__value">{{ doneTasks }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Unassigned</span><span class="kpi-card__value">{{ unassignedTasks }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Due Soon</span><span class="kpi-card__value">{{ dueSoonTasks }}</span></p-card>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--neutral"><div class="kpi-card__head"><span class="kpi-card__label">Total</span><span class="kpi-card__tag">Scope</span></div><span class="kpi-card__value">{{ totalTasks }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--todo"><div class="kpi-card__head"><span class="kpi-card__label">To Do</span><span class="kpi-card__tag">Queue</span></div><span class="kpi-card__value">{{ todoTasks }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--progress"><div class="kpi-card__head"><span class="kpi-card__label">In Progress</span><span class="kpi-card__tag">Flow</span></div><span class="kpi-card__value">{{ inProgressTasks }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--done"><div class="kpi-card__head"><span class="kpi-card__label">Done</span><span class="kpi-card__tag">Output</span></div><span class="kpi-card__value">{{ doneTasks }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--accent"><div class="kpi-card__head"><span class="kpi-card__label">Unassigned</span><span class="kpi-card__tag">Attention</span></div><span class="kpi-card__value">{{ unassignedTasks }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--warning"><div class="kpi-card__head"><span class="kpi-card__label">Due Soon</span><span class="kpi-card__tag">Deadline</span></div><span class="kpi-card__value">{{ dueSoonTasks }}</span></div></article>
   </div>
 
   <p-card class="tasks-table-card">

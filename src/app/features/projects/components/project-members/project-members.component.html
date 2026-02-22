@@ -45,10 +45,10 @@
   </p-card>
 
   <div class="members-kpis">
-    <p-card class="kpi-card"><span class="kpi-card__label">Total Members</span><span class="kpi-card__value">{{ totalMembers }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Owners</span><span class="kpi-card__value">{{ ownerCount }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Collaborators</span><span class="kpi-card__value">{{ collaboratorCount }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Visible</span><span class="kpi-card__value">{{ visibleCount }}</span></p-card>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--info"><div class="kpi-card__head"><span class="kpi-card__label">Total Members</span><span class="kpi-card__tag">People</span></div><span class="kpi-card__value">{{ totalMembers }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--accent"><div class="kpi-card__head"><span class="kpi-card__label">Owners</span><span class="kpi-card__tag">Leadership</span></div><span class="kpi-card__value">{{ ownerCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--neutral"><div class="kpi-card__head"><span class="kpi-card__label">Collaborators</span><span class="kpi-card__tag">Team</span></div><span class="kpi-card__value">{{ collaboratorCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--done"><div class="kpi-card__head"><span class="kpi-card__label">Visible</span><span class="kpi-card__tag">Filtered</span></div><span class="kpi-card__value">{{ visibleCount }}</span></div></article>
   </div>
 
   <p-card class="members-table-card">

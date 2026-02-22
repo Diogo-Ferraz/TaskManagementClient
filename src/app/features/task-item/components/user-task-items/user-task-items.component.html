@@ -22,11 +22,11 @@
   </p-card>
 
   <div class="my-tasks-kpis">
-    <p-card class="kpi-card status-kpi status-kpi--todo"><span class="kpi-card__label">To Do</span><span class="kpi-card__value">{{ todoTasks.length }}</span></p-card>
-    <p-card class="kpi-card status-kpi status-kpi--inprogress"><span class="kpi-card__label">In Progress</span><span class="kpi-card__value">{{ inProgressTasks.length }}</span></p-card>
-    <p-card class="kpi-card status-kpi status-kpi--done"><span class="kpi-card__label">Done</span><span class="kpi-card__value">{{ doneTasks.length }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Due Soon</span><span class="kpi-card__value">{{ dueSoonTasksCount }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Overdue</span><span class="kpi-card__value">{{ overdueTasksCount }}</span></p-card>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--todo"><div class="kpi-card__head"><span class="kpi-card__label">To Do</span><span class="kpi-card__tag">Queue</span></div><span class="kpi-card__value">{{ todoTasks.length }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--progress"><div class="kpi-card__head"><span class="kpi-card__label">In Progress</span><span class="kpi-card__tag">Flow</span></div><span class="kpi-card__value">{{ inProgressTasks.length }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--done"><div class="kpi-card__head"><span class="kpi-card__label">Done</span><span class="kpi-card__tag">Output</span></div><span class="kpi-card__value">{{ doneTasks.length }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--warning"><div class="kpi-card__head"><span class="kpi-card__label">Due Soon</span><span class="kpi-card__tag">Deadline</span></div><span class="kpi-card__value">{{ dueSoonTasksCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--accent"><div class="kpi-card__head"><span class="kpi-card__label">Overdue</span><span class="kpi-card__tag">Risk</span></div><span class="kpi-card__value">{{ overdueTasksCount }}</span></div></article>
   </div>
 
   <p-card class="my-tasks-content-card">

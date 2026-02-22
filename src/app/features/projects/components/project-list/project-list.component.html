@@ -21,20 +21,44 @@
   </p-card>
 
   <div class="projects-kpis">
-    <p-card class="kpi-card">
-      <span class="kpi-card__label">Total Projects</span>
-      <span class="kpi-card__value">{{ totalProjects }}</span>
-    </p-card>
+    <article class="kpi-card">
+      <div class="kpi-card__shell kpi-card__shell--projects">
+        <div class="kpi-card__head">
+          <span class="kpi-card__label">Total Projects</span>
+          <span class="kpi-card__tag">Portfolio</span>
+        </div>
+        <span class="kpi-card__value">{{ totalProjects }}</span>
+        <p class="kpi-card__context">
+          <strong>{{ totalProjects }}</strong> active workspace projects
+        </p>
+      </div>
+    </article>
 
-    <p-card class="kpi-card">
-      <span class="kpi-card__label">Recent (30 days)</span>
-      <span class="kpi-card__value">{{ recentProjects }}</span>
-    </p-card>
+    <article class="kpi-card">
+      <div class="kpi-card__shell kpi-card__shell--recent">
+        <div class="kpi-card__head">
+          <span class="kpi-card__label">Recent (30 days)</span>
+          <span class="kpi-card__tag">Velocity</span>
+        </div>
+        <span class="kpi-card__value">{{ recentProjects }}</span>
+        <p class="kpi-card__context">
+          <strong>{{ recentProjects }}</strong> recently created projects
+        </p>
+      </div>
+    </article>
 
-    <p-card class="kpi-card">
-      <span class="kpi-card__label">Mapped Tasks</span>
-      <span class="kpi-card__value">{{ totalTasks }}</span>
-    </p-card>
+    <article class="kpi-card">
+      <div class="kpi-card__shell kpi-card__shell--tasks">
+        <div class="kpi-card__head">
+          <span class="kpi-card__label">Mapped Tasks</span>
+          <span class="kpi-card__tag">Delivery</span>
+        </div>
+        <span class="kpi-card__value">{{ totalTasks }}</span>
+        <p class="kpi-card__context">
+          <strong>{{ totalTasks }}</strong> tasks linked to listed projects
+        </p>
+      </div>
+    </article>
   </div>
 
   <p-card class="projects-table-card">

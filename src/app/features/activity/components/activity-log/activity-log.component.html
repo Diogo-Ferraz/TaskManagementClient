@@ -21,10 +21,10 @@
   </p-card>
 
   <div class="activity-log-kpis">
-    <p-card class="kpi-card"><span class="kpi-card__label">Total Events</span><span class="kpi-card__value">{{ totalEvents }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Visible Events</span><span class="kpi-card__value">{{ visibleEvents }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Today</span><span class="kpi-card__value">{{ todayEvents }}</span></p-card>
-    <p-card class="kpi-card"><span class="kpi-card__label">Project Events</span><span class="kpi-card__value">{{ projectEvents }}</span></p-card>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--neutral"><div class="kpi-card__head"><span class="kpi-card__label">Total Events</span><span class="kpi-card__tag">Audit</span></div><span class="kpi-card__value">{{ totalEvents }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--info"><div class="kpi-card__head"><span class="kpi-card__label">Visible Events</span><span class="kpi-card__tag">Filtered</span></div><span class="kpi-card__value">{{ visibleEvents }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--warning"><div class="kpi-card__head"><span class="kpi-card__label">Today</span><span class="kpi-card__tag">Now</span></div><span class="kpi-card__value">{{ todayEvents }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--accent"><div class="kpi-card__head"><span class="kpi-card__label">Project Events</span><span class="kpi-card__tag">Projects</span></div><span class="kpi-card__value">{{ projectEvents }}</span></div></article>
   </div>
 
   <p-card class="activity-log-table-card">

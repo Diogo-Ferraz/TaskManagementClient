@@ -28,18 +28,10 @@
   </p-card>
 
   <div class="profile-kpis">
-    <div class="profile-kpis__item">
-      <p-card class="kpi-card"><span class="kpi-card__label">Email</span><span class="kpi-card__value kpi-card__value--small">{{ userEmail() }}</span></p-card>
-    </div>
-    <div class="profile-kpis__item">
-      <p-card class="kpi-card"><span class="kpi-card__label">Roles</span><span class="kpi-card__value">{{ roles().length }}</span></p-card>
-    </div>
-    <div class="profile-kpis__item">
-      <p-card class="kpi-card"><span class="kpi-card__label">Scopes</span><span class="kpi-card__value">{{ scopes().length }}</span></p-card>
-    </div>
-    <div class="profile-kpis__item">
-      <p-card class="kpi-card"><span class="kpi-card__label">Expires In</span><span class="kpi-card__value">{{ expiresInMinutes() }}m</span></p-card>
-    </div>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--info"><div class="kpi-card__head"><span class="kpi-card__label">Email</span><span class="kpi-card__tag">Identity</span></div><span class="kpi-card__value kpi-card__value--small">{{ userEmail() }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--accent"><div class="kpi-card__head"><span class="kpi-card__label">Roles</span><span class="kpi-card__tag">Access</span></div><span class="kpi-card__value">{{ roles().length }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--neutral"><div class="kpi-card__head"><span class="kpi-card__label">Scopes</span><span class="kpi-card__tag">Token</span></div><span class="kpi-card__value">{{ scopes().length }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--warning"><div class="kpi-card__head"><span class="kpi-card__label">Expires In</span><span class="kpi-card__tag">Session</span></div><span class="kpi-card__value">{{ expiresInMinutes() }}m</span></div></article>
   </div>
 
   <div class="profile-grid">
