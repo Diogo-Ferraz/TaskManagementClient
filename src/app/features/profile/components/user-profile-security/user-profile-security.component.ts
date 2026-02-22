@@ -23,6 +23,7 @@ export class UserProfileSecurityComponent {
   readonly claims = computed(() => this.authService.userClaims());
   readonly roles = computed(() => this.authService.userRoles());
   readonly currentUserId = computed(() => this.authService.currentUserId());
+  readonly canCreateAccount = computed(() => this.authService.hasRole('Administrator'));
 
   readonly userDisplayName = computed(() => {
     const claims = this.claims();
