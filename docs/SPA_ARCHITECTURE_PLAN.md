@@ -28,6 +28,8 @@
 - Role-restricted routes:
   - `/admin` -> `Administrator`.
   - `/activity/log` -> `Administrator` or `ProjectManager`.
+- UI actions are role-gated for privileged operations (for example, admin-only account creation actions).
+- Preview-mode routes require an explicit debug session started from landing page.
 
 ## Sidebar information architecture (current)
 - Overview: Dashboard
@@ -36,7 +38,7 @@
 - Activity: My Activity, Activity Log, Calendar, Search & Filters
 - Account: Profile & Security, Settings
 - Administration: Admin Dashboard
-- About: Project Docs
+- About: Documentation
 
 ## Core feature status
 - Auth foundation:
@@ -61,14 +63,6 @@
 - Patch semantics preserve omitted vs `null` behavior.
 - Date values sent to API follow ISO conventions.
 - Problem Details responses are surfaced consistently at UI layer.
-
-## Quality and cleanup status
-- Legacy scaffold artifacts removed:
-  - unused dummy services (`ProjectService`, `TaskItemService`, `LoginService`) and associated specs.
-  - empty unused feature modules (`projects.module.ts`, `task-item.module.ts`).
-- UI consistency pass completed across major pages:
-  - header card + kpi cards + main content card patterns.
-  - PrimeNG built-in table filter strategy on table-centric pages.
 
 ## Known backend/API gaps worth addressing
 - Activity endpoint filtering:

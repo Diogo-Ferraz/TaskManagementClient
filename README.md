@@ -5,11 +5,12 @@ Angular SPA for a Jira-style task management system, integrated with an existing
 ## Highlights
 
 - OIDC authentication (Authorization Code + PKCE) against OpenIddict
+- Register flow returns through OIDC and lands back in SPA callback
 - Role-aware UX for `Administrator`, `ProjectManager`, and `User`
 - Real-time activity updates via SignalR
 - Project Kanban board with drag/drop and inline task editing
 - Dashboard, calendar, search/filters, admin tools, activity views, and settings
-- Preview mode support for frontend-only workflows
+- Preview mode support for frontend-only workflows (explicit debug session only)
 
 ## Tech Stack
 
@@ -34,7 +35,7 @@ The SPA is API-contract-first: typed DTOs and clients are aligned with backend e
 - Activity: My Activity, Activity Log, Calendar, Search & Filters
 - Account: Profile & Security, Settings
 - Administration: Admin Dashboard
-- About: Project Docs
+- About: Documentation
 
 ## Run
 
