@@ -20,67 +20,68 @@
 
   <div class="docs-grid docs-grid--equal docs-grid--two">
     <p-card header="Project Purpose" styleClass="docs-card">
-      <p>
-        Build a practical collaboration workspace where teams can plan, execute, and track work using boards,
-        role-aware capabilities, and a live activity feed.
-      </p>
-      <p>
-        The frontend intentionally demonstrates maintainability and UI quality while proving real backend integration,
-        not a disconnected mock-only demo.
-      </p>
+      <div class="docs-info-stack">
+        <div class="docs-info-row">
+          <span>Primary Goal</span>
+          <small>Build a practical collaboration workspace where teams can plan, execute, and track work using boards, role-aware capabilities, and a live activity feed.</small>
+        </div>
+        <div class="docs-info-row">
+          <span>Frontend Intent</span>
+          <small>The SPA demonstrates maintainability and UI quality while proving real backend integration, not a disconnected mock-only demo.</small>
+        </div>
+      </div>
     </p-card>
 
     <p-card header="Architecture Notes" styleClass="docs-card">
-      <div class="notes">
-        <p>
-          The backend is built as a reusable template with Vertical Slice Architecture and OpenIddict-based auth.
-          The SPA maps directly onto that backend contract so adding features remains predictable.
-        </p>
-        <p>
-          Error handling follows RFC7807 Problem Details, while key screens include resilient loading, empty, and
-          degraded states for local UI development and demos.
-        </p>
+      <div class="docs-info-stack">
+        <div class="docs-info-row">
+          <span>Backend Contract Alignment</span>
+          <small>The backend is built as a reusable Vertical Slice template with OpenIddict auth. The SPA maps directly to that contract for predictable feature delivery.</small>
+        </div>
+        <div class="docs-info-row">
+          <span>Resilience Strategy</span>
+          <small>Error handling follows RFC7807 Problem Details and key screens include loading, empty, and degraded states for local development and demos.</small>
+        </div>
       </div>
     </p-card>
   </div>
 
-  <div class="docs-grid docs-grid--equal docs-grid--three">
-    <p-card header="Tech Stack" styleClass="docs-card">
-      <ul class="docs-list">
-        <li *ngFor="let item of techStack">{{ item }}</li>
-      </ul>
+  <div class="docs-grid docs-grid--equal docs-grid--two">
+    <p-card header="Platform Foundations" styleClass="docs-card">
+      <div class="docs-section-stack">
+        <section class="docs-section-row">
+          <h4>Tech Stack</h4>
+          <ul class="docs-list docs-list--bullet">
+            <li *ngFor="let item of techStack">{{ item }}</li>
+          </ul>
+        </section>
+
+        <section class="docs-section-row">
+          <h4>Engineering Principles</h4>
+          <ul class="docs-list docs-list--bullet">
+            <li *ngFor="let item of principles">{{ item }}</li>
+          </ul>
+        </section>
+      </div>
     </p-card>
 
-    <p-card header="Current Feature Highlights" styleClass="docs-card">
-      <ul class="docs-list">
-        <li *ngFor="let item of highlights">{{ item }}</li>
-      </ul>
-    </p-card>
+    <p-card header="Delivery Snapshot" styleClass="docs-card">
+      <div class="docs-section-stack">
+        <section class="docs-section-row">
+          <h4>Current Feature Highlights</h4>
+          <ul class="docs-list docs-list--bullet">
+            <li *ngFor="let item of highlights">{{ item }}</li>
+          </ul>
+        </section>
 
-    <p-card header="Engineering Principles" styleClass="docs-card">
-      <ul class="docs-list">
-        <li *ngFor="let item of principles">{{ item }}</li>
-      </ul>
+        <section class="docs-section-row">
+          <h4>Quality & Delivery</h4>
+          <ul class="docs-list docs-list--bullet">
+            <li *ngFor="let item of qualityAndDelivery">{{ item }}</li>
+          </ul>
+        </section>
+      </div>
     </p-card>
   </div>
 
-  <div class="docs-grid docs-grid--equal docs-grid--three">
-    <p-card header="Navigation Information Architecture" styleClass="docs-card">
-      <ul class="docs-list">
-        <li *ngFor="let item of navigationGroups">{{ item }}</li>
-      </ul>
-    </p-card>
-
-    <p-card header="Engineering Standards" styleClass="docs-card">
-      <ul class="docs-list">
-        <li *ngFor="let item of engineeringStandards">{{ item }}</li>
-      </ul>
-    </p-card>
-
-    <p-card header="Quality & Delivery" styleClass="docs-card">
-      <ul class="docs-list">
-        <li *ngFor="let item of qualityAndDelivery">{{ item }}</li>
-      </ul>
-    </p-card>
-  </div>
 </section>
