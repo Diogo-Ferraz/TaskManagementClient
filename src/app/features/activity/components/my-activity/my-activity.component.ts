@@ -144,6 +144,25 @@ export class MyActivityComponent implements OnInit, OnDestroy {
     return this.typeOptions.find((option) => option.value === type)?.label ?? 'Activity';
   }
 
+  getActivityIconChipClass(type: ActivityType): string {
+    switch (type) {
+      case ActivityType.TaskCreated:
+      case ActivityType.ProjectCreated:
+        return 'activity-row__icon--todo';
+      case ActivityType.TaskStatusChanged:
+      case ActivityType.TaskDueDateChanged:
+      case ActivityType.ProjectRenamed:
+        return 'activity-row__icon--progress';
+      case ActivityType.TaskDeleted:
+      case ActivityType.ProjectDeleted:
+        return 'activity-row__icon--warning';
+      case ActivityType.TaskAssigneeChanged:
+      case ActivityType.TaskRenamed:
+      default:
+        return 'activity-row__icon--done';
+    }
+  }
+
   private loadActivity(): void {
     this.isLoading = true;
     this.errorMessage = null;

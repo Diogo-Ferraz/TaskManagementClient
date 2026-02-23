@@ -65,7 +65,7 @@ export class AppComponent {
         ...prev,
         staticMenuDesktopInactive: sidebarBehavior === 'collapsed'
       }));
-    });
+    }, { allowSignalWrites: true });
   }
 
   isOutsideClicked(event: MouseEvent) {

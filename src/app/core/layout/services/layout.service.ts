@@ -94,7 +94,7 @@ export class LayoutService {
       if (config) {
         this.onConfigUpdate();
       }
-    });
+    }, { allowSignalWrites: true });
 
     effect(() => {
       const config = this.layoutConfig();
@@ -105,7 +105,7 @@ export class LayoutService {
       }
 
       this.handleDarkModeTransition(config);
-    });
+    }, { allowSignalWrites: true });
 
     this.toggleDarkMode(this.layoutConfig());
   }

@@ -203,13 +203,43 @@
 }
 
 .activity-row__icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 999px;
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border: 1px solid var(--surface-border);
+  background: color-mix(in srgb, var(--surface-100) 78%, transparent);
+}
+
+.activity-row__icon i {
+  font-size: 1rem;
+}
+
+.activity-row__icon--todo {
+  color: #1976d2;
+  border-color: color-mix(in srgb, #1976d2 35%, var(--surface-border));
+  background: color-mix(in srgb, #1976d2 12%, var(--surface-100));
+}
+
+.activity-row__icon--progress {
+  color: #6f42c1;
+  border-color: color-mix(in srgb, #6f42c1 35%, var(--surface-border));
+  background: color-mix(in srgb, #6f42c1 12%, var(--surface-100));
+}
+
+.activity-row__icon--done {
+  color: #2e7d32;
+  border-color: color-mix(in srgb, #2e7d32 35%, var(--surface-border));
+  background: color-mix(in srgb, #2e7d32 12%, var(--surface-100));
+}
+
+.activity-row__icon--warning {
+  color: #f57c00;
+  border-color: color-mix(in srgb, #f57c00 35%, var(--surface-border));
+  background: color-mix(in srgb, #f57c00 12%, var(--surface-100));
 }
 
 .activity-row__content {

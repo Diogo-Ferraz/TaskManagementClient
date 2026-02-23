@@ -63,7 +63,7 @@ export class AppTopbarComponent {
       }
 
       this.notificationsService.initialize();
-    });
+    }, { allowSignalWrites: true });
   }
 
   toggleDarkMode() {

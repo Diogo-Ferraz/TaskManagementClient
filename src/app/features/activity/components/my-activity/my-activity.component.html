@@ -43,8 +43,8 @@
 
       <div class="activity-list" *ngIf="!isLoading; else loadingState">
         <div class="activity-row" *ngFor="let activity of filteredActivities; let isLast = last" [class.activity-row--last]="isLast">
-          <div class="activity-row__icon" [ngClass]="activity.bgColor">
-            <i class="{{ activity.icon }}" [ngClass]="activity.iconColor"></i>
+          <div class="activity-row__icon" [ngClass]="getActivityIconChipClass(activity.rawEvent.type)">
+            <i class="{{ activity.icon }}"></i>
           </div>
 
           <div class="activity-row__content">

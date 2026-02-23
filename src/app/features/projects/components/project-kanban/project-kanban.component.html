@@ -335,7 +335,15 @@
 
       <div class="task-dialog-actions">
         <button pButton type="button" label="Cancel" class="p-button-text" (click)="closeTaskDialogs()"></button>
-        <button pButton type="button" label="Create task" icon="pi pi-plus" [loading]="isSavingTask" [disabled]="!taskForm.title.trim()" (click)="saveCreateTask()"></button>
+        <button
+          pButton
+          type="button"
+          label="Create task"
+          icon="pi pi-plus"
+          [loading]="isSavingTask"
+          [disabled]="!taskForm.title.trim() || !selectedProjectId"
+          (click)="saveCreateTask()">
+        </button>
       </div>
     </div>
   </div>
