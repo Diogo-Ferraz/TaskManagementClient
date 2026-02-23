@@ -158,6 +158,12 @@
   flex-wrap: wrap;
 }
 
+.column-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .table-search {
   margin-left: auto;
   position: relative;
@@ -202,6 +208,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+:host ::ng-deep .projects-table-card .p-datatable-wrapper {
+  overflow-x: auto;
 }
 
 .empty-cell {

@@ -79,6 +79,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .kpi-card__label {
@@ -107,6 +108,7 @@
   font-size: 0.71rem;
   font-weight: 600;
   line-height: 1.2;
+  flex-shrink: 0;
 }
 
 .kpi-card__shell--done::before { background: linear-gradient(90deg, #86efac, #bbf7d0); }
@@ -187,6 +189,10 @@
 }
 
 @media (max-width: 992px) {
+  .admin-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .table-search {
     margin-left: 0;
     width: 100%;
@@ -195,5 +201,11 @@
   .table-search input {
     width: 100%;
     min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-kpis {
+    grid-template-columns: 1fr;
   }
 }

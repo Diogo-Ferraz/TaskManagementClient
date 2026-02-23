@@ -74,6 +74,7 @@
       [value]="projects"
       [rowHover]="true"
       [loading]="loading"
+      [tableStyle]="{ 'min-width': '72rem' }"
       dataKey="id"
       [paginator]="true"
       [rows]="defaultTablePageSize"
@@ -98,11 +99,36 @@
           <th style="width: 3rem">
             <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
           </th>
-          <th>Project</th>
-          <th style="min-width: 12rem;">Created By</th>
-          <th style="min-width: 9rem;">Created</th>
-          <th style="min-width: 9rem;">Last Updated</th>
-          <th style="min-width: 8rem;">Tasks</th>
+          <th style="min-width: 22rem;">
+            <div class="column-head">
+              Project
+              <p-columnFilter type="text" field="name" display="menu"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 12rem;">
+            <div class="column-head">
+              Created By
+              <p-columnFilter type="text" field="createdByUserName" display="menu"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 9rem;">
+            <div class="column-head">
+              Created
+              <p-columnFilter type="date" field="createdAt" display="menu"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 9rem;">
+            <div class="column-head">
+              Last Updated
+              <p-columnFilter type="date" field="lastModifiedAt" display="menu"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 8rem;">
+            <div class="column-head">
+              Tasks
+              <p-columnFilter type="numeric" field="taskItems.length" display="menu"></p-columnFilter>
+            </div>
+          </th>
           <th style="min-width: 10rem;">Actions</th>
         </tr>
       </ng-template>

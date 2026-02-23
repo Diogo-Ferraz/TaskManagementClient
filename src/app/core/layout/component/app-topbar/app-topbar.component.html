@@ -5,7 +5,7 @@
         </button>
         <a class="layout-topbar-logo" [routerLink]="homeRoute">
             <span class="topbar-logo-mark" aria-hidden="true">TM</span>
-            <span>Task Management</span>
+            <span class="layout-topbar-logo-text">Task Management</span>
             <span *ngIf="isPreviewMode" class="topbar-preview-badge">
                 <i class="pi pi-eye"></i>
                 Preview Mode
@@ -20,11 +20,7 @@
             </button>
         </div>
 
-        <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
-            <i class="pi pi-ellipsis-v"></i>
-        </button>
-
-        <div class="layout-topbar-menu hidden lg:block">
+        <div class="layout-topbar-menu">
             <div class="layout-topbar-menu-content">
                 <button type="button" class="layout-topbar-action" routerLink="/calendar">
                     <i class="pi pi-calendar"></i>

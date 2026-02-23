@@ -444,4 +444,17 @@
     min-width: 0;
     width: 100%;
   }
+
+  .project-details-header__controls {
+    width: 100%;
+  }
+
+  .project-details-header__controls > button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  :host ::ng-deep .project-details-grid__col--tasks .p-datatable-wrapper {
+    overflow-x: auto;
+  }
 }

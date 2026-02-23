@@ -7,11 +7,15 @@ $grid-gap: 2rem;
     .dashboard-grid-container {
         display: grid;
         gap: $grid-gap;
+        width: 100%;
+        min-width: 0;
     }
 
     .dashboard-row {
         display: grid;
         gap: $grid-gap;
+        width: 100%;
+        min-width: 0;
     }
 
     .dashboard-row-1 {
@@ -38,6 +42,7 @@ $grid-gap: 2rem;
         display: flex; 
         flex-direction: column;
         height: 100%;
+        min-width: 0;
     }
 
     .dashboard-metric-card {
@@ -317,6 +322,27 @@ $grid-gap: 2rem;
     }
 
     @media (max-width: $md) {
+        .dashboard-panel-card,
+        .dashboard-panel-card--compact {
+            height: auto;
+        }
+
+        ::ng-deep .dashboard-panel-card .p-card,
+        ::ng-deep .dashboard-panel-card--compact .p-card {
+            height: auto;
+            min-height: 16rem;
+        }
+
+        .focus-list {
+            gap: 0.6rem;
+        }
+
+        .focus-item {
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 0.35rem;
+        }
+
         .focus-insights {
             grid-template-columns: 1fr;
         }
