@@ -718,7 +718,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     forkJoin({
       tasks: this.taskItemsApiClient.getTasks({ projectId, page: 1, pageSize: 500 }),
       members: this.projectsApiClient.getMembers(projectId),
-      assignableUsers: this.authService.hasRole(AppRole.Administrator)
+      assignableUsers: this.authService.hasAnyRole([AppRole.Administrator, AppRole.ProjectManager])
         ? this.adminUsersApiClient.getUsers({ role: AppRole.User, page: 1, pageSize: ProjectKanbanComponent.ASSIGNEE_PAGE_SIZE })
         : of(null)
     })

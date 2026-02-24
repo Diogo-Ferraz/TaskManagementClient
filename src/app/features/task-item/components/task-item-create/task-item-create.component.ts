@@ -303,8 +303,8 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
 
     this.isLoadingMembers = true;
     const members$ = this.projectsApiClient.getMembers(projectId);
-    const allUsers$ = this.authService.hasAnyRole([AppRole.Administrator])
-      ? this.adminUsersApiClient.getUsers({ page: 1, pageSize: 500 })
+    const allUsers$ = this.authService.hasAnyRole([AppRole.Administrator, AppRole.ProjectManager])
+      ? this.adminUsersApiClient.getUsers({ role: AppRole.User, page: 1, pageSize: 500 })
       : of(null);
 
     forkJoin({ members: members$, usersResponse: allUsers$ })
