@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.client';
 import { TaskItemDto } from '../../../../core/api/models/task-item.model';
+import { AppRole } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { SharedModule } from '../../../../shared/shared.module';
 
@@ -80,6 +81,30 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
     return this.authService.isAuthenticated();
   }
 
+  get calendarTitle(): string {
+    if (this.authService.hasRole(AppRole.ProjectManager)) {
+      return 'Project Due Date Calendar';
+    }
+
+    if (this.authService.hasRole(AppRole.Administrator)) {
+      return 'Workspace Due Date Calendar';
+    }
+
+    return 'My Due Date Calendar';
+  }
+
+  get calendarSubtitle(): string {
+    if (this.authService.hasRole(AppRole.ProjectManager)) {
+      return 'Track due dates across tasks in your managed projects. Select a day to inspect workload and jump into project context.';
+    }
+
+    if (this.authService.hasRole(AppRole.Administrator)) {
+      return 'Track due dates across workspace tasks. Select a day to inspect workload and jump into project context.';
+    }
+
+    return 'Track your assigned tasks by due date, grouped by project color. Select a day to inspect tasks and jump directly into project context.';
+  }
+
   openTaskContext(task: TaskItemDto): void {
     void this.router.navigate(['/projects/kanban'], {
       queryParams: { projectId: task.projectId }
@@ -104,8 +129,12 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const query = this.authService.hasRole(AppRole.User)
+      ? { assignedUserId: currentUserId, page: 1, pageSize: 500 }
+      : { page: 1, pageSize: 500 };
+
     this.taskItemsApiClient
-      .getTasks({ assignedUserId: currentUserId, page: 1, pageSize: 500 })
+      .getTasks(query)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (tasks) => {
