@@ -423,6 +423,16 @@
   background: color-mix(in srgb, var(--primary-color) 8%, var(--surface-100));
 }
 
+.task-create-placeholder--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.task-create-placeholder--disabled:hover {
+  border-color: color-mix(in srgb, var(--primary-color) 45%, var(--surface-border));
+  background: color-mix(in srgb, var(--surface-100) 60%, transparent);
+}
+
 .task-dialog-shell {
   display: flex;
   flex-direction: column;

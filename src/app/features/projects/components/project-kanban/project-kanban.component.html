@@ -203,6 +203,7 @@
               <button
                 type="button"
                 class="task-create-placeholder"
+                [class.task-create-placeholder--disabled]="!selectedProjectId"
                 [disabled]="!selectedProjectId"
                 (click)="openCreateTask(column.status)">
                 <i class="pi pi-plus"></i>
