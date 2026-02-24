@@ -11,6 +11,7 @@ import { LayoutService } from '../../services/layout.service';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { AppPreferencesService } from '../../../preferences/app-preferences.service';
 import { ActivityNotificationItem, ActivityNotificationService } from '../../../../core/notifications/activity-notification.service';
+import { AppRole } from '../../../../core/auth/models/app-role.model';
 
 @Component({
   selector: 'app-topbar',
@@ -161,4 +162,18 @@ export class AppTopbarComponent {
 
     return `${words[0][0] ?? ''}${words[words.length - 1][0] ?? ''}`.toUpperCase();
   }
+
+  get currentRoleLabel(): string {
+    switch (true) {
+      case this.authService.hasRole(AppRole.Administrator):
+        return 'Administrator';
+      case this.authService.hasRole(AppRole.ProjectManager):
+        return 'Project Manager';
+      case this.authService.hasRole(AppRole.User):
+        return 'User';
+      default:
+        return 'Role';
+    }
+  }
+
 }

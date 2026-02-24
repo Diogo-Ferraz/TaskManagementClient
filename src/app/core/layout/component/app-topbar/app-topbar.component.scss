@@ -186,6 +186,60 @@
     }
 }
 
+:host ::ng-deep .topbar-account-menu {
+    width: min(22rem, calc(100vw - 2rem));
+}
+
+:host ::ng-deep .topbar-account-menu .p-menu-start {
+    border-bottom: 1px solid var(--surface-border);
+    margin-bottom: 0.25rem;
+}
+
+.topbar-account-menu__header {
+    padding: 0.7rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.topbar-account-menu__identity {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+.topbar-account-menu__identity > div {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.08rem;
+}
+
+.topbar-account-menu__identity strong,
+.topbar-account-menu__identity small {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.topbar-account-menu__identity strong {
+    font-size: 0.82rem;
+    color: var(--text-color);
+}
+
+.topbar-account-menu__identity small {
+    font-size: 0.73rem;
+    color: var(--text-color-secondary);
+}
+
+.topbar-account-menu__role-line {
+    margin-top: 0.08rem;
+    font-size: 0.72rem;
+    color: var(--text-color-secondary);
+    line-height: 1.2;
+}
+
 :host ::ng-deep .topbar-notifications-panel {
     width: min(24rem, calc(100vw - 2rem));
 }

@@ -54,7 +54,20 @@
                 </ng-template>
             </div>
         </div>
-        <p-menu #accountMenu [popup]="true" [model]="accountMenuItems" [appendTo]="'body'"></p-menu>
+        <p-menu #accountMenu [popup]="true" [model]="accountMenuItems" [appendTo]="'body'" styleClass="topbar-account-menu">
+            <ng-template pTemplate="start">
+                <div class="topbar-account-menu__header">
+                    <div class="topbar-account-menu__identity">
+                        <p-avatar [label]="currentUserInitials" shape="circle"></p-avatar>
+                        <div>
+                            <strong>{{ currentUserDisplayName }}</strong>
+                            <small>{{ currentUserEmail }}</small>
+                            <small class="topbar-account-menu__role-line">{{ currentRoleLabel }}</small>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </p-menu>
         <p-overlayPanel #notificationsPanel styleClass="topbar-notifications-panel" [showCloseIcon]="true" [appendTo]="'body'" (onShow)="markNotificationsAsRead()">
             <div class="topbar-notifications">
                 <div class="topbar-notifications__header">
