@@ -4,10 +4,10 @@
 @use '../assets/layout/responsive';
 
 .layout-wrapper {
-  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
   overflow-x: hidden;
-  overflow-y: visible;
+  overflow-y: clip;
   min-width: 0;
 }
 
@@ -56,7 +56,7 @@ app-sidebar {
 .layout-main-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: calc(100dvh - 4rem);
   justify-content: space-between;
   padding: 6rem 2rem 0 2rem;
   transition: margin-left .2s;
@@ -76,6 +76,7 @@ app-sidebar {
   }
 
   .layout-main-container {
+    min-height: calc(100dvh - 4rem);
     min-width: 0;
     width: 100%;
     max-width: 100%;
