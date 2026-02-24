@@ -7,7 +7,7 @@ import { AuthService } from '../auth/services/auth.service';
 import { TaskStatus } from '../api/models/task-status.enum';
 import { Subscription } from 'rxjs';
 
-const LAST_READ_STORAGE_KEY = 'task_management.notifications.last_read_at';
+const LAST_READ_STORAGE_KEY_PREFIX = 'task_management.notifications.last_read_at';
 const NOTIFICATION_LIMIT = 50;
 
 export interface ActivityNotificationItem {
@@ -185,7 +185,7 @@ export class ActivityNotificationService {
   }
 
   private readLastReadAtMs(): number {
-    const value = localStorage.getItem(LAST_READ_STORAGE_KEY);
+    const value = localStorage.getItem(this.getLastReadStorageKey());
     if (!value) {
       return 0;
     }
@@ -195,6 +195,15 @@ export class ActivityNotificationService {
   }
 
   private writeLastReadAt(value: string): void {
-    localStorage.setItem(LAST_READ_STORAGE_KEY, value);
+    localStorage.setItem(this.getLastReadStorageKey(), value);
+  }
+
+  private getLastReadStorageKey(): string {
+    const userId = this.authService.currentUserId();
+    if (!userId || userId.trim().length === 0) {
+      return `${LAST_READ_STORAGE_KEY_PREFIX}.anonymous`;
+    }
+
+    return `${LAST_READ_STORAGE_KEY_PREFIX}.${userId}`;
   }
 }
