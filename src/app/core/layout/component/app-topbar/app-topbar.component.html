@@ -54,8 +54,8 @@
                 </ng-template>
             </div>
         </div>
-        <p-menu #accountMenu [popup]="true" [model]="accountMenuItems"></p-menu>
-        <p-overlayPanel #notificationsPanel styleClass="topbar-notifications-panel" [showCloseIcon]="true" (onShow)="markNotificationsAsRead()">
+        <p-menu #accountMenu [popup]="true" [model]="accountMenuItems" [appendTo]="'body'"></p-menu>
+        <p-overlayPanel #notificationsPanel styleClass="topbar-notifications-panel" [showCloseIcon]="true" [appendTo]="'body'" (onShow)="markNotificationsAsRead()">
             <div class="topbar-notifications">
                 <div class="topbar-notifications__header">
                     <strong>Notifications</strong>
