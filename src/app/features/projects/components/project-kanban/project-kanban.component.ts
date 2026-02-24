@@ -746,8 +746,14 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     assignableUsers: UserSummaryDto[]
   ): AssigneeOption[] {
     const options = new Map<string, AssigneeOption>();
+    const canManageAssignments = this.canManageAllTasks;
+    const assignableUserIds = new Set(assignableUsers.map((user) => user.id));
 
     for (const member of members) {
+      if (canManageAssignments && !assignableUserIds.has(member.userId)) {
+        continue;
+      }
+
       if (!options.has(member.userId)) {
         options.set(member.userId, { label: member.displayName, value: member.userId });
       }
@@ -1000,7 +1006,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     this.assigneeOptions = [
       { label: 'Unassigned', value: null },
       { label: 'Debug User', value: 'debug-user' },
-      { label: 'Project Manager', value: 'pm-user' }
+      { label: 'Alex Contributor', value: 'user-2' }
     ];
     this.setAllTasks(this.createPreviewTasks(projectId));
     this.pendingTaskIds.clear();
@@ -1036,14 +1042,14 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
         dueDate: now,
         projectId,
         projectName: 'Preview Project',
-        assignedUserId: 'pm-user',
-        assignedUserName: 'Project Manager',
+        assignedUserId: 'user-2',
+        assignedUserName: 'Alex Contributor',
         createdAt: now,
-        createdByUserId: 'pm-user',
-        createdByUserName: 'Project Manager',
+        createdByUserId: 'debug-user',
+        createdByUserName: 'Debug User',
         lastModifiedAt: now,
-        lastModifiedByUserId: 'pm-user',
-        lastModifiedByUserName: 'Project Manager'
+        lastModifiedByUserId: 'debug-user',
+        lastModifiedByUserName: 'Debug User'
       },
       {
         id: `${projectId}-done-1`,

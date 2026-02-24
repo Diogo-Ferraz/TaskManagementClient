@@ -331,6 +331,8 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     allUsers: UserSummaryDto[]
   ): Array<{ label: string; value: string | null }> {
     const optionsByUserId = new Map<string, { label: string; value: string | null }>();
+    const canManageAssignments = this.authService.hasAnyRole([...MANAGEMENT_ROLES]);
+    const assignableUserIds = new Set(allUsers.map((user) => user.id));
     const projectManagerUserIds = new Set(
       allUsers
         .filter((user) => (user.roles ?? []).includes(AppRole.ProjectManager))
@@ -338,6 +340,10 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     );
 
     for (const member of members) {
+      if (canManageAssignments && !assignableUserIds.has(member.userId)) {
+        continue;
+      }
+
       if (projectManagerUserIds.has(member.userId)) {
         continue;
       }
