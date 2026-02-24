@@ -24,6 +24,7 @@ import { ProjectMembersComponent } from './features/projects/components/project-
 import { ActivityLogComponent } from './features/activity/components/activity-log/activity-log.component';
 import { managerOrAdminGuard } from './core/auth/guards/manager-or-admin.guard';
 import { AppSettingsComponent } from './features/settings/components/app-settings/app-settings.component';
+import { nonProjectManagerGuard } from './core/auth/guards/non-project-manager.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -43,7 +44,7 @@ export const routes: Routes = [
   { path: 'profile', component: UserProfileSecurityComponent, canActivate: [authGuard] },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [authGuard, adminRoleGuard] },
   { path: 'tasks/create', component: TaskItemCreateComponent, canActivate: [authGuard] },
-  { path: 'tasks/my-tasks', component: UserTaskItemsComponent, canActivate: [authGuard] },
+  { path: 'tasks/my-tasks', component: UserTaskItemsComponent, canActivate: [authGuard, nonProjectManagerGuard] },
   { path: 'login', component: HomeLoginComponent },
   { path: 'callback', component: AuthCallbackComponent },
   { path: 'notfound', redirectTo: 'not-found' },

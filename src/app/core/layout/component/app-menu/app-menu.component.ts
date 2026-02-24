@@ -46,7 +46,12 @@ export class AppMenuComponent {
         label: 'Delivery',
         items: [
           { label: 'All Tasks', icon: 'pi pi-fw pi-list', routerLink: ['/tasks'] },
-          { label: 'My Tasks', icon: 'pi pi-fw pi-user', routerLink: ['/tasks/my-tasks'] },
+          {
+            label: 'My Tasks',
+            icon: 'pi pi-fw pi-user',
+            routerLink: ['/tasks/my-tasks'],
+            visible: !this.authService.hasRole(AppRole.ProjectManager)
+          },
           {
             label: 'Create Task',
             icon: 'pi pi-fw pi-plus',
