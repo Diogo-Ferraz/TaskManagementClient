@@ -70,7 +70,9 @@
         <div class="project-overview" *ngIf="selectedProjectDetails as project; else emptyProjectState">
           <div class="project-overview__description">
             <span class="project-overview__section-title">Project Description</span>
-            <p>{{ project.description || 'No project description provided yet.' }}</p>
+            <div class="project-overview__description-content">
+              <p>{{ project.description || 'No project description provided yet.' }}</p>
+            </div>
           </div>
 
           <div class="project-overview__snapshot">
