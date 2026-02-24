@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .project-details-header {
@@ -138,6 +140,8 @@
   gap: 2rem;
   height: clamp(34rem, 66vh, 46rem);
   align-items: stretch;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .project-details-grid__col--overview {
@@ -155,16 +159,23 @@
 .project-details-grid__col {
   display: flex;
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .project-details-grid__col p-card {
   flex: 1;
   display: block;
   min-height: 0;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 :host ::ng-deep .details-card {
   height: 100%;
+  width: 100%;
+  max-width: 100%;
 }
 
 :host ::ng-deep .details-card .p-card-body,
@@ -342,6 +353,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .member-item__identity {
@@ -349,6 +361,14 @@
   align-items: center;
   gap: 0.55rem;
   font-weight: 500;
+  min-width: 0;
+}
+
+.member-item__identity span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tasks-inline-error {
@@ -442,6 +462,9 @@
   .project-details-grid__col--tasks {
     grid-area: auto;
     grid-column: auto;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   :host ::ng-deep .project-details-header__controls .p-dropdown {
@@ -460,5 +483,8 @@
 
   :host ::ng-deep .project-details-grid__col--tasks .p-datatable-wrapper {
     overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
   }
 }
