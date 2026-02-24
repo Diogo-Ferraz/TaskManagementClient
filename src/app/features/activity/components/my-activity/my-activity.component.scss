@@ -390,6 +390,14 @@
 }
 
 @media (max-width: 768px) {
+  .activity-filters-card {
+    order: 1;
+  }
+
+  .activity-feed-card {
+    order: 2;
+  }
+
   .activity-kpis {
     grid-template-columns: 1fr;
   }
