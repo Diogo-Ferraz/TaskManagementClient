@@ -64,13 +64,17 @@ function resolveErrorSummary(status: number): string {
 }
 
 function resolveErrorDetail(problem: ProblemDetails, status: number): string {
+  const validationSummary = extractValidationSummary(problem.errors);
+  if (status === 400 && validationSummary) {
+    return validationSummary;
+  }
+
   if (problem.detail && problem.detail.trim().length > 0) {
     return problem.detail;
   }
 
-  const firstValidationError = extractFirstValidationError(problem.errors);
-  if (firstValidationError) {
-    return firstValidationError;
+  if (validationSummary) {
+    return validationSummary;
   }
 
   switch (status) {
@@ -89,16 +93,62 @@ function resolveErrorDetail(problem: ProblemDetails, status: number): string {
   }
 }
 
-function extractFirstValidationError(errors?: Record<string, string[]>): string | null {
+function extractValidationSummary(errors?: Record<string, string[]>): string | null {
   if (!errors) {
     return null;
   }
 
-  for (const messages of Object.values(errors)) {
-    if (messages.length > 0) {
-      return messages[0];
+  const messages: string[] = [];
+
+  for (const [fieldName, fieldErrors] of Object.entries(errors)) {
+    for (const message of fieldErrors) {
+      if (!message || message.trim().length === 0) {
+        continue;
+      }
+
+      const fieldLabel = toFieldLabel(fieldName);
+      const hasFieldNameInMessage = message.toLowerCase().includes(fieldLabel.toLowerCase());
+      messages.push(hasFieldNameInMessage ? message : `${fieldLabel}: ${message}`);
     }
   }
 
-  return null;
+  if (messages.length === 0) {
+    return null;
+  }
+
+  const preview = messages.slice(0, 2).join(' ');
+  const remainingCount = messages.length - 2;
+  if (remainingCount > 0) {
+    return `${preview} (+${remainingCount} more)`;
+  }
+
+  return preview;
+}
+
+function toFieldLabel(fieldName: string): string {
+  const normalized = fieldName
+    .replace(/^\$\./, '')
+    .replace(/\./g, ' ')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!normalized) {
+    return 'Field';
+  }
+
+  return normalized
+    .split(' ')
+    .map((segment) => {
+      if (segment.length === 0) {
+        return segment;
+      }
+
+      if (segment.length === 1) {
+        return segment.toUpperCase();
+      }
+
+      return `${segment[0].toUpperCase()}${segment.slice(1)}`;
+    })
+    .join(' ');
 }

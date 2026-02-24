@@ -79,4 +79,32 @@ describe('problemDetailsInterceptor', () => {
       })
     );
   });
+
+  it('prefers field validation errors over generic detail message', () => {
+    spyOn(messageService, 'add');
+
+    http.post('/api/projects', {}).subscribe({
+      error: (_error: HttpErrorResponse) => undefined
+    });
+
+    const request = httpTestingController.expectOne('/api/projects');
+    request.flush(
+      {
+        title: 'Validation Error',
+        status: 400,
+        detail: 'One or more validation errors occurred.',
+        errors: {
+          description: ['Description must be 500 characters or fewer.']
+        }
+      },
+      { status: 400, statusText: 'Bad Request' }
+    );
+
+    expect(messageService.add).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        summary: 'Validation error',
+        detail: 'Description must be 500 characters or fewer.'
+      })
+    );
+  });
 });
