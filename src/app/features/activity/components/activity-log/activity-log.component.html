@@ -1,4 +1,6 @@
 <div class="activity-log-page">
+  <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
+
   <p-card class="activity-log-header-card">
     <div class="activity-log-header">
       <div class="activity-log-header__title">
@@ -28,11 +30,6 @@
   </div>
 
   <p-card class="activity-log-table-card">
-    <div class="activity-log-inline-error" *ngIf="errorMessage">
-      <i class="pi pi-exclamation-triangle"></i>
-      {{ errorMessage }}
-    </div>
-
     <p-table
       #dt
       [value]="filteredRows"

@@ -1,4 +1,6 @@
 <section class="calendar-page">
+  <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
+
   <p-card styleClass="calendar-hero">
     <div class="calendar-hero__content">
       <div class="calendar-hero__title">
@@ -17,8 +19,6 @@
       </div>
     </div>
   </p-card>
-
-  <div *ngIf="loadError" class="calendar-warning">{{ loadError }}</div>
 
   <div class="calendar-layout">
     <p-card styleClass="calendar-main-card">

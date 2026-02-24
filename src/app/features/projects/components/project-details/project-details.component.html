@@ -1,5 +1,6 @@
 <div class="project-details-page">
   <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
+  <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
 
   <p-card class="project-details-header-card">
     <div class="project-details-header">
@@ -131,12 +132,6 @@
 
     <div class="project-details-grid__col project-details-grid__col--tasks">
       <p-card header="Recent Tasks" styleClass="details-card">
-        <div class="tasks-inline-error" *ngIf="errors.length > 0">
-          <i class="pi pi-exclamation-triangle"></i>
-          {{ errors[0].detail }}
-          <span *ngIf="previewDetail">· {{ previewDetail }}</span>
-        </div>
-
         <p-table [value]="recentTasks" [loading]="isLoadingDetails" [rowHover]="true" [tableStyle]="{ 'min-width': '42rem' }">
           <ng-template pTemplate="header">
             <tr>

@@ -1,5 +1,6 @@
 <div class="tasks-page">
   <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
+  <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
 
   <p-card class="tasks-header-card">
     <div class="tasks-header">
@@ -58,12 +59,6 @@
   </div>
 
   <p-card class="tasks-table-card">
-    <div class="tasks-inline-error" *ngIf="errors.length > 0">
-      <i class="pi pi-exclamation-triangle"></i>
-      {{ errors[0].detail }}
-      <span *ngIf="previewDetail">· {{ previewDetail }}</span>
-    </div>
-
     <p-table
       #dt
       [value]="tasks"

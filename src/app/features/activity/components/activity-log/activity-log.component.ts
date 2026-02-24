@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Message } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Subject, takeUntil } from 'rxjs';
 import { ActivityApiClient } from '../../../../core/api/clients/activity-api.client';
@@ -63,7 +64,7 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
   isPreviewMode = false;
   isLiveConnected = false;
   previewDetail: string | null = null;
-  errorMessage: string | null = null;
+  errors: Message[] = [];
 
   dateFrom: Date | null = null;
   dateTo: Date | null = null;
@@ -142,7 +143,7 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.isPreviewMode = false;
     this.previewDetail = null;
-    this.errorMessage = null;
+    this.errors = [];
 
     if (this.shouldUsePreviewMode()) {
       this.loadPreviewData('Preview mode active. Showing local activity log.');
@@ -166,7 +167,7 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
 
           this.rows = [];
           this.filteredRows = [];
-          this.errorMessage = 'Could not load activity log.';
+          this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load activity log.' }];
           this.isLoading = false;
         }
       });

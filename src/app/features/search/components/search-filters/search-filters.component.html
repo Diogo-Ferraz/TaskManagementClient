@@ -1,4 +1,6 @@
 <div class="search-page">
+  <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
+
   <p-card styleClass="search-header-card">
     <div class="search-header">
       <div class="search-header__title">
@@ -17,8 +19,6 @@
       </div>
     </div>
   </p-card>
-
-  <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
 
   <div class="search-kpis">
     <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--info"><div class="kpi-card__head"><span class="kpi-card__label">Users In Project</span><span class="kpi-card__tag">People</span></div><span class="kpi-card__value">{{ usersInProjectCount }}</span></div></article>

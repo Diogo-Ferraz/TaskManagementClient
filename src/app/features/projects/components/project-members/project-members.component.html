@@ -1,4 +1,6 @@
 <div class="project-members-page">
+  <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
+
   <p-card class="members-header-card">
     <div class="members-header">
       <div class="members-header__title">
@@ -52,12 +54,6 @@
   </div>
 
   <p-card class="members-table-card">
-    <div class="members-inline-error" *ngIf="errorMessage">
-      <i class="pi pi-exclamation-triangle"></i>
-      {{ errorMessage }}
-      <span *ngIf="previewDetail">· {{ previewDetail }}</span>
-    </div>
-
     <p-table
       #dt
       [value]="members"

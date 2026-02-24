@@ -1,5 +1,6 @@
 <div class="my-tasks-page">
   <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
+  <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
 
   <p-card class="my-tasks-header-card">
     <div class="my-tasks-header">
@@ -32,8 +33,6 @@
   </div>
 
   <p-card class="my-tasks-content-card">
-    <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
-
     <div *ngIf="isLoading" class="loading-state">
       <p-progressSpinner styleClass="w-2rem h-2rem" strokeWidth="6"></p-progressSpinner>
       <span>Loading your tasks...</span>

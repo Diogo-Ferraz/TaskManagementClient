@@ -1,5 +1,6 @@
 <div class="kanban-page">
   <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
+  <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
 
   <p-card class="kanban-header-card">
     <div class="kanban-toolbar">
@@ -60,8 +61,6 @@
   </p-card>
 
   <div class="kanban-content">
-    <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
-
     <div *ngIf="isLoadingProjects || isLoadingTasks" class="kanban-grid">
       <p-card class="custom-card" *ngFor="let placeholder of [1,2,3]">
         <ng-template pTemplate="header">

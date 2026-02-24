@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Message } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { TaskItemsApiClient } from '../../../../core/api/clients/task-items-api.client';
 import { TaskItemDto } from '../../../../core/api/models/task-item.model';
@@ -33,7 +34,7 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
   isLoading = true;
   isPreviewMode = false;
   previewDetail: string | null = null;
-  loadError: string | null = null;
+  errors: Message[] = [];
 
   tasksForSelectedDate: TaskItemDto[] = [];
   private allTasks: TaskItemDto[] = [];
@@ -115,7 +116,7 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.isPreviewMode = false;
     this.previewDetail = null;
-    this.loadError = null;
+    this.errors = [];
     this.clearData();
 
     const currentUserId = this.authService.currentUserId();
@@ -123,7 +124,7 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
       if (this.shouldUsePreviewMode()) {
         this.loadPreviewData();
       } else {
-        this.loadError = 'Could not resolve current user identity.';
+        this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not resolve current user identity.' }];
         this.isLoading = false;
       }
       return;
@@ -147,7 +148,7 @@ export class TaskCalendarComponent implements OnInit, OnDestroy {
             return;
           }
 
-          this.loadError = 'Could not load task due dates right now.';
+          this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load task due dates right now.' }];
           this.isLoading = false;
         }
       });

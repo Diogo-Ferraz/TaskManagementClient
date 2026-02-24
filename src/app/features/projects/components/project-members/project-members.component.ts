@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Message } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Subject, takeUntil } from 'rxjs';
 import { ProjectsApiClient } from '../../../../core/api/clients/projects-api.client';
@@ -32,7 +33,7 @@ export class ProjectMembersComponent implements OnInit, OnDestroy {
   isLoadingMembers = false;
   isPreviewMode = false;
   previewDetail: string | null = null;
-  errorMessage: string | null = null;
+  errors: Message[] = [];
 
   readonly roleFilterOptions = [
     { label: 'All Roles', value: null as boolean | null },
@@ -118,7 +119,7 @@ export class ProjectMembersComponent implements OnInit, OnDestroy {
     this.isLoadingMembers = false;
     this.isPreviewMode = false;
     this.previewDetail = null;
-    this.errorMessage = null;
+    this.errors = [];
     this.projects = [];
     this.members = [];
     this.visibleMemberCount = 0;
@@ -154,14 +155,14 @@ export class ProjectMembersComponent implements OnInit, OnDestroy {
           }
 
           this.isLoadingProjects = false;
-          this.errorMessage = 'Could not load projects.';
+          this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load projects.' }];
         }
       });
   }
 
   private loadMembers(projectId: string): void {
     this.isLoadingMembers = true;
-    this.errorMessage = null;
+    this.errors = [];
 
     if (this.isPreviewMode) {
       this.members = this.buildPreviewMembers(projectId);
@@ -192,7 +193,7 @@ export class ProjectMembersComponent implements OnInit, OnDestroy {
           this.members = [];
           this.visibleMemberCount = 0;
           this.isLoadingMembers = false;
-          this.errorMessage = 'Could not load project members.';
+          this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load project members.' }];
         }
       });
   }

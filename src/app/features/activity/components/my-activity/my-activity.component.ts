@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Message } from 'primeng/api';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { ActivityApiClient } from '../../../../core/api/clients/activity-api.client';
@@ -56,7 +57,7 @@ export class MyActivityComponent implements OnInit, OnDestroy {
   isLoading = true;
   isPreviewMode = false;
   isLiveConnected = false;
-  errorMessage: string | null = null;
+  errors: Message[] = [];
   previewDetail: string | null = null;
 
   ngOnInit(): void {
@@ -165,7 +166,7 @@ export class MyActivityComponent implements OnInit, OnDestroy {
 
   private loadActivity(): void {
     this.isLoading = true;
-    this.errorMessage = null;
+    this.errors = [];
     this.previewDetail = null;
     this.isPreviewMode = false;
 
@@ -195,7 +196,7 @@ export class MyActivityComponent implements OnInit, OnDestroy {
             return;
           }
 
-          this.errorMessage = 'Could not load your activity feed.';
+          this.errors = [{ severity: 'error', summary: 'Error', detail: 'Could not load your activity feed.' }];
           this.allActivities = [];
           this.recentActivities = [];
           this.isLoading = false;
