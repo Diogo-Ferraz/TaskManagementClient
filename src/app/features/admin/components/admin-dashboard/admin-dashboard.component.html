@@ -12,6 +12,18 @@
           <span class="meta-pill" *ngIf="previewDetail">{{ previewDetail }}</span>
         </div>
       </div>
+
+      <div class="admin-header__actions">
+        <button
+          *ngIf="canCreateAccount"
+          pButton
+          type="button"
+          label="Create Account"
+          icon="pi pi-user-plus"
+          class="p-button-outlined"
+          (click)="createAccount()">
+        </button>
+      </div>
     </div>
   </p-card>
 

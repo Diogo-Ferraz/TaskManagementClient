@@ -99,6 +99,10 @@ export class AdminDashboardComponent implements OnInit {
     return this.users.filter((user) => user.roles.includes(AppRole.User)).length;
   }
 
+  get canCreateAccount(): boolean {
+    return this.authService.hasRole(AppRole.Administrator);
+  }
+
   ngOnInit(): void {
     this.rows = this.preferencesService.preferences().defaultTablePageSize;
     this.loadUsers();
@@ -193,6 +197,10 @@ export class AdminDashboardComponent implements OnInit {
           user.isActive = previousStatus;
         }
       });
+  }
+
+  createAccount(): void {
+    void this.authService.openRegisterPage();
   }
 
   trackByUserId(index: number, user: UserSummaryDto): string {

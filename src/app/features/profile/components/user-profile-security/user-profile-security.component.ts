@@ -24,7 +24,6 @@ export class UserProfileSecurityComponent {
   readonly claims = computed(() => this.authService.userClaims());
   readonly roles = computed(() => this.authService.userRoles());
   readonly currentUserId = computed(() => this.authService.currentUserId());
-  readonly canCreateAccount = computed(() => this.authService.hasRole(AppRole.Administrator));
 
   readonly userDisplayName = computed(() => {
     const claims = this.claims();
@@ -119,10 +118,6 @@ export class UserProfileSecurityComponent {
 
   logout(): void {
     this.authService.logout();
-  }
-
-  register(): void {
-    void this.authService.openRegisterPage();
   }
 
   private serializeClaimValue(value: unknown): string {

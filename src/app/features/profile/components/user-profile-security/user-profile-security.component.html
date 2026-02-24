@@ -21,15 +21,6 @@
       </div>
 
       <div class="profile-header__actions">
-        <button
-          *ngIf="canCreateAccount()"
-          pButton
-          type="button"
-          label="Create Account"
-          icon="pi pi-user-plus"
-          class="p-button-outlined"
-          (click)="register()">
-        </button>
         <button pButton type="button" label="Logout" icon="pi pi-sign-out" class="p-button-outlined" (click)="logout()"></button>
       </div>
     </div>

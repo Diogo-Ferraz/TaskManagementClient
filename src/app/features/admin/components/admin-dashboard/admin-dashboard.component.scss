@@ -28,6 +28,13 @@
   gap: 0.45rem;
 }
 
+.admin-header__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .meta-pill {
   display: inline-flex;
   align-items: center;
