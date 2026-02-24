@@ -1,5 +1,4 @@
 <div class="projects-page">
-  <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
   <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
 
   <p-card class="projects-header-card">
@@ -187,3 +186,5 @@
     </p-table>
   </p-card>
 </div>
+
+<p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>

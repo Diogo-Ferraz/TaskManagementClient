@@ -1,5 +1,4 @@
 <div class="project-details-page">
-  <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
   <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
 
   <p-card class="project-details-header-card">
@@ -186,6 +185,8 @@
     <p>Select a project to view details.</p>
   </div>
 </ng-template>
+
+<p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
 
 <ng-template #emptyMembersState>
   <div class="empty-state">
