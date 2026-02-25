@@ -118,6 +118,12 @@
               <p-columnFilter type="date" field="lastModifiedAt" display="menu"></p-columnFilter>
             </div>
           </th>
+          <th style="min-width: 12rem;">
+            <div class="column-head">
+              Last Updated By
+              <p-columnFilter type="text" field="lastModifiedByUserName" display="menu"></p-columnFilter>
+            </div>
+          </th>
           <th style="min-width: 8rem;">
             <div class="column-head">
               Tasks
@@ -150,6 +156,12 @@
 
           <td>{{ project.createdAt | date: 'MMM d, y' }}</td>
           <td>{{ project.lastModifiedAt | date: 'MMM d, y' }}</td>
+          <td>
+            <div class="owner-cell">
+              <p-avatar [label]="(project.lastModifiedByUserName || 'U').charAt(0)" shape="circle"></p-avatar>
+              <span>{{ project.lastModifiedByUserName || 'Unknown' }}</span>
+            </div>
+          </td>
 
           <td>
             <p-chip [label]="getProjectTaskCount(project).toString()"></p-chip>
@@ -175,7 +187,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="7" class="empty-cell">
+          <td colspan="8" class="empty-cell">
             <div class="empty-state">
               <i class="pi pi-folder-open"></i>
               <p>No projects found for your current scope.</p>
