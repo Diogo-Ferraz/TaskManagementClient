@@ -50,7 +50,7 @@ export class AppMenuComponent {
             label: 'My Tasks',
             icon: 'pi pi-fw pi-user',
             routerLink: ['/tasks/my-tasks'],
-            visible: !this.authService.hasRole(AppRole.ProjectManager)
+            visible: this.authService.hasAnyRole([AppRole.Administrator, AppRole.User])
           },
           {
             label: 'Create Task',

@@ -1,5 +1,4 @@
 <div class="my-tasks-page">
-  <p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>
   <p-messages *ngIf="errors.length > 0" [(value)]="errors" [enableService]="false" [closable]="true"></p-messages>
 
   <p-card class="my-tasks-header-card">
@@ -208,3 +207,4 @@
     </div>
   </div>
 </p-dialog>
+<p-confirmDialog [baseZIndex]="1300" [appendTo]="'body'"></p-confirmDialog>

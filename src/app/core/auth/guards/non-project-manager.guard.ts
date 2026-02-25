@@ -7,7 +7,7 @@ export const nonProjectManagerGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (!authService.hasRole(AppRole.ProjectManager)) {
+  if (authService.hasAnyRole([AppRole.Administrator, AppRole.User])) {
     return true;
   }
 
