@@ -126,6 +126,12 @@
               <p-columnFilter type="text" field="lastModifiedAt" display="menu"></p-columnFilter>
             </div>
           </th>
+          <th style="min-width: 12rem;">
+            <div class="column-head">
+              Last Updated By
+              <p-columnFilter type="text" field="lastModifiedByUserName" display="menu"></p-columnFilter>
+            </div>
+          </th>
           <th style="min-width: 16rem;">Actions</th>
         </tr>
       </ng-template>
@@ -161,6 +167,16 @@
 
           <td>
             <span>{{ task.lastModifiedAt | date:'MMM d, y' }}</span>
+          </td>
+
+          <td>
+            <div class="assignee-cell" *ngIf="task.lastModifiedByUserName as updatedBy; else updatedByUnknownTpl">
+              <p-avatar [label]="getInitials(updatedBy)" shape="circle"></p-avatar>
+              <span>{{ updatedBy }}</span>
+            </div>
+            <ng-template #updatedByUnknownTpl>
+              <span class="assignee-cell__empty">Unknown</span>
+            </ng-template>
           </td>
 
           <td>
@@ -214,7 +230,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="6" class="empty-cell">
+          <td colspan="7" class="empty-cell">
             <div class="empty-state">
               <i class="pi pi-inbox"></i>
               <p>{{ selectedProjectId ? 'No tasks found for this project.' : 'Select a project to view tasks.' }}</p>
