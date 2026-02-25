@@ -152,6 +152,14 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     return this.authService.hasAnyRole([...MANAGEMENT_ROLES]);
   }
 
+  get editTaskAudit(): TaskItemDto | null {
+    if (!this.editTaskId) {
+      return null;
+    }
+
+    return this.findTaskById(this.editTaskId) ?? null;
+  }
+
   ngOnInit(): void {
     this.loadProjects();
   }

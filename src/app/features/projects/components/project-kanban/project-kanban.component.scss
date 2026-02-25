@@ -510,6 +510,49 @@
   border-top: 1px solid var(--surface-border);
 }
 
+.task-dialog-audit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.task-dialog-audit__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-color-secondary);
+  font-size: 0.82rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface-0) 88%, var(--surface-100));
+}
+
+.task-dialog-audit__label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.task-dialog-audit__date {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.78rem;
+  color: var(--text-color-secondary);
+  background: color-mix(in srgb, var(--surface-100) 72%, transparent);
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+}
+
+.task-dialog-audit__by {
+  color: var(--text-color-secondary);
+}
+
+.task-dialog-audit__user {
+  font-weight: 600;
+  color: color-mix(in srgb, var(--primary-color) 62%, var(--text-color));
+}
+
 :host ::ng-deep .task-dialog-form .p-inputtext,
 :host ::ng-deep .task-dialog-form .p-inputtextarea,
 :host ::ng-deep .task-dialog-form .p-dropdown,

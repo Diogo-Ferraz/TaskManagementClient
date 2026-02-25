@@ -274,6 +274,26 @@
         </div>
       </div>
 
+      <div class="task-dialog-section" *ngIf="editTaskAudit as audit">
+        <div class="task-dialog-section__title">Audit trail</div>
+        <div class="task-dialog-audit">
+          <div class="task-dialog-audit__item">
+            <i class="pi pi-plus-circle"></i>
+            <span class="task-dialog-audit__label">Created</span>
+            <span class="task-dialog-audit__date">{{ audit.createdAt | date:'medium' }}</span>
+            <span class="task-dialog-audit__by">by</span>
+            <span class="task-dialog-audit__user">{{ audit.createdByUserName || 'Unknown' }}</span>
+          </div>
+          <div class="task-dialog-audit__item">
+            <i class="pi pi-refresh"></i>
+            <span class="task-dialog-audit__label">Last updated</span>
+            <span class="task-dialog-audit__date">{{ audit.lastModifiedAt | date:'medium' }}</span>
+            <span class="task-dialog-audit__by">by</span>
+            <span class="task-dialog-audit__user">{{ audit.lastModifiedByUserName || 'Unknown' }}</span>
+          </div>
+        </div>
+      </div>
+
       <div class="task-dialog-actions">
         <button pButton type="button" label="Cancel" class="p-button-text" (click)="closeTaskDialogs()"></button>
         <button pButton type="button" label="Save changes" icon="pi pi-check" [loading]="isSavingTask" [disabled]="!taskForm.title.trim()" (click)="saveEditTask()"></button>
