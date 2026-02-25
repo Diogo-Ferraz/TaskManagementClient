@@ -184,6 +184,15 @@
   min-height: 0;
 }
 
+:host ::ng-deep .details-card--tasks .p-card-content {
+  overflow: auto;
+  min-height: 0;
+}
+
+:host ::ng-deep .details-card--tasks .p-datatable-wrapper {
+  overflow: auto;
+}
+
 .project-overview {
   display: flex;
   flex-direction: column;

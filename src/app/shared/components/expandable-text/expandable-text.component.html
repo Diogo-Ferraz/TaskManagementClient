@@ -1,0 +1,14 @@
+<div class="expandable-text" *ngIf="normalizedText.length > 0; else emptyText">
+  <span class="expandable-text__content">{{ displayText }}</span>
+  <button
+    *ngIf="canExpand"
+    type="button"
+    class="expandable-text__toggle"
+    (click)="toggle()">
+    {{ expanded ? 'Show less' : 'Show more' }}
+  </button>
+</div>
+
+<ng-template #emptyText>
+  <span class="expandable-text__empty">No description provided.</span>
+</ng-template>

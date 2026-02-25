@@ -135,7 +135,7 @@
           <td>
             <div class="task-cell">
               <span class="task-cell__title">{{ task.title }}</span>
-              <span class="task-cell__description">{{ task.description || 'No description provided.' }}</span>
+              <app-expandable-text [text]="task.description" [maxLength]="120"></app-expandable-text>
             </div>
           </td>
 

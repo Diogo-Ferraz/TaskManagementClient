@@ -29,9 +29,12 @@ import { CalendarModule } from 'primeng/calendar';
 import { StepsModule } from 'primeng/steps';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessagesModule } from 'primeng/messages';
+import { ExpandableTextComponent } from './components/expandable-text/expandable-text.component';
 
 @NgModule({
+  imports: [ExpandableTextComponent],
   exports: [
+    ExpandableTextComponent,
     CommonModule,
     CardModule,
     InputTextModule,

@@ -1,0 +1,31 @@
+.expandable-text {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.expandable-text__content {
+  color: var(--text-color-secondary);
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.expandable-text__toggle {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  color: var(--primary-color);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.expandable-text__toggle:hover {
+  text-decoration: underline;
+}
+
+.expandable-text__empty {
+  color: var(--text-color-secondary);
+}

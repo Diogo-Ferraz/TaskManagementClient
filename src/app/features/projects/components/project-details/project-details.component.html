@@ -130,7 +130,7 @@
     </div>
 
     <div class="project-details-grid__col project-details-grid__col--tasks">
-      <p-card header="Recent Tasks" styleClass="details-card">
+      <p-card header="Recent Tasks" styleClass="details-card details-card--tasks">
         <p-table [value]="recentTasks" [loading]="isLoadingDetails" [rowHover]="true" [tableStyle]="{ 'min-width': '42rem' }">
           <ng-template pTemplate="header">
             <tr>
@@ -147,7 +147,7 @@
               <td>
                 <div class="task-cell">
                   <span class="task-cell__title">{{ task.title }}</span>
-                  <span class="task-cell__description">{{ task.description || 'No description.' }}</span>
+                  <app-expandable-text [text]="task.description" [maxLength]="110"></app-expandable-text>
                 </div>
               </td>
               <td>
