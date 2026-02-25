@@ -48,7 +48,7 @@ function createActivitySummary(activity: ActivityLogDto): string {
     case ActivityType.TaskAssigneeChanged:
       return `<strong>${actor}</strong> reassigned task from <i>${escapeText(activity.oldValue ?? 'Unassigned')}</i> to <i>${escapeText(activity.newValue ?? 'Unassigned')}</i>`;
     case ActivityType.TaskDueDateChanged:
-      return `<strong>${actor}</strong> changed due date from <i>${escapeText(activity.oldValue ?? 'None')}</i> to <i>${escapeText(activity.newValue ?? 'None')}</i>`;
+      return `<strong>${actor}</strong> changed due date from <i>${escapeText(formatActivityDateValue(activity.oldValue))}</i> to <i>${escapeText(formatActivityDateValue(activity.newValue))}</i>`;
     default:
       return `<strong>${actor}</strong> performed an update`;
   }
@@ -143,6 +143,24 @@ function formatTaskStatus(status?: TaskStatus | null): string {
     default:
       return 'Unknown';
   }
+}
+
+function formatActivityDateValue(value?: string | null): string {
+  if (!value || value.trim().length === 0) {
+    return 'None';
+  }
+
+  const trimmed = value.trim();
+  const parsedDate = new Date(trimmed);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return trimmed;
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  }).format(parsedDate);
 }
 
 function escapeText(value: string): string {

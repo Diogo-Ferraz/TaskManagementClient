@@ -53,4 +53,22 @@ describe('dashboard-activity.presenter', () => {
     expect(event.iconColor).toBe('text-red-500');
     expect(event.bgColor).toBe('bg-red-100');
   });
+
+  it('formats due date change values into readable date strings', () => {
+    const event = mapActivityToRecentActivity({
+      id: '4',
+      type: ActivityType.TaskDueDateChanged,
+      taskTitle: 'Prepare release notes',
+      actorUserId: 'user-1',
+      actorDisplayName: 'Demo Admin',
+      oldValue: '2026-02-24T23:00:00.0000000',
+      newValue: '2026-02-24T22:00:00.0000000Z',
+      occurredAt: '2026-02-20T09:00:00.000Z'
+    });
+
+    expect(event.summary).not.toContain('T23:00:00.0000000');
+    expect(event.summary).not.toContain('T22:00:00.0000000Z');
+    expect(event.summary).toContain('changed due date from');
+    expect(event.summary).toContain('to');
+  });
 });
