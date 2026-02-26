@@ -28,7 +28,8 @@
 - Role-restricted routes:
   - `/admin` -> `Administrator`.
   - `/activity/log` -> `Administrator` or `ProjectManager`.
-- UI actions are role-gated for privileged operations (for example, admin-only account creation actions).
+  - `/tasks/my-tasks` -> `Administrator` or `User`.
+- UI actions are role-gated for privileged operations (for example, admin-only account creation actions and management-only project creation).
 - Preview-mode routes require an explicit debug session started from landing page.
 
 ## Sidebar information architecture (current)

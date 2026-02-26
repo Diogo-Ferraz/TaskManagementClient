@@ -43,7 +43,7 @@ export class ProjectDocsComponent {
     'Activity: My Activity, Activity Log, Calendar, Search & Filters',
     'Account: Profile & Security, Settings',
     'Administration: Admin Dashboard',
-    'About: Project Docs'
+    'About: Documentation'
   ];
 
   readonly engineeringStandards = [
