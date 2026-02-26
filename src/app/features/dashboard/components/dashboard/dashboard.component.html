@@ -87,7 +87,9 @@
 
     <p-card [header]="isPreviewMode ? 'Recent Activity (Preview)' : 'Recent Activity (Live)'" class="dashboard-panel-card dashboard-panel-card--compact dashboard-activity-card">
       <ng-template pTemplate="content">
-        <ul class="list-none p-0 m-0 dashboard-panel-card__body--lined">
+        <ul
+          class="list-none p-0 m-0 dashboard-panel-card__body--lined dashboard-activity-list"
+          [class.dashboard-activity-list--empty]="recentActivities.length === 0">
           <li *ngFor="let activity of recentActivities; let isLast = last" class="flex align-items-center py-3" [ngClass]="{'border-bottom-1 surface-border': !isLast}">
             <div class="dashboard-activity-icon mr-3 flex-shrink-0" [ngClass]="getActivityToneClass(activity)">
               <i class="{{ activity.icon }}"></i>
@@ -97,7 +99,7 @@
               <span class="text-muted-color text-sm">{{ activity.time }}</span>
             </div>
           </li>
-          <li *ngIf="recentActivities.length === 0" class="dashboard-empty">
+          <li *ngIf="recentActivities.length === 0" class="dashboard-empty dashboard-empty--activity">
             No recent activity available.
           </li>
         </ul>

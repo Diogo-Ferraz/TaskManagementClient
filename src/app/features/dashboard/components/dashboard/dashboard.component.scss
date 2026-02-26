@@ -279,6 +279,12 @@ $grid-gap: 2rem;
         min-height: 100%;
     }
 
+    .dashboard-activity-list--empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .dashboard-activity-icon {
         width: 2.45rem;
         height: 2.45rem;
@@ -328,6 +334,13 @@ $grid-gap: 2rem;
         border-radius: 10px;
         padding: 0.8rem;
         text-align: center;
+    }
+
+    .dashboard-empty--activity {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
     }
 
     @media (max-width: $md) {
