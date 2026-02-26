@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
@@ -111,11 +111,25 @@ export class AdminDashboardComponent implements OnInit {
   onLazyLoad(event: TableLazyLoadEvent): void {
     this.first = event.first ?? 0;
     this.rows = event.rows ?? this.rows;
+    this.syncFiltersFromTableEvent(event);
+    this.loadUsers();
+  }
+
+  onTableFilter(event: TableLazyLoadEvent): void {
+    if (this.isPreviewMode) {
+      return;
+    }
+
+    this.first = 0;
+    this.syncFiltersFromTableEvent(event);
+    this.loadUsers();
+  }
+
+  private syncFiltersFromTableEvent(event: TableLazyLoadEvent): void {
     this.displayNameFilter = this.getFilterTextValue(event.filters?.['displayName']);
     this.emailFilter = this.getFilterTextValue(event.filters?.['email']);
     this.selectedRole = (this.getFilterTextValue(event.filters?.['roles']) as AppRole) || null;
     this.selectedStatus = this.getFilterBooleanValue(event.filters?.['isActive']);
-    this.loadUsers();
   }
 
   applyFilters(): void {
@@ -123,7 +137,8 @@ export class AdminDashboardComponent implements OnInit {
     this.loadUsers();
   }
 
-  clearFilters(): void {
+  clearFilters(table: Table): void {
+    table.clear();
     this.search = '';
     this.selectedStatus = null;
     this.selectedRole = null;

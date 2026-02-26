@@ -37,6 +37,7 @@
 
   <p-card class="admin-table-card">
     <p-table
+      #dt
       [value]="users"
       [lazy]="!isPreviewMode"
       [loading]="isLoading"
@@ -47,11 +48,12 @@
       [rowsPerPageOptions]="[10, 25, 50, 100]"
       [tableStyle]="{ 'min-width': '72rem' }"
       dataKey="id"
-      (onLazyLoad)="onLazyLoad($event)">
+      (onLazyLoad)="onLazyLoad($event)"
+      (onFilter)="onTableFilter($event)">
 
       <ng-template pTemplate="caption">
         <div class="table-caption">
-          <button pButton type="button" icon="pi pi-filter-slash" label="Clear Filters" class="p-button-text" (click)="clearFilters()" [disabled]="isLoading"></button>
+          <button pButton type="button" icon="pi pi-filter-slash" label="Clear Filters" class="p-button-text" (click)="clearFilters(dt)" [disabled]="isLoading"></button>
           <button
             pButton
             type="button"
