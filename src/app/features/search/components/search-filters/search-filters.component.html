@@ -38,71 +38,98 @@
       </div>
 
       <div class="search-controls">
-        <div class="control-group">
-          <label for="projectId">Project</label>
-          <p-dropdown
-            inputId="projectId"
-            [options]="projects"
-            optionLabel="name"
-            optionValue="id"
-            [ngModel]="selectedProjectId"
-            [disabled]="isLoading || projects.length === 0"
-            placeholder="Select project"
-            [appendTo]="'body'"
-            (onChange)="onProjectChange($event.value)">
-          </p-dropdown>
-        </div>
+        <section class="control-section">
+          <h4>People Context</h4>
+          <div class="control-section__grid">
+            <div class="control-group">
+              <label for="projectId">Project</label>
+              <p-dropdown
+                inputId="projectId"
+                [options]="projects"
+                optionLabel="name"
+                optionValue="id"
+                [ngModel]="selectedProjectId"
+                [disabled]="isLoading || projects.length === 0"
+                placeholder="Select project"
+                [filter]="true"
+                filterBy="name"
+                [appendTo]="'body'"
+                (onChange)="onProjectChange($event.value)">
+              </p-dropdown>
+            </div>
 
-        <div class="control-group">
-          <label for="userId">User In Project</label>
-          <p-dropdown
-            inputId="userId"
-            [options]="projectMembers"
-            optionLabel="displayName"
-            optionValue="userId"
-            [ngModel]="selectedUserId"
-            [disabled]="isLoading || projectMembers.length === 0"
-            placeholder="Select user"
-            [appendTo]="'body'"
-            (onChange)="onUserChange($event.value)">
-          </p-dropdown>
-        </div>
+            <div class="control-group">
+              <label for="userScope">User Scope</label>
+              <p-dropdown
+                inputId="userScope"
+                [options]="userScopeOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="userScopeFilter"
+                [appendTo]="'body'"
+                (onChange)="onUserScopeFilterChange($event.value)">
+              </p-dropdown>
+            </div>
 
-        <div class="control-group">
-          <label for="ownership">Task Ownership</label>
-          <p-dropdown
-            inputId="ownership"
-            [options]="taskOwnershipOptions"
-            optionLabel="label"
-            optionValue="value"
-            [ngModel]="taskOwnershipFilter"
-            [appendTo]="'body'"
-            (onChange)="taskOwnershipFilter = $event.value; onTaskFiltersChanged()">
-          </p-dropdown>
-        </div>
+            <div class="control-group">
+              <label for="userId">User In Project</label>
+              <p-dropdown
+                inputId="userId"
+                [options]="filteredProjectMembers"
+                optionLabel="displayName"
+                optionValue="userId"
+                [ngModel]="selectedUserId"
+                [disabled]="isLoading || filteredProjectMembers.length === 0"
+                placeholder="Select user"
+                [filter]="true"
+                filterBy="displayName,email"
+                [appendTo]="'body'"
+                (onChange)="onUserChange($event.value)">
+              </p-dropdown>
+            </div>
+          </div>
+        </section>
 
-        <div class="control-group">
-          <label for="state">Task State</label>
-          <p-dropdown
-            inputId="state"
-            [options]="taskStateOptions"
-            optionLabel="label"
-            optionValue="value"
-            [ngModel]="taskStateFilter"
-            [appendTo]="'body'"
-            (onChange)="taskStateFilter = $event.value; onTaskFiltersChanged()">
-          </p-dropdown>
-        </div>
+        <section class="control-section">
+          <h4>Task Filters</h4>
+          <div class="control-section__grid">
+            <div class="control-group">
+              <label for="ownership">Task Ownership</label>
+              <p-dropdown
+                inputId="ownership"
+                [options]="taskOwnershipOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="taskOwnershipFilter"
+                [appendTo]="'body'"
+                (onChange)="taskOwnershipFilter = $event.value; onTaskFiltersChanged()">
+              </p-dropdown>
+            </div>
 
-        <div class="control-group">
-          <label for="search">Task Search</label>
-          <input
-            id="search"
-            pInputText
-            [ngModel]="taskSearch"
-            (ngModelChange)="taskSearch = $event; onTaskFiltersChanged()"
-            placeholder="Title or description" />
-        </div>
+            <div class="control-group">
+              <label for="state">Task State</label>
+              <p-dropdown
+                inputId="state"
+                [options]="taskStateOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="taskStateFilter"
+                [appendTo]="'body'"
+                (onChange)="taskStateFilter = $event.value; onTaskFiltersChanged()">
+              </p-dropdown>
+            </div>
+
+            <div class="control-group">
+              <label for="search">Task Search</label>
+              <input
+                id="search"
+                pInputText
+                [ngModel]="taskSearch"
+                (ngModelChange)="taskSearch = $event; onTaskFiltersChanged()"
+                placeholder="Title or description" />
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </p-card>
@@ -115,7 +142,7 @@
       </div>
       <div class="results-card__body">
         <ul class="simple-list">
-          <li *ngFor="let member of projectMembers">
+          <li *ngFor="let member of filteredProjectMembers">
             <div class="simple-list__meta">
               <p-avatar [label]="member.displayName.charAt(0)" shape="circle"></p-avatar>
               <div class="simple-list__text">
@@ -125,7 +152,7 @@
             </div>
             <p-tag *ngIf="member.isOwner" value="Owner" severity="info"></p-tag>
           </li>
-          <li *ngIf="projectMembers.length === 0" class="muted">No users found.</li>
+          <li *ngIf="filteredProjectMembers.length === 0" class="muted">No users found.</li>
         </ul>
       </div>
     </p-card>

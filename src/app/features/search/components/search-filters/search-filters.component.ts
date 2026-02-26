@@ -15,6 +15,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 
 type TaskStateFilter = 'all' | 'pending' | 'completed';
 type TaskOwnershipFilter = 'all' | 'selectedUser' | 'unassigned';
+type UserScopeFilter = 'all' | 'withoutTasks';
 type TagSeverity = 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast';
 
 @Component({
@@ -37,8 +38,10 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
 
   projects: ProjectDto[] = [];
   projectMembers: ProjectMemberDto[] = [];
+  projectTasksSnapshot: TaskItemDto[] = [];
   selectedProjectId: string | null = null;
   selectedUserId: string | null = null;
+  userScopeFilter: UserScopeFilter = 'all';
 
   userProjects: ProjectDto[] = [];
   userTasks: TaskItemDto[] = [];
@@ -51,8 +54,8 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
 
   readonly taskOwnershipOptions = [
     { label: 'All in Project', value: 'all' as const },
-    { label: 'Selected User', value: 'selectedUser' as const },
-    { label: 'Unassigned in Project', value: 'unassigned' as const }
+    { label: 'Assigned', value: 'selectedUser' as const },
+    { label: 'Unassigned', value: 'unassigned' as const }
   ];
 
   readonly taskStateOptions = [
@@ -62,6 +65,10 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
   ];
 
   readonly pageSizeOptions = [10, 20, 50];
+  readonly userScopeOptions = [
+    { label: 'All Users', value: 'all' as const },
+    { label: 'Users Without Tasks', value: 'withoutTasks' as const }
+  ];
 
   ngOnInit(): void {
     this.applyPreferenceDefaults();
@@ -107,7 +114,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
   }
 
   get usersInProjectCount(): number {
-    return this.projectMembers.length;
+    return this.filteredProjectMembers.length;
   }
 
   get projectsForUserCount(): number {
@@ -152,6 +159,20 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
     return this.projectMembers.find((member) => member.userId === this.selectedUserId)?.displayName ?? 'Selected user';
   }
 
+  get filteredProjectMembers(): ProjectMemberDto[] {
+    if (this.userScopeFilter === 'all') {
+      return this.projectMembers;
+    }
+
+    const membersWithTasks = new Set(
+      this.projectTasksSnapshot
+        .map((task) => task.assignedUserId?.trim())
+        .filter((userId): userId is string => !!userId)
+    );
+
+    return this.projectMembers.filter((member) => !membersWithTasks.has(member.userId));
+  }
+
   onProjectChange(projectId: string | null): void {
     this.selectedProjectId = projectId;
     this.selectedUserId = null;
@@ -159,6 +180,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
 
     if (!projectId) {
       this.projectMembers = [];
+      this.projectTasksSnapshot = [];
       this.userProjects = [];
       this.userTasks = [];
       return;
@@ -169,6 +191,17 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
 
   onUserChange(userId: string | null): void {
     this.selectedUserId = userId;
+    this.page = 1;
+    this.reloadResults();
+  }
+
+  onUserScopeFilterChange(scope: UserScopeFilter): void {
+    this.userScopeFilter = scope;
+
+    if (!this.selectedUserId || !this.filteredProjectMembers.some((member) => member.userId === this.selectedUserId)) {
+      this.selectedUserId = this.filteredProjectMembers[0]?.userId ?? null;
+    }
+
     this.page = 1;
     this.reloadResults();
   }
@@ -222,18 +255,25 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
   private loadMembersAndSeedUser(projectId: string): void {
     this.isLoading = true;
 
-    this.projectsApiClient
-      .getMembers(projectId)
+    forkJoin({
+      members: this.projectsApiClient.getMembers(projectId),
+      tasks: this.taskItemsApiClient.getTasks({
+        projectId,
+        page: 1,
+        pageSize: 500
+      })
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (members) => {
+        next: ({ members, tasks }) => {
           this.projectMembers = members;
+          this.projectTasksSnapshot = tasks;
           const currentUserId = this.authService.currentUserId();
           const selectedByPreset = this.taskOwnershipFilter === 'selectedUser' && currentUserId
-            ? members.find((member) => member.userId === currentUserId)?.userId
+            ? this.filteredProjectMembers.find((member) => member.userId === currentUserId)?.userId
             : null;
 
-          this.selectedUserId = selectedByPreset ?? members.find((member) => !member.isOwner)?.userId ?? members[0]?.userId ?? null;
+          this.selectedUserId = selectedByPreset ?? this.filteredProjectMembers.find((member) => !member.isOwner)?.userId ?? this.filteredProjectMembers[0]?.userId ?? null;
           this.isLoading = false;
           this.reloadResults();
         },
@@ -476,6 +516,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
         lastModifiedByUserName: 'Liam Carter'
       }
     ]);
+    this.projectTasksSnapshot = [...this.userTasks];
 
     this.taskSearch = '';
     this.taskStateFilter = 'all';
