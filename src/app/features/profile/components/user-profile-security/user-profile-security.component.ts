@@ -51,6 +51,20 @@ export class UserProfileSecurityComponent {
     return typeof email === 'string' && email.trim().length > 0 ? email : 'Not provided';
   });
 
+  readonly accountCreatedAt = computed(() => {
+    const claims = this.claims();
+    const candidateKeys = ['created_at', 'account_created_at', 'registered_at', 'iat'];
+
+    for (const key of candidateKeys) {
+      const parsed = this.parseDateClaim(claims[key]);
+      if (parsed) {
+        return parsed;
+      }
+    }
+
+    return null;
+  });
+
   readonly scopes = computed(() => {
     const scope = this.session()?.scope ?? '';
     return scope
@@ -138,5 +152,34 @@ export class UserProfileSecurityComponent {
     }
 
     return String(value);
+  }
+
+  private parseDateClaim(value: unknown): Date | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return new Date(value < 10_000_000_000 ? value * 1000 : value);
+    }
+
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return null;
+      }
+
+      if (/^\d+$/.test(trimmed)) {
+        const numericValue = Number(trimmed);
+        if (Number.isFinite(numericValue)) {
+          return new Date(numericValue < 10_000_000_000 ? numericValue * 1000 : numericValue);
+        }
+      }
+
+      const parsedDate = new Date(trimmed);
+      return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+    }
+
+    return null;
   }
 }

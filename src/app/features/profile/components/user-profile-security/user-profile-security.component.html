@@ -10,8 +10,8 @@
             {{ userDisplayName() }}
           </span>
           <span class="meta-pill">
-            <i class="pi pi-envelope"></i>
-            {{ userEmail() }}
+            <i class="pi pi-calendar"></i>
+            Joined {{ accountCreatedAt() ? (accountCreatedAt() | date:'mediumDate') : 'Unknown' }}
           </span>
           <span class="meta-pill" *ngIf="isDebugSession">
             <i class="pi pi-eye"></i>
