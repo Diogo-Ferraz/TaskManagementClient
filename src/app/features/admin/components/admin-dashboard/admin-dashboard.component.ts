@@ -103,6 +103,10 @@ export class AdminDashboardComponent implements OnInit {
     return this.authService.hasRole(AppRole.Administrator);
   }
 
+  get currentUserId(): string | null {
+    return this.authService.currentUserId();
+  }
+
   ngOnInit(): void {
     this.rows = this.preferencesService.preferences().defaultTablePageSize;
     this.loadUsers();
@@ -185,8 +189,16 @@ export class AdminDashboardComponent implements OnInit {
     return this.updatingUserIds.has(userId);
   }
 
+  isCurrentLoggedInAdmin(user: UserSummaryDto): boolean {
+    return user.id === this.currentUserId && user.roles.includes(AppRole.Administrator);
+  }
+
   onActiveStatusChange(user: UserSummaryDto, isActive: boolean): void {
     if (user.isActive === isActive || this.isStatusUpdating(user.id)) {
+      return;
+    }
+
+    if (this.isCurrentLoggedInAdmin(user) && !isActive) {
       return;
     }
 

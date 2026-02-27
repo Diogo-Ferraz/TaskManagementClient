@@ -154,8 +154,8 @@
             <p-inputSwitch
               [ngModel]="user.isActive"
               (ngModelChange)="onActiveStatusChange(user, $event)"
-              [disabled]="isStatusUpdating(user.id) || isLoading"
-              [pTooltip]="isStatusUpdating(user.id) ? 'Updating user status...' : ''"
+              [disabled]="isStatusUpdating(user.id) || isLoading || isCurrentLoggedInAdmin(user)"
+              [pTooltip]="isCurrentLoggedInAdmin(user) ? 'You cannot deactivate your own administrator account.' : (isStatusUpdating(user.id) ? 'Updating user status...' : '')"
               tooltipPosition="top">
             </p-inputSwitch>
           </td>
