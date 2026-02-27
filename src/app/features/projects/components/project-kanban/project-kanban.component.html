@@ -20,21 +20,29 @@
             <i class="pi pi-list"></i>
             {{ selectedProjectTaskCount }} tasks
           </span>
+          <span class="meta-pill" *ngIf="isAssigneeFilterActive">
+            <i class="pi pi-filter"></i>
+            {{ visibleTaskCount }} shown · {{ selectedAssigneeFilterLabel }}
+          </span>
           <span class="meta-pill" *ngIf="isPreviewMode">
             <i class="pi pi-eye"></i>
             Preview mode
           </span>
         </div>
       </div>
+    </div>
+  </p-card>
 
-      <div class="project-console" *ngIf="selectedProject as project">
-        <div class="project-console__top">
-          <span class="project-console__heading">Project Context</span>
-          <span class="project-console__counter">{{ selectedProjectIndex + 1 }} / {{ projects.length }}</span>
+  <p-card class="kanban-controls-card">
+    <div class="kanban-controls-grid">
+      <section class="kanban-control-block">
+        <div class="kanban-control-block__top">
+          <span class="kanban-control-block__heading">Project Scope</span>
+          <span class="kanban-control-block__counter">{{ selectedProjectIndex + 1 }} / {{ projects.length }}</span>
         </div>
 
-        <div class="project-console__picker">
-          <button pButton type="button" icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-sm project-console__nav" [disabled]="!canSelectPreviousProject || isLoadingProjects" (click)="selectPreviousProject()"></button>
+        <div class="kanban-control-block__picker">
+          <button pButton type="button" icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-sm kanban-control-nav" [disabled]="!canSelectPreviousProject || isLoadingProjects" (click)="selectPreviousProject()"></button>
 
           <p-dropdown
             inputId="projectPicker"
@@ -45,17 +53,70 @@
             [filter]="true"
             filterBy="name"
             [showClear]="false"
+            [appendTo]="'body'"
             [disabled]="isLoadingProjects || projects.length === 0"
             placeholder="Select project"
-            styleClass="project-console__dropdown"
+            styleClass="kanban-control-dropdown"
             (onChange)="onProjectSelected($event.value)">
           </p-dropdown>
 
-          <button pButton type="button" icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-sm project-console__nav" [disabled]="!canSelectNextProject || isLoadingProjects" (click)="selectNextProject()"></button>
+          <button pButton type="button" icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-sm kanban-control-nav" [disabled]="!canSelectNextProject || isLoadingProjects" (click)="selectNextProject()"></button>
+        </div>
+      </section>
+
+      <section class="kanban-control-block">
+        <div class="kanban-control-block__top">
+          <span class="kanban-control-block__heading">Task Lens</span>
+          <span class="kanban-control-block__counter">{{ selectedAssigneeFilterLabel }}</span>
         </div>
 
-        <span class="project-console__hint">Use arrows or search to switch project scope.</span>
-      </div>
+        <div class="kanban-control-block__filter">
+          <p-dropdown
+            *ngIf="canManageAllTasks; else collaboratorLens"
+            inputId="kanbanAssigneeFilter"
+            [options]="managementAssigneeFilterOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="selectedAssigneeFilter"
+            [filter]="true"
+            filterBy="label"
+            [showClear]="false"
+            [appendTo]="'body'"
+            styleClass="kanban-control-dropdown"
+            (onChange)="onAssigneeFilterChange($any($event).value)">
+          </p-dropdown>
+
+          <ng-template #collaboratorLens>
+            <div class="kanban-control-filter-inline">
+              <div class="kanban-control-filter-buttons">
+                <button
+                  *ngFor="let option of collaboratorAssigneeFilterOptions"
+                  pButton
+                  type="button"
+                  class="p-button-sm p-button-outlined kanban-control-filter-button"
+                  [class.kanban-control-filter-button--active]="selectedAssigneeFilter === option.value"
+                  [label]="option.label"
+                  (click)="onAssigneeFilterChange(option.value)">
+                </button>
+              </div>
+
+              <p-dropdown
+                inputId="kanbanAssigneeFilterUser"
+                [options]="collaboratorAssigneeDirectoryOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="selectedAssigneeFilter"
+                [filter]="true"
+                filterBy="label"
+                [showClear]="false"
+                [appendTo]="'body'"
+                styleClass="kanban-control-dropdown kanban-control-dropdown--user"
+                (onChange)="onAssigneeFilterChange($any($event).value)">
+              </p-dropdown>
+            </div>
+          </ng-template>
+        </div>
+      </section>
     </div>
   </p-card>
 
@@ -94,7 +155,7 @@
             <div class="kanban-column-body">
               <div class="task-stack">
                 <div
-                  *ngIf="getColumnTaskCount(column.status) === 0 && selectedProjectTaskCount > 0"
+                  *ngIf="getColumnTaskCount(column.status) === 0 && visibleTaskCount > 0"
                   class="kanban-empty-drop-target"
                   [class.kanban-empty-drop-target--active]="isDropSlotActive(column.status, 0)"
                   (dragover)="onDropSlotDragOver(column.status, 0, $event)"
@@ -179,7 +240,7 @@
                 </ng-container>
 
                 <div
-                  *ngIf="selectedProjectTaskCount > 0"
+                  *ngIf="visibleTaskCount > 0"
                   class="kanban-drop-slot kanban-drop-slot--end"
                   [class.kanban-drop-slot--active]="isDropSlotActive(column.status, getColumnTaskCount(column.status))"
                   (dragover)="onDropSlotDragOver(column.status, getColumnTaskCount(column.status), $event)"
@@ -214,7 +275,7 @@
               </div>
 
               <div *ngIf="selectedProjectId && getColumnTaskCount(column.status) === 0" class="kanban-column-empty">
-                No tasks in this column yet.
+                {{ isAssigneeFilterActive ? 'No tasks match this filter in this column.' : 'No tasks in this column yet.' }}
               </div>
             </div>
           </p-card>

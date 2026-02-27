@@ -5,11 +5,7 @@
 }
 
 .kanban-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 1rem;
-  flex-wrap: wrap;
+  display: block;
 }
 
 .kanban-toolbar__title h2 {
@@ -40,27 +36,47 @@
   background: color-mix(in srgb, var(--surface-100) 70%, transparent);
 }
 
-.project-console {
-  min-width: 19.5rem;
-  max-width: 27rem;
-  width: min(100%, 27rem);
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  border: 1px solid var(--surface-border);
-  border-radius: 12px;
-  padding: 0.55rem 0.6rem;
-  background: color-mix(in srgb, var(--surface-100) 70%, transparent);
+.kanban-controls-card {
+  margin-top: -0.25rem;
 }
 
-.project-console__top {
+:host ::ng-deep .kanban-controls-card .p-card-body {
+  padding: 0;
+}
+
+:host ::ng-deep .kanban-controls-card .p-card-content {
+  padding: 0;
+}
+
+.kanban-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-100) 68%, transparent);
+  overflow: hidden;
+}
+
+.kanban-control-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.8rem 0.9rem;
+}
+
+.kanban-control-block + .kanban-control-block {
+  border-left: 1px solid var(--surface-border);
+}
+
+.kanban-control-block__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
 }
 
-.project-console__heading {
+.kanban-control-block__heading {
   font-size: 0.69rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -69,16 +85,17 @@
   opacity: 0.9;
 }
 
-.project-console__counter {
+.kanban-control-block__counter {
   font-size: 0.72rem;
   color: var(--text-color);
   border: 1px solid var(--surface-border);
   border-radius: 999px;
   padding: 0.14rem 0.48rem;
   background: color-mix(in srgb, var(--surface-200) 78%, transparent);
+  white-space: nowrap;
 }
 
-.project-console__picker {
+.kanban-control-block__picker {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 0.35rem;
@@ -86,28 +103,73 @@
   width: 100%;
 }
 
-:host ::ng-deep .project-console__picker .p-dropdown {
+:host ::ng-deep .kanban-control-block__picker .p-dropdown {
   min-width: 12rem;
 }
 
-:host ::ng-deep .project-console__picker .p-dropdown .p-dropdown-label {
+:host ::ng-deep .kanban-control-block__picker .p-dropdown .p-dropdown-label {
   padding-top: 0.45rem;
   padding-bottom: 0.45rem;
   font-size: 0.82rem;
 }
 
-:host ::ng-deep .project-console__picker .p-button.p-button-sm {
+:host ::ng-deep .kanban-control-block__picker .p-button.p-button-sm {
   width: 1.95rem;
   height: 1.95rem;
 }
 
-.project-console__hint {
-  font-size: 0.72rem;
-  color: var(--text-color-secondary);
-  line-height: 1.2;
+.kanban-control-block__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
-.project-console__nav {
+:host ::ng-deep .kanban-control-dropdown--user .p-dropdown-label {
+  font-size: 0.78rem;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
+:host ::ng-deep .kanban-control-dropdown .p-dropdown-label {
+  font-size: 0.82rem;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+}
+
+.kanban-control-filter-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.kanban-control-filter-inline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 14rem);
+  gap: 0.5rem;
+  align-items: center;
+}
+
+:host ::ng-deep .kanban-control-dropdown--user {
+  width: 100%;
+}
+
+.kanban-control-filter-button {
+  justify-content: center;
+  font-size: 0.78rem !important;
+  padding: 0.38rem 0.45rem !important;
+}
+
+.kanban-control-filter-button--active {
+  border-color: color-mix(in srgb, var(--primary-color) 62%, var(--surface-border)) !important;
+  background: color-mix(in srgb, var(--primary-color) 12%, var(--surface-100)) !important;
+  color: color-mix(in srgb, var(--primary-color) 72%, var(--text-color)) !important;
+}
+
+.kanban-control-filter-button:not(.kanban-control-filter-button--active):hover {
+  border-color: color-mix(in srgb, var(--primary-color) 35%, var(--surface-border)) !important;
+}
+
+.kanban-control-nav {
   border: 1px solid var(--surface-border) !important;
   background: color-mix(in srgb, var(--surface-100) 80%, transparent) !important;
 }
@@ -627,18 +689,26 @@
     min-height: auto;
   }
 
-  .project-console {
-    min-width: 100%;
-    max-width: 100%;
+  .kanban-controls-grid {
+    grid-template-columns: 1fr;
   }
 
-  .project-console__picker {
+  .kanban-control-block + .kanban-control-block {
+    border-left: 0;
+    border-top: 1px solid var(--surface-border);
+  }
+
+  .kanban-control-block__picker {
     min-width: 100%;
   }
 
-  :host ::ng-deep .project-console__picker .p-dropdown {
+  :host ::ng-deep .kanban-control-block__picker .p-dropdown {
     min-width: 0;
     width: 100%;
+  }
+
+  .kanban-control-filter-inline {
+    grid-template-columns: 1fr;
   }
 
   .task-dialog-grid {

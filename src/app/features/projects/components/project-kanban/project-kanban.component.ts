@@ -38,6 +38,11 @@ interface StatusOption {
   value: TaskStatus;
 }
 
+interface TaskAssigneeFilterOption {
+  label: string;
+  value: string;
+}
+
 interface TaskFormModel {
   title: string;
   description: string;
@@ -56,6 +61,8 @@ interface TaskFormModel {
 export class ProjectKanbanComponent implements OnInit, OnDestroy {
   private static readonly PROJECT_SELECTION_CONTEXT = 'kanban';
   private static readonly ASSIGNEE_PAGE_SIZE = 500;
+  private static readonly ASSIGNEE_FILTER_ALL = '__all';
+  private static readonly ASSIGNEE_FILTER_UNASSIGNED = '__unassigned';
   private readonly projectsApiClient = inject(ProjectsApiClient);
   private readonly adminUsersApiClient = inject(AdminUsersApiClient);
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
@@ -83,6 +90,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   projects: ProjectDto[] = [];
   selectedProjectId: string | null = null;
   assigneeOptions: AssigneeOption[] = [{ label: 'Unassigned', value: null }];
+  selectedAssigneeFilter = ProjectKanbanComponent.ASSIGNEE_FILTER_ALL;
 
   isLoadingProjects = true;
   isLoadingTasks = false;
@@ -128,6 +136,10 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     return this.allTasks.length;
   }
 
+  get visibleTaskCount(): number {
+    return this.columns.reduce((sum, column) => sum + this.getColumnTaskCount(column.status), 0);
+  }
+
   get selectedProjectIndex(): number {
     if (!this.selectedProjectId) {
       return -1;
@@ -150,6 +162,77 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
   get canManageAllTasks(): boolean {
     return this.authService.hasAnyRole([...MANAGEMENT_ROLES]);
+  }
+
+  get isAssigneeFilterActive(): boolean {
+    return this.selectedAssigneeFilter !== ProjectKanbanComponent.ASSIGNEE_FILTER_ALL;
+  }
+
+  get selectedAssigneeFilterLabel(): string {
+    return this.getAssigneeFilterOptions().find((option) => option.value === this.selectedAssigneeFilter)?.label ?? 'All Assignees';
+  }
+
+  get managementAssigneeFilterOptions(): TaskAssigneeFilterOption[] {
+    const normalizedAssignees = this.assigneeOptions.map((option) => ({
+      label: option.label,
+      value: option.value === null ? ProjectKanbanComponent.ASSIGNEE_FILTER_UNASSIGNED : option.value
+    }));
+
+    return [
+      { label: 'All Assignees', value: ProjectKanbanComponent.ASSIGNEE_FILTER_ALL },
+      ...normalizedAssignees
+    ];
+  }
+
+  get collaboratorAssigneeFilterOptions(): TaskAssigneeFilterOption[] {
+    const options: TaskAssigneeFilterOption[] = [
+      { label: 'All', value: ProjectKanbanComponent.ASSIGNEE_FILTER_ALL }
+    ];
+
+    if (this.currentUserId) {
+      options.push({ label: 'Mine', value: this.currentUserId });
+    }
+
+    options.push({ label: 'Unassigned', value: ProjectKanbanComponent.ASSIGNEE_FILTER_UNASSIGNED });
+    return options;
+  }
+
+  get collaboratorAssigneeDirectoryOptions(): TaskAssigneeFilterOption[] {
+    const options = new Map<string, TaskAssigneeFilterOption>();
+    options.set(ProjectKanbanComponent.ASSIGNEE_FILTER_ALL, { label: 'All Assignees', value: ProjectKanbanComponent.ASSIGNEE_FILTER_ALL });
+    options.set(ProjectKanbanComponent.ASSIGNEE_FILTER_UNASSIGNED, { label: 'Unassigned', value: ProjectKanbanComponent.ASSIGNEE_FILTER_UNASSIGNED });
+
+    const currentUserId = this.currentUserId;
+    if (currentUserId) {
+      options.set(currentUserId, { label: 'Mine', value: currentUserId });
+    }
+
+    for (const task of this.allTasks) {
+      if (!task.assignedUserId) {
+        continue;
+      }
+
+      const label = task.assignedUserName?.trim() || 'Unknown User';
+      if (!options.has(task.assignedUserId)) {
+        options.set(task.assignedUserId, {
+          label,
+          value: task.assignedUserId
+        });
+      }
+    }
+
+    const pinnedValues = new Set([
+      ProjectKanbanComponent.ASSIGNEE_FILTER_ALL,
+      currentUserId ?? '',
+      ProjectKanbanComponent.ASSIGNEE_FILTER_UNASSIGNED
+    ]);
+
+    const pinned = [...options.values()].filter((option) => pinnedValues.has(option.value));
+    const assignees = [...options.values()]
+      .filter((option) => !pinnedValues.has(option.value))
+      .sort((a, b) => a.label.localeCompare(b.label));
+
+    return [...pinned, ...assignees];
   }
 
   get editTaskAudit(): TaskItemDto | null {
@@ -402,7 +485,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   getTasksByStatus(status: TaskStatus): TaskItemDto[] {
-    return this.columnTasks[status];
+    return this.columnTasks[status].filter((task) => this.matchesAssigneeFilter(task));
   }
 
   getColumnTaskCount(status: TaskStatus): number {
@@ -439,11 +522,11 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     const count = this.getColumnTaskCount(status);
     const noun = count === 1 ? 'task' : 'tasks';
 
-    if (this.selectedProjectTaskCount === 0) {
+    if (this.visibleTaskCount === 0) {
       return `No ${noun} yet`;
     }
 
-    const ratio = Math.round((count / this.selectedProjectTaskCount) * 100);
+    const ratio = Math.round((count / this.visibleTaskCount) * 100);
     return `${count} ${noun} · ${ratio}%`;
   }
 
@@ -641,6 +724,12 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     this.onDueDateChanged(task, null);
   }
 
+  onAssigneeFilterChange(input: unknown): void {
+    const value = this.extractAssigneeFilterValue(input);
+    this.selectedAssigneeFilter = value || ProjectKanbanComponent.ASSIGNEE_FILTER_ALL;
+    this.resetDragState();
+  }
+
   getDueDateModel(taskId: string): Date | null {
     return this.dueDateModels.get(taskId) ?? null;
   }
@@ -742,6 +831,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
       .subscribe({
         next: ({ tasks, members, assignableUsers }) => {
           this.assigneeOptions = this.buildAssigneeOptions(members, assignableUsers?.items ?? []);
+          this.ensureAssigneeFilterIsValid();
           this.setAllTasks(this.normalizeTasksOrder(tasks));
           this.isLoadingTasks = false;
         },
@@ -995,6 +1085,42 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     return this.assigneeOptions.find((option) => option.value === assignedUserId)?.label ?? 'Unknown User';
   }
 
+  private matchesAssigneeFilter(task: TaskItemDto): boolean {
+    if (this.selectedAssigneeFilter === ProjectKanbanComponent.ASSIGNEE_FILTER_ALL) {
+      return true;
+    }
+
+    if (this.selectedAssigneeFilter === ProjectKanbanComponent.ASSIGNEE_FILTER_UNASSIGNED) {
+      return !task.assignedUserId;
+    }
+
+    return task.assignedUserId === this.selectedAssigneeFilter;
+  }
+
+  private getAssigneeFilterOptions(): TaskAssigneeFilterOption[] {
+    return this.canManageAllTasks ? this.managementAssigneeFilterOptions : this.collaboratorAssigneeDirectoryOptions;
+  }
+
+  private ensureAssigneeFilterIsValid(): void {
+    const validValues = new Set(this.getAssigneeFilterOptions().map((option) => option.value));
+    if (!validValues.has(this.selectedAssigneeFilter)) {
+      this.selectedAssigneeFilter = ProjectKanbanComponent.ASSIGNEE_FILTER_ALL;
+    }
+  }
+
+  private extractAssigneeFilterValue(input: unknown): string | null {
+    if (typeof input === 'string' || input === null) {
+      return input;
+    }
+
+    if (input && typeof input === 'object' && 'value' in input) {
+      const value = (input as { value?: unknown }).value;
+      return typeof value === 'string' || value === null ? value : null;
+    }
+
+    return null;
+  }
+
   private loadPreviewBoard(detail: string): void {
     const previewProject: ProjectDto = {
       id: 'preview-project',
@@ -1024,6 +1150,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
       { label: 'Debug User', value: 'debug-user' },
       { label: 'Alex Contributor', value: 'user-2' }
     ];
+    this.ensureAssigneeFilterIsValid();
     this.setAllTasks(this.createPreviewTasks(projectId));
     this.pendingTaskIds.clear();
     this.isLoadingTasks = false;
