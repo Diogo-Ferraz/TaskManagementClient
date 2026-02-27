@@ -148,7 +148,7 @@
                       <span class="task-card__title">{{ task.title }}</span>
                       <div class="task-card__header-actions">
                         <p-tag *ngIf="isTaskPending(task.id)" severity="info" value="Saving"></p-tag>
-                        <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" [disabled]="isTaskPending(task.id)" (click)="openEditTask(task)"></button>
+                        <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" [disabled]="isTaskPending(task.id) || !canEditTask(task)" (click)="openEditTask(task)"></button>
                         <button
                           pButton
                           type="button"

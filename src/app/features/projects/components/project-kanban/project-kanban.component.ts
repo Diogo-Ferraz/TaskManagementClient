@@ -213,6 +213,10 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   openEditTask(task: TaskItemDto): void {
+    if (!this.canEditTask(task) || this.isTaskPending(task.id)) {
+      return;
+    }
+
     this.editTaskId = task.id;
     this.taskForm = {
       title: task.title,
@@ -346,6 +350,10 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
 
   isAssignedToMe(task: TaskItemDto): boolean {
     return !!this.currentUserId && task.assignedUserId === this.currentUserId;
+  }
+
+  canEditTask(task: TaskItemDto): boolean {
+    return this.canManageAllTasks || this.isAssignedToMe(task);
   }
 
   canDeleteTask(task: TaskItemDto): boolean {
