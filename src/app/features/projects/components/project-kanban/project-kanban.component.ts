@@ -436,7 +436,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   }
 
   canEditTask(task: TaskItemDto): boolean {
-    return this.canManageAllTasks || this.isAssignedToMe(task);
+    return this.canManageAllTasks || this.isAssignedToMe(task) || (this.authService.hasRole(AppRole.User) && !task.assignedUserId);
   }
 
   canDeleteTask(task: TaskItemDto): boolean {
