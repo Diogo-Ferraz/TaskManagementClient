@@ -195,7 +195,7 @@
               </p-dropdown>
 
               <button
-                *ngIf="isUnassigned(task)"
+                *ngIf="isUnassigned(task) && canSelfAssignTasks"
                 pButton
                 type="button"
                 icon="pi pi-user-plus"
