@@ -137,6 +137,38 @@ export class AuthService {
     sessionStorage.setItem(DEBUG_SESSION_FLAG_STORAGE_KEY, '1');
   }
 
+  setDebugSessionRole(role: AppRole): void {
+    const currentSession = this.authSessionSignal();
+    if (!currentSession?.isDebugSession || !this.isDebugAuthAllowed() || !this.hasDebugSessionFlag()) {
+      return;
+    }
+
+    const nowUtcMs = Date.now();
+    const roleName = this.resolveDebugRoleName(role);
+    const debugClaims = {
+      sub: 'debug-user',
+      name: `${roleName} (Preview)`,
+      preferred_username: `debug.${role.toLowerCase()}`,
+      email: `debug.${role.toLowerCase()}@local.test`,
+      role: [role]
+    };
+
+    const session: AuthSession = {
+      ...currentSession,
+      accessToken: this.createUnsignedJwt(debugClaims),
+      idToken: this.createUnsignedJwt({
+        sub: debugClaims.sub,
+        name: debugClaims.name,
+        email: debugClaims.email
+      }),
+      scope: this.appEnvironment.auth.scopes.join(' '),
+      expiresAtUtcMs: nowUtcMs + 8 * 60 * 60 * 1000,
+      isDebugSession: true
+    };
+
+    this.setSession(session);
+  }
+
   hasRole(role: string): boolean {
     return this.userRoles().includes(role);
   }
@@ -405,5 +437,18 @@ export class AuthService {
 
   private hasDebugSessionFlag(): boolean {
     return sessionStorage.getItem(DEBUG_SESSION_FLAG_STORAGE_KEY) === '1';
+  }
+
+  private resolveDebugRoleName(role: AppRole): string {
+    switch (role) {
+      case AppRole.Administrator:
+        return 'Debug Admin';
+      case AppRole.ProjectManager:
+        return 'Debug Manager';
+      case AppRole.User:
+        return 'Debug User';
+      default:
+        return 'Debug User';
+    }
   }
 }

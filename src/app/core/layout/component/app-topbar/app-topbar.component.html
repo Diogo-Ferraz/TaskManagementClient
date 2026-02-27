@@ -15,6 +15,15 @@
 
     <div class="layout-topbar-actions">
         <div class="layout-config-menu">
+            <button
+                *ngIf="isPreviewMode"
+                type="button"
+                class="layout-topbar-preview-role"
+                (click)="previewRoleMenu.toggle($event)">
+                <i class="pi pi-sliders-h"></i>
+                <span>{{ previewRoleButtonLabel }}</span>
+                <i class="pi pi-angle-down"></i>
+            </button>
             <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                 <i [ngClass]="{ 'pi ': true, 'pi-sun': layoutService.isDarkTheme(), 'pi-moon': !layoutService.isDarkTheme() }"></i>
             </button>
@@ -68,6 +77,7 @@
                 </div>
             </ng-template>
         </p-menu>
+        <p-menu #previewRoleMenu [popup]="true" [model]="previewRoleMenuItems" [appendTo]="'body'" styleClass="topbar-preview-role-menu"></p-menu>
         <p-overlayPanel #notificationsPanel styleClass="topbar-notifications-panel" [showCloseIcon]="true" [appendTo]="'body'" (onShow)="markNotificationsAsRead()">
             <div class="topbar-notifications">
                 <div class="topbar-notifications__header">

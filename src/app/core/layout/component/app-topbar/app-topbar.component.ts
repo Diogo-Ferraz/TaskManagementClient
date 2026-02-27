@@ -22,6 +22,23 @@ import { AppRole } from '../../../../core/auth/models/app-role.model';
 })
 export class AppTopbarComponent {
   private readonly notificationsService = inject(ActivityNotificationService);
+  readonly previewRoleMenuItems: MenuItem[] = [
+    {
+      label: 'Administrator',
+      icon: 'pi pi-shield',
+      command: () => this.switchPreviewRole(AppRole.Administrator)
+    },
+    {
+      label: 'Project Manager',
+      icon: 'pi pi-briefcase',
+      command: () => this.switchPreviewRole(AppRole.ProjectManager)
+    },
+    {
+      label: 'User',
+      icon: 'pi pi-user',
+      command: () => this.switchPreviewRole(AppRole.User)
+    }
+  ];
 
   readonly accountMenuItems: MenuItem[] = [
     {
@@ -77,6 +94,14 @@ export class AppTopbarComponent {
 
   signOut(): void {
     this.authService.logout();
+  }
+
+  switchPreviewRole(role: AppRole): void {
+    if (!this.isPreviewMode) {
+      return;
+    }
+
+    this.authService.setDebugSessionRole(role);
   }
 
   get homeRoute(): string {
@@ -174,6 +199,10 @@ export class AppTopbarComponent {
       default:
         return 'Role';
     }
+  }
+
+  get previewRoleButtonLabel(): string {
+    return `Preview: ${this.currentRoleLabel}`;
   }
 
 }
