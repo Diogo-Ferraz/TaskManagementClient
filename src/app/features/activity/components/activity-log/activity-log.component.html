@@ -33,6 +33,8 @@
     <p-table
       #dt
       [value]="filteredRows"
+      [columns]="exportColumns"
+      [exportFilename]="exportFileName"
       [loading]="isLoading"
       [rowHover]="true"
       [paginator]="true"

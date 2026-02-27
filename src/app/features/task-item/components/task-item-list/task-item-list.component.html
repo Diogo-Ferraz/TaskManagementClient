@@ -61,6 +61,8 @@
     <p-table
       #dt
       [value]="tasks"
+      [columns]="exportColumns"
+      [exportFilename]="exportFileName"
       dataKey="id"
       [loading]="isLoadingTasks"
       [rowHover]="true"

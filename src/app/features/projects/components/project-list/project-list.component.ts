@@ -12,6 +12,10 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment.token';
 import { AppPreferencesService } from '../../../../core/preferences/app-preferences.service';
 
+interface ProjectListRow extends ProjectDto {
+  taskCount: number;
+}
+
 @Component({
   selector: 'app-project-list',
   standalone: true,
@@ -29,15 +33,23 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   private readonly preferencesService = inject(AppPreferencesService);
   private readonly destroy$ = new Subject<void>();
 
-  projects: ProjectDto[] = [];
-  selectedProjects: ProjectDto[] = [];
+  projects: ProjectListRow[] = [];
+  selectedProjects: ProjectListRow[] = [];
   loading = true;
   searchValue: string | undefined;
   isPreviewMode = false;
   previewDetail: string | null = null;
   errors: Message[] = [];
   pendingProjectDeletionIds = new Set<string>();
-  private readonly previewTaskCounts: Record<string, number> = {};
+  readonly exportColumns = [
+    { field: 'name', header: 'Project' },
+    { field: 'description', header: 'Description' },
+    { field: 'createdByUserName', header: 'Created By' },
+    { field: 'createdAt', header: 'Created' },
+    { field: 'lastModifiedAt', header: 'Last Updated' },
+    { field: 'lastModifiedByUserName', header: 'Last Updated By' },
+    { field: 'taskCount', header: 'Tasks' }
+  ];
 
   ngOnInit(): void {
     this.loadProjects();
@@ -70,7 +82,12 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return this.authService.hasAnyRole([...MANAGEMENT_ROLES]);
   }
 
-  trackByProjectId(_: number, project: ProjectDto): string {
+  get exportFileName(): string {
+    const date = new Date().toISOString().slice(0, 10);
+    return `all-projects-${date}`;
+  }
+
+  trackByProjectId(_: number, project: ProjectListRow): string {
     return project.id;
   }
 
@@ -103,7 +120,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     void this.router.navigate(['/projects/kanban'], { queryParams: { projectId } });
   }
 
-  canDeleteProject(project: ProjectDto): boolean {
+  canDeleteProject(project: ProjectListRow): boolean {
     if (this.authService.hasRole(AppRole.Administrator)) {
       return true;
     }
@@ -115,7 +132,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     return this.pendingProjectDeletionIds.has(projectId);
   }
 
-  deleteProject(project: ProjectDto): void {
+  deleteProject(project: ProjectListRow): void {
     if (!this.canDeleteProject(project) || this.isProjectDeletePending(project.id)) {
       return;
     }
@@ -177,7 +194,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (projects) => {
-          this.projects = projects;
+          this.projects = this.toProjectRows(projects);
           this.selectedProjects = [];
           this.loading = false;
         },
@@ -193,14 +210,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       });
   }
 
-  getProjectTaskCount(project: ProjectDto): number {
-    if (project.taskItems?.length) {
-      return project.taskItems.length;
-    }
-
-    return this.previewTaskCounts[project.id] ?? 0;
-  }
-
   private shouldUsePreviewMode(): boolean {
     return this.authService.authSession()?.isDebugSession === true && this.authService.canStartDebugSession();
   }
@@ -208,13 +217,17 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   private loadPreviewProjects(detail: string): void {
     this.isPreviewMode = true;
     this.previewDetail = detail;
-    this.projects = this.buildPreviewProjects();
-    this.previewTaskCounts['preview-platform-refresh'] = 3;
-    this.previewTaskCounts['preview-mobile-portal'] = 1;
-    this.previewTaskCounts['preview-security-hardening'] = 2;
+    this.projects = this.toProjectRows(this.buildPreviewProjects());
     this.selectedProjects = [];
     this.errors = [];
     this.loading = false;
+  }
+
+  private toProjectRows(projects: ProjectDto[]): ProjectListRow[] {
+    return projects.map((project) => ({
+      ...project,
+      taskCount: project.taskItems?.length ?? 0
+    }));
   }
 
   private buildPreviewProjects(): ProjectDto[] {

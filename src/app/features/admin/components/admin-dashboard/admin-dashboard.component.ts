@@ -9,7 +9,7 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
-import { finalize, firstValueFrom } from 'rxjs';
+import { finalize } from 'rxjs';
 import { AdminUsersApiClient } from '../../../../core/api/clients/admin-users-api.client';
 import { AppRole } from '../../../../core/auth/models/app-role.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
@@ -48,7 +48,6 @@ export class AdminDashboardComponent implements OnInit {
 
   users: UserSummaryDto[] = [];
   isLoading = false;
-  isExporting = false;
   isPreviewMode = false;
   previewDetail: string | null = null;
   totalRecords = 0;
@@ -73,11 +72,13 @@ export class AdminDashboardComponent implements OnInit {
     { label: AppRole.ProjectManager, value: AppRole.ProjectManager },
     { label: AppRole.User, value: AppRole.User }
   ];
-
-  get exportFileName(): string {
-    const date = new Date().toISOString().slice(0, 10);
-    return `admin-users-${date}`;
-  }
+  readonly exportColumns = [
+    { field: 'displayName', header: 'Display Name' },
+    { field: 'userName', header: 'Username' },
+    { field: 'email', header: 'Email' },
+    { field: 'roles', header: 'Roles' },
+    { field: 'isActive', header: 'Is Active' }
+  ];
 
   get activeUsersCount(): number {
     return this.users.filter((user) => user.isActive).length;
@@ -105,6 +106,11 @@ export class AdminDashboardComponent implements OnInit {
 
   get currentUserId(): string | null {
     return this.authService.currentUserId();
+  }
+
+  get exportFileName(): string {
+    const date = new Date().toISOString().slice(0, 10);
+    return `admin-users-${date}`;
   }
 
   ngOnInit(): void {
@@ -152,37 +158,8 @@ export class AdminDashboardComponent implements OnInit {
     this.loadUsers();
   }
 
-  async exportUsersAsExcelCompatibleCsv(): Promise<void> {
-    if (this.isExporting) {
-      return;
-    }
-
-    this.isExporting = true;
-    try {
-      const header = ['Display Name', 'Username', 'Email', 'Is Active', 'Roles'];
-      const usersForExport = await this.loadAllUsersForExport();
-      const lines = usersForExport.map((user) => [
-        user.displayName ?? '',
-        user.userName ?? '',
-        user.email ?? '',
-        user.isActive ? 'Yes' : 'No',
-        user.roles.join(' | ')
-      ]);
-
-      const csv = [header, ...lines]
-        .map((line) => line.map((value) => this.escapeCsv(value)).join(','))
-        .join('\n');
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${this.exportFileName}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } finally {
-      this.isExporting = false;
-    }
+  exportCsv(table: Table): void {
+    table.exportCSV();
   }
 
   isStatusUpdating(userId: string): boolean {
@@ -276,41 +253,6 @@ export class AdminDashboardComponent implements OnInit {
           this.totalRecords = 0;
         }
       });
-  }
-
-  private escapeCsv(value: string): string {
-    const escaped = value.replace(/"/g, '""');
-    return `"${escaped}"`;
-  }
-
-  private async loadAllUsersForExport(): Promise<UserSummaryDto[]> {
-    if (this.isPreviewMode) {
-      return [...this.users];
-    }
-
-    const pageSize = 100;
-    let page = 1;
-    let total = 0;
-    const allUsers: UserSummaryDto[] = [];
-    const search = this.getMergedSearchTerm();
-
-    do {
-      const response = await firstValueFrom(
-        this.adminUsersApiClient.getUsers({
-          page,
-          pageSize,
-          search: search.length > 0 ? search : undefined,
-          isActive: this.selectedStatus ?? undefined,
-          role: this.selectedRole ?? undefined
-        })
-      );
-
-      total = response.total;
-      allUsers.push(...response.items);
-      page += 1;
-    } while (allUsers.length < total);
-
-    return allUsers;
   }
 
   private shouldUsePreviewMode(): boolean {

@@ -60,6 +60,15 @@ export class TaskItemListComponent implements OnInit, OnDestroy {
 
   searchValue = '';
   pendingTaskIds = new Set<string>();
+  readonly exportColumns = [
+    { field: 'title', header: 'Task' },
+    { field: 'description', header: 'Description' },
+    { field: 'status', header: 'Status' },
+    { field: 'dueDate', header: 'Due Date' },
+    { field: 'assignedUserName', header: 'Assignee' },
+    { field: 'lastModifiedAt', header: 'Last Updated' },
+    { field: 'lastModifiedByUserName', header: 'Last Updated By' }
+  ];
 
   ngOnInit(): void {
     this.loadProjects();
@@ -130,6 +139,11 @@ export class TaskItemListComponent implements OnInit, OnDestroy {
 
   get defaultTablePageSize(): number {
     return this.preferencesService.preferences().defaultTablePageSize;
+  }
+
+  get exportFileName(): string {
+    const date = new Date().toISOString().slice(0, 10);
+    return `all-tasks-${date}`;
   }
 
   onProjectChange(): void {

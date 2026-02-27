@@ -67,6 +67,8 @@
     <p-table
       #dt
       [value]="projects"
+      [columns]="exportColumns"
+      [exportFilename]="exportFileName"
       [rowHover]="true"
       [loading]="loading"
       [tableStyle]="{ 'min-width': '72rem' }"
@@ -129,7 +131,7 @@
           <th style="min-width: 8rem;">
             <div class="column-head">
               Tasks
-              <p-columnFilter type="numeric" field="taskItems.length" display="menu"></p-columnFilter>
+              <p-columnFilter type="numeric" field="taskCount" display="menu"></p-columnFilter>
             </div>
           </th>
           <th style="min-width: 10rem;">Actions</th>
@@ -166,7 +168,7 @@
           </td>
 
           <td>
-            <p-chip [label]="getProjectTaskCount(project).toString()"></p-chip>
+            <p-chip [label]="project.taskCount.toString()"></p-chip>
           </td>
 
           <td>

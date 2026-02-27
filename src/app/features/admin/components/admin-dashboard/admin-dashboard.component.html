@@ -39,6 +39,8 @@
     <p-table
       #dt
       [value]="users"
+      [columns]="exportColumns"
+      [exportFilename]="exportFileName"
       [lazy]="!isPreviewMode"
       [loading]="isLoading"
       [paginator]="true"
@@ -57,11 +59,11 @@
           <button
             pButton
             type="button"
-            [icon]="isExporting ? 'pi pi-spin pi-spinner' : 'pi pi-upload'"
+            icon="pi pi-upload"
             label="Export CSV"
             class="p-button-text"
-            (click)="exportUsersAsExcelCompatibleCsv()"
-            [disabled]="isLoading || isExporting">
+            (click)="exportCsv(dt)"
+            [disabled]="isLoading || users.length === 0">
           </button>
 
           <span class="table-search">

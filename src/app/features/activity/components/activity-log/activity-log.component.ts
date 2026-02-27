@@ -57,6 +57,14 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
   ];
 
   readonly feedLimit = 500;
+  readonly exportColumns = [
+    { field: 'actorDisplayName', header: 'Actor' },
+    { field: 'entityType', header: 'Entity' },
+    { field: 'typeLabel', header: 'Event Type' },
+    { field: 'projectName', header: 'Project' },
+    { field: 'taskTitle', header: 'Task' },
+    { field: 'occurredAtDate', header: 'Occurred At' }
+  ];
 
   rows: ActivityLogRow[] = [];
   filteredRows: ActivityLogRow[] = [];
@@ -91,6 +99,11 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
 
   get defaultTablePageSize(): number {
     return this.preferencesService.preferences().defaultTablePageSize;
+  }
+
+  get exportFileName(): string {
+    const date = new Date().toISOString().slice(0, 10);
+    return `activity-log-${date}`;
   }
 
   ngOnInit(): void {
