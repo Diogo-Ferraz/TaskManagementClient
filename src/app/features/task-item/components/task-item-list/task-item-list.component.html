@@ -71,8 +71,8 @@
 
       <ng-template pTemplate="caption">
         <div class="table-caption">
-          <button pButton label="Clear" icon="pi pi-filter-slash" class="p-button-text" (onClick)="clear(dt)"></button>
-          <button pButton label="Export CSV" icon="pi pi-upload" class="p-button-text" (onClick)="exportCSV(dt)" [disabled]="tasks.length === 0"></button>
+          <button pButton label="Clear" icon="pi pi-filter-slash" class="p-button-text" (click)="clear(dt)"></button>
+          <button pButton label="Export CSV" icon="pi pi-upload" class="p-button-text" (click)="exportCSV(dt)" [disabled]="tasks.length === 0"></button>
 
           <span class="table-search">
             <i class="pi pi-search"></i>
