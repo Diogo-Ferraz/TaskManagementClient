@@ -50,6 +50,16 @@
               </div>
             </ng-template>
           </p-calendar>
+
+          <div class="legend legend--calendar" *ngIf="legendItems.length > 0">
+            <h4>Project legend</h4>
+            <div class="legend-items">
+              <div class="legend-item" *ngFor="let item of legendItems">
+                <span class="legend-color" [style.backgroundColor]="item.color"></span>
+                <span>{{ item.projectName }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </ng-template>
     </p-card>
@@ -62,17 +72,7 @@
           <p-skeleton height="4.5rem"></p-skeleton>
         </div>
 
-        <ng-container *ngIf="!isLoading">
-          <div class="legend" *ngIf="legendItems.length > 0">
-            <h4>Project legend</h4>
-            <div class="legend-items">
-              <div class="legend-item" *ngFor="let item of legendItems">
-                <span class="legend-color" [style.backgroundColor]="item.color"></span>
-                <span>{{ item.projectName }}</span>
-              </div>
-            </div>
-          </div>
-
+        <div *ngIf="!isLoading" class="calendar-side-content">
           <div class="task-list">
             <article class="task-card" *ngFor="let task of tasksForSelectedDate">
               <div class="task-card__header">
@@ -93,7 +93,7 @@
               No due tasks on this day.
             </div>
           </div>
-        </ng-container>
+        </div>
       </ng-template>
     </p-card>
   </div>
