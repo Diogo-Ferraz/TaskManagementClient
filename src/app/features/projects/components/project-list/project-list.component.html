@@ -106,15 +106,17 @@
               <p-columnFilter type="text" field="createdByUserName" display="menu"></p-columnFilter>
             </div>
           </th>
-          <th style="min-width: 9rem;">
+          <th style="min-width: 9rem;" pSortableColumn="createdAt">
             <div class="column-head">
               Created
+              <p-sortIcon field="createdAt"></p-sortIcon>
               <p-columnFilter type="date" field="createdAt" display="menu"></p-columnFilter>
             </div>
           </th>
-          <th style="min-width: 9rem;">
+          <th style="min-width: 9rem;" pSortableColumn="lastModifiedAt">
             <div class="column-head">
               Last Updated
+              <p-sortIcon field="lastModifiedAt"></p-sortIcon>
               <p-columnFilter type="date" field="lastModifiedAt" display="menu"></p-columnFilter>
             </div>
           </th>

@@ -137,8 +137,14 @@
               <th style="min-width: 16rem;">Task</th>
               <th style="min-width: 8rem;">Status</th>
               <th style="min-width: 10rem;">Assignee</th>
-              <th style="min-width: 8rem;">Due</th>
-              <th style="min-width: 10rem;">Updated</th>
+              <th style="min-width: 8rem;" pSortableColumn="dueDate">
+                Due
+                <p-sortIcon field="dueDate"></p-sortIcon>
+              </th>
+              <th style="min-width: 10rem;" pSortableColumn="lastModifiedAt">
+                Updated
+                <p-sortIcon field="lastModifiedAt"></p-sortIcon>
+              </th>
             </tr>
           </ng-template>
 

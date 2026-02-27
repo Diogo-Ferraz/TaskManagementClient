@@ -108,9 +108,10 @@
               </p-columnFilter>
             </div>
           </th>
-          <th style="min-width: 8rem;">
+          <th style="min-width: 8rem;" pSortableColumn="dueDate">
             <div class="column-head">
               Due Date
+              <p-sortIcon field="dueDate"></p-sortIcon>
               <p-columnFilter type="text" field="dueDate" display="menu"></p-columnFilter>
             </div>
           </th>
@@ -120,9 +121,10 @@
               <p-columnFilter type="text" field="assignedUserName" display="menu"></p-columnFilter>
             </div>
           </th>
-          <th style="min-width: 10rem;">
+          <th style="min-width: 10rem;" pSortableColumn="lastModifiedAt">
             <div class="column-head">
               Last Updated
+              <p-sortIcon field="lastModifiedAt"></p-sortIcon>
               <p-columnFilter type="text" field="lastModifiedAt" display="menu"></p-columnFilter>
             </div>
           </th>
