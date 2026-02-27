@@ -11,6 +11,10 @@
             <i class="pi pi-user"></i>
             {{ currentUserDisplayName }}
           </span>
+          <span class="meta-pill">
+            <i class="pi pi-folder"></i>
+            {{ selectedProjectName }}
+          </span>
           <span class="meta-pill" *ngIf="isPreviewMode">
             <i class="pi pi-eye"></i>
             Preview mode
@@ -19,7 +23,23 @@
         </div>
       </div>
 
-      <button pButton type="button" label="Refresh" icon="pi pi-refresh" class="p-button-outlined" (click)="refresh()" [loading]="isLoading"></button>
+      <div class="my-tasks-header__controls">
+        <p-dropdown
+          inputId="myTasksProjectPicker"
+          [options]="projectFilterOptions"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          filterBy="label"
+          [showClear]="false"
+          [ngModel]="selectedProjectId"
+          [disabled]="isLoading || projectFilterOptions.length <= 1"
+          placeholder="Project scope"
+          (onChange)="onProjectFilterChange($event.value)">
+        </p-dropdown>
+
+        <button pButton type="button" label="Refresh" icon="pi pi-refresh" class="p-button-outlined" (click)="refresh()" [loading]="isLoading"></button>
+      </div>
     </div>
   </p-card>
 

@@ -23,6 +23,11 @@ interface TaskEditForm {
   dueDate: Date | null;
 }
 
+interface ProjectFilterOption {
+  label: string;
+  value: string | null;
+}
+
 @Component({
   selector: 'app-user-task-items',
   standalone: true,
@@ -31,6 +36,7 @@ interface TaskEditForm {
   styleUrl: './user-task-items.component.scss'
 })
 export class UserTaskItemsComponent implements OnInit, OnDestroy {
+  private static readonly PROJECT_SELECTION_CONTEXT = 'my-tasks';
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
   private readonly authService = inject(AuthService);
   private readonly appEnvironment = inject(APP_ENVIRONMENT);
@@ -48,6 +54,7 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
   ];
 
   tasks: TaskItemDto[] = [];
+  selectedProjectId: string | null = null;
   isLoading = false;
   isPreviewMode = false;
   previewDetail: string | null = null;
@@ -74,19 +81,19 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
   }
 
   get totalTasks(): number {
-    return this.tasks.length;
+    return this.filteredTasks.length;
   }
 
   get todoTasks(): TaskItemDto[] {
-    return this.tasks.filter((task) => task.status === TaskStatus.Todo);
+    return this.filteredTasks.filter((task) => task.status === TaskStatus.Todo);
   }
 
   get inProgressTasks(): TaskItemDto[] {
-    return this.tasks.filter((task) => task.status === TaskStatus.InProgress);
+    return this.filteredTasks.filter((task) => task.status === TaskStatus.InProgress);
   }
 
   get doneTasks(): TaskItemDto[] {
-    return this.tasks.filter((task) => task.status === TaskStatus.Done);
+    return this.filteredTasks.filter((task) => task.status === TaskStatus.Done);
   }
 
   get overdueTasksCount(): number {
@@ -122,8 +129,47 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
     return 'Current User';
   }
 
+  get projectFilterOptions(): ProjectFilterOption[] {
+    const uniqueProjects = new Map<string, string>();
+    for (const task of this.tasks) {
+      if (!task.projectId) {
+        continue;
+      }
+
+      if (!uniqueProjects.has(task.projectId)) {
+        uniqueProjects.set(task.projectId, task.projectName || 'Unnamed project');
+      }
+    }
+
+    const projectOptions = [...uniqueProjects.entries()]
+      .map(([value, label]) => ({ label, value }))
+      .sort((left, right) => left.label.localeCompare(right.label));
+
+    return [{ label: 'All Projects', value: null }, ...projectOptions];
+  }
+
+  get selectedProjectName(): string {
+    return this.projectFilterOptions.find((option) => option.value === this.selectedProjectId)?.label ?? 'All Projects';
+  }
+
+  private get filteredTasks(): TaskItemDto[] {
+    if (!this.selectedProjectId) {
+      return this.tasks;
+    }
+
+    return this.tasks.filter((task) => task.projectId === this.selectedProjectId);
+  }
+
   refresh(): void {
     this.loadTasks();
+  }
+
+  onProjectFilterChange(projectId: string | null): void {
+    this.selectedProjectId = projectId;
+
+    if (projectId) {
+      this.preferencesService.setLastSelectedProject(UserTaskItemsComponent.PROJECT_SELECTION_CONTEXT, projectId);
+    }
   }
 
   taskTrackBy(_: number, task: TaskItemDto): string {
@@ -398,6 +444,7 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (tasks) => {
           this.tasks = this.sortTasks(tasks);
+          this.ensureSelectedProjectIsValid();
           this.isLoading = false;
         },
         error: () => {
@@ -475,6 +522,7 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
       }
     ]);
 
+    this.ensureSelectedProjectIsValid();
     this.isLoading = false;
   }
 
@@ -531,5 +579,21 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
     const nextTasks = [...this.tasks];
     nextTasks[index] = updatedTask;
     this.tasks = this.sortTasks(nextTasks);
+    this.ensureSelectedProjectIsValid();
+  }
+
+  private ensureSelectedProjectIsValid(): void {
+    const availableProjectIds = new Set(this.projectFilterOptions.map((option) => option.value).filter((value): value is string => !!value));
+    if (this.selectedProjectId && availableProjectIds.has(this.selectedProjectId)) {
+      return;
+    }
+
+    const rememberedProjectId = this.preferencesService.getLastSelectedProject(UserTaskItemsComponent.PROJECT_SELECTION_CONTEXT);
+    if (rememberedProjectId && availableProjectIds.has(rememberedProjectId)) {
+      this.selectedProjectId = rememberedProjectId;
+      return;
+    }
+
+    this.selectedProjectId = null;
   }
 }

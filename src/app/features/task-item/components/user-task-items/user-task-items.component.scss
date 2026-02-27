@@ -12,6 +12,16 @@
   gap: 1rem;
 }
 
+.my-tasks-header__controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.my-tasks-header__controls :where(.p-dropdown) {
+  min-width: 15rem;
+}
+
 .my-tasks-header__title h2 {
   margin: 0;
 }
@@ -368,6 +378,15 @@
 }
 
 @media (max-width: 992px) {
+  .my-tasks-header__controls {
+    width: 100%;
+  }
+
+  .my-tasks-header__controls :where(.p-dropdown) {
+    flex: 1;
+    min-width: 0;
+  }
+
   .my-tasks-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
