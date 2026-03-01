@@ -25,6 +25,7 @@ export class AppMenuComponent {
       {
         label: 'Workspaces',
         items: [
+          { label: 'Kanban Board', icon: 'pi pi-fw pi-th-large', routerLink: ['/projects/kanban'] },
           { label: 'All Projects', icon: 'pi pi-fw pi-list', routerLink: ['/projects'] },
           {
             label: 'Project Details',
@@ -38,8 +39,7 @@ export class AppMenuComponent {
             icon: 'pi pi-fw pi-plus',
             routerLink: ['/projects/create'],
             visible: this.authService.hasAnyRole([...MANAGEMENT_ROLES])
-          },
-          { label: 'Kanban Board', icon: 'pi pi-fw pi-th-large', routerLink: ['/projects/kanban'] }
+          }
         ]
       },
       {

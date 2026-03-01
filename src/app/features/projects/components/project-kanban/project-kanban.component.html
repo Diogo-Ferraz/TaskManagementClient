@@ -34,89 +34,98 @@
   </p-card>
 
   <p-card class="kanban-controls-card">
-    <div class="kanban-controls-grid">
-      <section class="kanban-control-block">
-        <div class="kanban-control-block__top">
-          <span class="kanban-control-block__heading">Project Scope</span>
-          <span class="kanban-control-block__counter">{{ selectedProjectIndex + 1 }} / {{ projects.length }}</span>
+    <div class="kanban-controls-shell">
+      <div class="kanban-controls-shell__header">
+        <div class="kanban-controls-shell__title">
+          <i class="pi pi-sliders-h"></i>
+          <span>Filter Workspace</span>
         </div>
+      </div>
 
-        <div class="kanban-control-block__picker">
-          <button pButton type="button" icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-sm kanban-control-nav" [disabled]="!canSelectPreviousProject || isLoadingProjects" (click)="selectPreviousProject()"></button>
+      <div class="kanban-controls-grid">
+        <section class="kanban-control-block">
+          <div class="kanban-control-block__top">
+            <span class="kanban-control-block__heading">Project Scope</span>
+            <span class="kanban-control-block__counter">{{ selectedProjectIndex + 1 }} / {{ projects.length }}</span>
+          </div>
 
-          <p-dropdown
-            inputId="projectPicker"
-            [options]="projects"
-            optionLabel="name"
-            optionValue="id"
-            [ngModel]="selectedProjectId"
-            [filter]="true"
-            filterBy="name"
-            [showClear]="false"
-            [appendTo]="'body'"
-            [disabled]="isLoadingProjects || projects.length === 0"
-            placeholder="Select project"
-            styleClass="kanban-control-dropdown"
-            (onChange)="onProjectSelected($event.value)">
-          </p-dropdown>
+          <div class="kanban-control-block__picker">
+            <button pButton type="button" icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-sm kanban-control-nav" [disabled]="!canSelectPreviousProject || isLoadingProjects" (click)="selectPreviousProject()"></button>
 
-          <button pButton type="button" icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-sm kanban-control-nav" [disabled]="!canSelectNextProject || isLoadingProjects" (click)="selectNextProject()"></button>
-        </div>
-      </section>
+            <p-dropdown
+              inputId="projectPicker"
+              [options]="projects"
+              optionLabel="name"
+              optionValue="id"
+              [ngModel]="selectedProjectId"
+              [filter]="true"
+              filterBy="name"
+              [showClear]="false"
+              [appendTo]="'body'"
+              [disabled]="isLoadingProjects || projects.length === 0"
+              placeholder="Select project"
+              styleClass="kanban-control-dropdown"
+              (onChange)="onProjectSelected($event.value)">
+            </p-dropdown>
 
-      <section class="kanban-control-block">
-        <div class="kanban-control-block__top">
-          <span class="kanban-control-block__heading">Task Lens</span>
-          <span class="kanban-control-block__counter">{{ selectedAssigneeFilterLabel }}</span>
-        </div>
+            <button pButton type="button" icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-sm kanban-control-nav" [disabled]="!canSelectNextProject || isLoadingProjects" (click)="selectNextProject()"></button>
+          </div>
+        </section>
 
-        <div class="kanban-control-block__filter">
-          <p-dropdown
-            *ngIf="canManageAllTasks; else collaboratorLens"
-            inputId="kanbanAssigneeFilter"
-            [options]="managementAssigneeFilterOptions"
-            optionLabel="label"
-            optionValue="value"
-            [(ngModel)]="selectedAssigneeFilter"
-            [filter]="true"
-            filterBy="label"
-            [showClear]="false"
-            [appendTo]="'body'"
-            styleClass="kanban-control-dropdown"
-            (onChange)="onAssigneeFilterChange($any($event).value)">
-          </p-dropdown>
+        <section class="kanban-control-block">
+          <div class="kanban-control-block__top">
+            <span class="kanban-control-block__heading">Task Lens</span>
+            <span class="kanban-control-block__counter">{{ selectedAssigneeFilterLabel }}</span>
+          </div>
 
-          <ng-template #collaboratorLens>
-            <div class="kanban-control-filter-inline">
-              <div class="kanban-control-filter-buttons">
-                <button
-                  *ngFor="let option of collaboratorAssigneeFilterOptions"
-                  pButton
-                  type="button"
-                  class="p-button-sm p-button-outlined kanban-control-filter-button"
-                  [class.kanban-control-filter-button--active]="selectedAssigneeFilter === option.value"
-                  [label]="option.label"
-                  (click)="onAssigneeFilterChange(option.value)">
-                </button>
+          <div class="kanban-control-block__filter">
+            <p-dropdown
+              *ngIf="canManageAllTasks; else collaboratorLens"
+              inputId="kanbanAssigneeFilter"
+              [options]="managementAssigneeFilterOptions"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="selectedAssigneeFilter"
+              [filter]="true"
+              filterBy="label"
+              [showClear]="false"
+              [appendTo]="'body'"
+              styleClass="kanban-control-dropdown"
+              (onChange)="onAssigneeFilterChange($any($event).value)">
+            </p-dropdown>
+
+            <ng-template #collaboratorLens>
+              <div class="kanban-control-filter-inline">
+                <div class="kanban-control-filter-buttons">
+                  <button
+                    *ngFor="let option of collaboratorAssigneeFilterOptions"
+                    pButton
+                    type="button"
+                    class="p-button-sm p-button-outlined kanban-control-filter-button"
+                    [class.kanban-control-filter-button--active]="selectedAssigneeFilter === option.value"
+                    [label]="option.label"
+                    (click)="onAssigneeFilterChange(option.value)">
+                  </button>
+                </div>
+
+                <p-dropdown
+                  inputId="kanbanAssigneeFilterUser"
+                  [options]="collaboratorAssigneeDirectoryOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [ngModel]="selectedAssigneeFilter"
+                  [filter]="true"
+                  filterBy="label"
+                  [showClear]="false"
+                  [appendTo]="'body'"
+                  styleClass="kanban-control-dropdown kanban-control-dropdown--user"
+                  (onChange)="onAssigneeFilterChange($any($event).value)">
+                </p-dropdown>
               </div>
-
-              <p-dropdown
-                inputId="kanbanAssigneeFilterUser"
-                [options]="collaboratorAssigneeDirectoryOptions"
-                optionLabel="label"
-                optionValue="value"
-                [ngModel]="selectedAssigneeFilter"
-                [filter]="true"
-                filterBy="label"
-                [showClear]="false"
-                [appendTo]="'body'"
-                styleClass="kanban-control-dropdown kanban-control-dropdown--user"
-                (onChange)="onAssigneeFilterChange($any($event).value)">
-              </p-dropdown>
-            </div>
-          </ng-template>
-        </div>
-      </section>
+            </ng-template>
+          </div>
+        </section>
+      </div>
     </div>
   </p-card>
 
