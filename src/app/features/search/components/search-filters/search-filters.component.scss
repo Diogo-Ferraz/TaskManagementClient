@@ -57,8 +57,9 @@
 
 .filters-shell__header {
   display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin-bottom: 0.75rem;
 }
 
@@ -184,6 +185,18 @@
   color: var(--text-color-secondary);
 }
 
+.control-group__label-with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.control-group__help-icon {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+  cursor: help;
+}
+
 @media (max-width: 1100px) {
   .control-section__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -199,7 +212,7 @@
 .results-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 2rem;
   align-items: stretch;
 }
 
@@ -230,7 +243,7 @@
 }
 
 .results-card__body {
-  max-height: 12.2rem;
+  max-height: 13.2rem;
   overflow-y: auto;
   padding-right: 0.2rem;
 }
@@ -260,6 +273,14 @@
   align-items: flex-start;
   justify-content: flex-start;
   gap: 0.45rem;
+}
+
+.project-list-item__header {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .simple-list__meta {
@@ -326,6 +347,45 @@
   margin-bottom: 1rem;
 }
 
+.tasks-meta__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.tasks-meta__summary-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--surface-border);
+  background: color-mix(in srgb, var(--surface-100) 76%, transparent);
+  color: var(--text-color-secondary);
+}
+
+.tasks-meta__summary-text {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.tasks-meta__summary-text strong {
+  font-size: 0.96rem;
+  line-height: 1.2;
+}
+
+.tasks-meta__summary-text small {
+  font-size: 0.74rem;
+  color: var(--text-color-secondary);
+  line-height: 1.2;
+}
+
+:host ::ng-deep .tasks-results-card .p-card-content {
+  padding-top: 0.1rem;
+}
+
 .pagination-controls {
   display: inline-flex;
   align-items: center;
@@ -358,7 +418,14 @@
   gap: 0.5rem;
 }
 
+.task-item__head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .task-item__desc {
+  display: block;
   margin: 0;
   color: var(--text-color-secondary);
   font-size: 0.9rem;
@@ -369,7 +436,8 @@
   gap: 1rem;
   flex-wrap: wrap;
   color: var(--text-color-secondary);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
 }
 
 .search-error {
@@ -408,5 +476,6 @@
 
   .filters-shell__header {
     align-items: flex-start;
+    flex-direction: column;
   }
 }

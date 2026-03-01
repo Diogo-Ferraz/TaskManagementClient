@@ -5,7 +5,7 @@
     <div class="search-header">
       <div class="search-header__title">
         <h2>Search & Filters</h2>
-        <p>Find users in projects, projects for a user, and user/unassigned tasks.</p>
+        <p>Find project members, projects for a selected user, and tasks across one or all projects.</p>
         <div class="search-header__meta" *ngIf="selectedProjectId">
           <span class="meta-pill">
             <i class="pi pi-folder"></i>
@@ -22,7 +22,7 @@
 
   <div class="search-kpis">
     <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--info"><div class="kpi-card__head"><span class="kpi-card__label">Users In Project</span><span class="kpi-card__tag">People</span></div><span class="kpi-card__value">{{ usersInProjectCount }}</span></div></article>
-    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--neutral"><div class="kpi-card__head"><span class="kpi-card__label">Projects For User</span><span class="kpi-card__tag">Scope</span></div><span class="kpi-card__value">{{ projectsForUserCount }}</span></div></article>
+    <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--neutral"><div class="kpi-card__head"><span class="kpi-card__label">Projects Matched</span><span class="kpi-card__tag">Scope</span></div><span class="kpi-card__value">{{ projectsForUserCount }}</span></div></article>
     <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--accent"><div class="kpi-card__head"><span class="kpi-card__label">Filtered Tasks</span><span class="kpi-card__tag">Results</span></div><span class="kpi-card__value">{{ filteredTasks.length }}</span></div></article>
     <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--done"><div class="kpi-card__head"><span class="kpi-card__label">Completed</span><span class="kpi-card__tag">Done</span></div><span class="kpi-card__value">{{ completedTasksCount }}</span></div></article>
     <article class="kpi-card"><div class="kpi-card__shell kpi-card__shell--warning"><div class="kpi-card__head"><span class="kpi-card__label">Unassigned</span><span class="kpi-card__tag">Risk</span></div><span class="kpi-card__value">{{ unassignedTasksCount }}</span></div></article>
@@ -35,6 +35,14 @@
           <i class="pi pi-sliders-h"></i>
           <span>Filter Workspace</span>
         </div>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-filter-slash"
+          label="Reset All Filters"
+          class="p-button-text p-button-sm"
+          (click)="resetAllFilters()">
+        </button>
       </div>
 
       <div class="search-controls">
@@ -42,15 +50,23 @@
           <h4>People Context</h4>
           <div class="control-section__grid">
             <div class="control-group">
-              <label for="projectId">Project</label>
+              <label for="projectId" class="control-group__label-with-help">
+                <span>Project</span>
+                <i
+                  *ngIf="projectFilterDisableReason as reason"
+                  class="pi pi-question-circle control-group__help-icon"
+                  [pTooltip]="reason"
+                  tooltipPosition="top">
+                </i>
+              </label>
               <p-dropdown
                 inputId="projectId"
-                [options]="projects"
+                [options]="projectOptions"
                 optionLabel="name"
                 optionValue="id"
                 [ngModel]="selectedProjectId"
                 [disabled]="isLoading || projects.length === 0"
-                placeholder="Select project"
+                placeholder="All Projects"
                 [filter]="true"
                 filterBy="name"
                 [appendTo]="'body'"
@@ -72,15 +88,28 @@
             </div>
 
             <div class="control-group">
-              <label for="userId">User In Project</label>
+              <label for="userId" class="control-group__label-with-help">
+                <span>Find Projects For User</span>
+                <i
+                  class="pi pi-info-circle control-group__help-icon"
+                  pTooltip="Shows projects where the selected user is a member."
+                  tooltipPosition="top">
+                </i>
+                <i
+                  *ngIf="memberContextDisableReason as reason"
+                  class="pi pi-question-circle control-group__help-icon"
+                  [pTooltip]="reason"
+                  tooltipPosition="top">
+                </i>
+              </label>
               <p-dropdown
                 inputId="userId"
-                [options]="filteredProjectMembers"
+                [options]="memberContextOptions"
                 optionLabel="displayName"
                 optionValue="userId"
                 [ngModel]="selectedUserId"
-                [disabled]="isLoading || filteredProjectMembers.length === 0"
-                placeholder="Select user"
+                [disabled]="isLoading || !isUserSelectionEnabled"
+                [placeholder]="isUserSelectionEnabled ? 'Select user' : 'No users available'"
                 [filter]="true"
                 filterBy="displayName,email"
                 [appendTo]="'body'"
@@ -102,7 +131,32 @@
                 optionValue="value"
                 [ngModel]="taskOwnershipFilter"
                 [appendTo]="'body'"
-                (onChange)="taskOwnershipFilter = $event.value; onTaskFiltersChanged()">
+                (onChange)="onTaskOwnershipFilterChange($event.value)">
+              </p-dropdown>
+            </div>
+
+            <div class="control-group">
+              <label for="taskAssignee" class="control-group__label-with-help">
+                <span>Assigned User</span>
+                <i
+                  *ngIf="taskAssigneeDisableReason as reason"
+                  class="pi pi-question-circle control-group__help-icon"
+                  [pTooltip]="reason"
+                  tooltipPosition="top">
+                </i>
+              </label>
+              <p-dropdown
+                inputId="taskAssignee"
+                [options]="assigneeOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="taskAssigneeUserId"
+                [disabled]="!isTaskAssigneeSelectionEnabled || assigneeOptions.length === 0"
+                [placeholder]="isTaskAssigneeSelectionEnabled ? 'Any assigned user' : 'Enable Assigned ownership'"
+                [filter]="true"
+                filterBy="label"
+                [appendTo]="'body'"
+                (onChange)="taskAssigneeUserId = $event.value; onTaskFiltersChanged()">
               </p-dropdown>
             </div>
 
@@ -120,13 +174,96 @@
             </div>
 
             <div class="control-group">
-              <label for="search">Task Search</label>
+              <label for="taskCreatedBy">Created By</label>
+              <p-dropdown
+                inputId="taskCreatedBy"
+                [options]="actorOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="taskCreatedByUserId"
+                [showClear]="true"
+                placeholder="All creators"
+                [filter]="true"
+                filterBy="label"
+                [appendTo]="'body'"
+                (onChange)="taskCreatedByUserId = $event.value; onTaskFiltersChanged()">
+              </p-dropdown>
+            </div>
+
+            <div class="control-group">
+              <label for="taskUpdatedBy">Last Updated By</label>
+              <p-dropdown
+                inputId="taskUpdatedBy"
+                [options]="actorOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="taskUpdatedByUserId"
+                [showClear]="true"
+                placeholder="All updaters"
+                [filter]="true"
+                filterBy="label"
+                [appendTo]="'body'"
+                (onChange)="taskUpdatedByUserId = $event.value; onTaskFiltersChanged()">
+              </p-dropdown>
+            </div>
+
+            <div class="control-group">
+              <label for="search">Task Title</label>
               <input
                 id="search"
                 pInputText
-                [ngModel]="taskSearch"
-                (ngModelChange)="taskSearch = $event; onTaskFiltersChanged()"
-                placeholder="Title or description" />
+                [ngModel]="taskSearchTitle"
+                (ngModelChange)="taskSearchTitle = $event; onTaskFiltersChanged()"
+                placeholder="Search task title" />
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <h4>Project Filters</h4>
+          <div class="control-section__grid">
+            <div class="control-group">
+              <label for="projectCreatedBy">Created By</label>
+              <p-dropdown
+                inputId="projectCreatedBy"
+                [options]="actorOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="projectCreatedByUserId"
+                [showClear]="true"
+                placeholder="All creators"
+                [filter]="true"
+                filterBy="label"
+                [appendTo]="'body'"
+                (onChange)="projectCreatedByUserId = $event.value; onProjectFiltersChanged()">
+              </p-dropdown>
+            </div>
+
+            <div class="control-group">
+              <label for="projectUpdatedBy">Last Updated By</label>
+              <p-dropdown
+                inputId="projectUpdatedBy"
+                [options]="actorOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="projectUpdatedByUserId"
+                [showClear]="true"
+                placeholder="All updaters"
+                [filter]="true"
+                filterBy="label"
+                [appendTo]="'body'"
+                (onChange)="projectUpdatedByUserId = $event.value; onProjectFiltersChanged()">
+              </p-dropdown>
+            </div>
+
+            <div class="control-group">
+              <label for="projectSearchTitle">Project Title</label>
+              <input
+                id="projectSearchTitle"
+                pInputText
+                [ngModel]="projectSearchTitle"
+                (ngModelChange)="projectSearchTitle = $event; onProjectFiltersChanged()"
+                placeholder="Search project title" />
             </div>
           </div>
         </section>
@@ -137,8 +274,8 @@
   <div class="results-grid">
     <p-card styleClass="results-card">
       <div class="results-card__title">
-        <h3>Users In Project</h3>
-        <p>Members available in the selected project.</p>
+        <h3>{{ usersResultTitle }}</h3>
+        <p>{{ usersResultSubtitle }}</p>
       </div>
       <div class="results-card__body">
         <ul class="simple-list">
@@ -159,20 +296,30 @@
 
     <p-card styleClass="results-card">
       <div class="results-card__title">
-        <h3>Projects For User</h3>
-        <p *ngIf="selectedUserId; else projectsHint">Showing projects for {{ selectedUserName }}.</p>
+        <h3>Projects For Selected User</h3>
+        <p *ngIf="selectedUserId; else projectsHint">Showing projects where <strong>{{ selectedUserName }}</strong> is a member.</p>
         <ng-template #projectsHint>
-          <p>Select a user to list matching projects.</p>
+          <p>Select “Find Projects For User” to narrow this list by a specific member.</p>
         </ng-template>
       </div>
       <div class="results-card__body">
         <ul class="simple-list">
-          <li *ngFor="let project of userProjects" class="project-list-item">
-            <div class="simple-list__meta simple-list__meta--top">
-              <i class="pi pi-folder text-color-secondary"></i>
-              <div class="simple-list__text">
-                <span>{{ project.name }}</span>
+          <li *ngFor="let project of filteredProjectResults" class="project-list-item">
+            <div class="project-list-item__header">
+              <div class="simple-list__meta simple-list__meta--top">
+                <i class="pi pi-folder text-color-secondary"></i>
+                <div class="simple-list__text">
+                  <span>{{ project.name }}</span>
+                </div>
               </div>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-th-large"
+                label="Open Kanban"
+                class="p-button-sm p-button-outlined"
+                (click)="openProjectKanban(project.id)">
+              </button>
             </div>
             <div class="project-meta-chips project-meta-chips--below-icon">
               <span class="project-meta-chip">
@@ -183,18 +330,32 @@
               </span>
             </div>
           </li>
-          <li *ngIf="userProjects.length === 0" class="muted">No matching projects.</li>
+          <li *ngIf="filteredProjectResults.length === 0" class="muted">No matching projects.</li>
         </ul>
       </div>
     </p-card>
   </div>
 
-  <p-card header="Tasks">
+  <p-card styleClass="tasks-results-card">
+    <div class="results-card__title">
+      <h3>Task Results</h3>
+      <p>Review filtered tasks and jump directly to the project Kanban board.</p>
+    </div>
     <div class="tasks-meta">
-      <span>{{ filteredTasks.length }} tasks</span>
+      <div class="tasks-meta__summary">
+        <span class="tasks-meta__summary-icon">
+          <i class="pi pi-list-check"></i>
+        </span>
+        <div class="tasks-meta__summary-text">
+          <strong>{{ filteredTasks.length }} tasks</strong>
+          <small>matching current filters</small>
+        </div>
+      </div>
       <div class="pagination-controls">
         <p-dropdown
-          [options]="pageSizeOptions"
+          [options]="pageSizeSelectOptions"
+          optionLabel="label"
+          optionValue="value"
           [ngModel]="pageSize"
           (onChange)="pageSize = $event.value; page = 1"
           appendTo="body">
@@ -209,12 +370,28 @@
       <article class="task-item" *ngFor="let task of pagedTasks">
         <div class="task-item__head">
           <strong>{{ task.title }}</strong>
-          <p-tag [value]="getTaskStatusLabel(task.status)" [severity]="getTaskStatusSeverity(task.status)"></p-tag>
+          <div class="task-item__head-actions">
+            <p-tag [value]="getTaskStatusLabel(task.status)" [severity]="getTaskStatusSeverity(task.status)"></p-tag>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-th-large"
+              label="Open Kanban"
+              class="p-button-sm p-button-outlined"
+              (click)="openTaskKanban(task)">
+            </button>
+          </div>
         </div>
-        <p class="task-item__desc">{{ task.description || 'No description provided.' }}</p>
+        <app-expandable-text
+          class="task-item__desc"
+          [text]="task.description"
+          [maxLength]="140">
+        </app-expandable-text>
         <div class="task-item__meta">
           <span><i class="pi pi-user"></i> {{ task.assignedUserName || 'Unassigned' }}</span>
           <span><i class="pi pi-folder"></i> {{ task.projectName }}</span>
+          <span><i class="pi pi-pencil"></i> Created {{ task.createdAt | date:'mediumDate' }} by {{ task.createdByUserName || 'Unknown' }}</span>
+          <span><i class="pi pi-history"></i> Updated {{ task.lastModifiedAt | date:'mediumDate' }} by {{ task.lastModifiedByUserName || 'Unknown' }}</span>
         </div>
       </article>
 
