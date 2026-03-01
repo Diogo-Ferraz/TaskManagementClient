@@ -27,7 +27,7 @@ export class ProjectCreateComponent implements OnInit, OnDestroy {
   isLoading = false;
   isPreviewMode = false;
   previewDetail: string | null = null;
-  readonly maxNameLength = 120;
+  readonly maxNameLength = 100;
   readonly maxDescriptionLength = 1200;
   readonly readinessSteps: MenuItem[] = [
     { label: 'Define Name' },
