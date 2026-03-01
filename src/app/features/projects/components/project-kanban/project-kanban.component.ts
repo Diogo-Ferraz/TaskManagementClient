@@ -63,6 +63,7 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
   private static readonly ASSIGNEE_PAGE_SIZE = 500;
   private static readonly ASSIGNEE_FILTER_ALL = '__all';
   private static readonly ASSIGNEE_FILTER_UNASSIGNED = '__unassigned';
+  private static readonly TITLE_MAX_LENGTH = 200;
   private readonly projectsApiClient = inject(ProjectsApiClient);
   private readonly adminUsersApiClient = inject(AdminUsersApiClient);
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
@@ -325,6 +326,15 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (title.length > ProjectKanbanComponent.TITLE_MAX_LENGTH) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Title too long',
+        detail: `Task title must be ${ProjectKanbanComponent.TITLE_MAX_LENGTH} characters or fewer.`
+      });
+      return;
+    }
+
     const request: CreateTaskItemRequest = {
       projectId: this.selectedProjectId,
       title,
@@ -381,6 +391,15 @@ export class ProjectKanbanComponent implements OnInit, OnDestroy {
     const title = this.taskForm.title.trim();
 
     if (!taskId || !title || this.isSavingTask) {
+      return;
+    }
+
+    if (title.length > ProjectKanbanComponent.TITLE_MAX_LENGTH) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Title too long',
+        detail: `Task title must be ${ProjectKanbanComponent.TITLE_MAX_LENGTH} characters or fewer.`
+      });
       return;
     }
 

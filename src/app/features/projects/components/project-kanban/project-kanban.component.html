@@ -316,7 +316,7 @@
     <div class="task-dialog-form">
       <div class="task-control">
         <label for="editTaskTitle">Title</label>
-        <input id="editTaskTitle" pInputText [(ngModel)]="taskForm.title" placeholder="Task title" />
+        <input id="editTaskTitle" pInputText [(ngModel)]="taskForm.title" [maxlength]="200" placeholder="Task title" />
       </div>
 
       <div class="task-control">
@@ -366,7 +366,7 @@
 
       <div class="task-dialog-actions">
         <button pButton type="button" label="Cancel" class="p-button-text" (click)="closeTaskDialogs()"></button>
-        <button pButton type="button" label="Save changes" icon="pi pi-check" [loading]="isSavingTask" [disabled]="!taskForm.title.trim()" (click)="saveEditTask()"></button>
+        <button pButton type="button" label="Save changes" icon="pi pi-check" [loading]="isSavingTask" [disabled]="!taskForm.title.trim() || taskForm.title.trim().length > 200" (click)="saveEditTask()"></button>
       </div>
     </div>
   </div>
@@ -396,7 +396,7 @@
     <div class="task-dialog-form">
       <div class="task-control">
         <label for="createTaskTitle">Title</label>
-        <input id="createTaskTitle" pInputText [(ngModel)]="taskForm.title" placeholder="Task title" />
+        <input id="createTaskTitle" pInputText [(ngModel)]="taskForm.title" [maxlength]="200" placeholder="Task title" />
       </div>
 
       <div class="task-control">
@@ -432,7 +432,7 @@
           label="Create task"
           icon="pi pi-plus"
           [loading]="isSavingTask"
-          [disabled]="!taskForm.title.trim() || !selectedProjectId"
+          [disabled]="!taskForm.title.trim() || taskForm.title.trim().length > 200 || !selectedProjectId"
           (click)="saveCreateTask()">
         </button>
       </div>

@@ -51,7 +51,7 @@ export class TaskItemCreateComponent implements OnInit, OnDestroy {
     { label: 'Planning' },
     { label: 'Ready' }
   ];
-  readonly maxTitleLength = 160;
+  readonly maxTitleLength = 200;
   readonly maxDescriptionLength = 2000;
 
   ngOnInit(): void {

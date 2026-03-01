@@ -36,6 +36,7 @@ interface ProjectFilterOption {
   styleUrl: './user-task-items.component.scss'
 })
 export class UserTaskItemsComponent implements OnInit, OnDestroy {
+  private static readonly TITLE_MAX_LENGTH = 200;
   private static readonly PROJECT_SELECTION_CONTEXT = 'my-tasks';
   private readonly taskItemsApiClient = inject(TaskItemsApiClient);
   private readonly authService = inject(AuthService);
@@ -286,6 +287,15 @@ export class UserTaskItemsComponent implements OnInit, OnDestroy {
     const title = this.taskForm.title.trim();
 
     if (!taskId || !title || this.isSavingTask) {
+      return;
+    }
+
+    if (title.length > UserTaskItemsComponent.TITLE_MAX_LENGTH) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Title too long',
+        detail: `Task title must be ${UserTaskItemsComponent.TITLE_MAX_LENGTH} characters or fewer.`
+      });
       return;
     }
 
