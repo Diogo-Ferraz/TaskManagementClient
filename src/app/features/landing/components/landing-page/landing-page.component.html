@@ -23,6 +23,17 @@
 
     <div class="landing__cta">
       <button pButton type="button" size="large" label="Get Started" icon="pi pi-arrow-right" iconPos="right" (click)="signIn()"></button>
+      <a
+        pButton
+        severity="secondary"
+        outlined="true"
+        icon="pi pi-github"
+        iconPos="left"
+        label="Stack Setup Guide"
+        href="https://github.com/Diogo-Ferraz/TaskManagementStack"
+        target="_blank"
+        rel="noopener noreferrer">
+      </a>
     </div>
 
     @if (isDebugEntryEnabled()) {
