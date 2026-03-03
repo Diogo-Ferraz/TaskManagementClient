@@ -78,7 +78,29 @@
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.docker.ts"
+                  "with": "src/environments/environment.docker.prod.ts"
+                }
+              ]
+            },
+            "docker-local": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.docker.local.ts"
+                }
+              ]
+            },
+            "docker-prod": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.docker.prod.ts"
                 }
               ]
             }

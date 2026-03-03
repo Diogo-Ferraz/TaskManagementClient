@@ -31,9 +31,10 @@ jobs:
           context: .
           file: Dockerfile
           build-args: |
-            BUILD_CONFIGURATION=docker
+            BUILD_CONFIGURATION=docker-local
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             diogopro/taskmanagement-client:latest
+            diogopro/taskmanagement-client:localhost
             diogopro/taskmanagement-client:sha-${{ github.sha }}

@@ -1,0 +1,18 @@
+{
+  "production": false,
+  "apiBaseUrl": "__API_BASE_URL__",
+  "authApiBaseUrl": "__AUTH_API_BASE_URL__",
+  "activityHubPath": "/hubs/activity",
+  "debugAuth": {
+    "enabled": false,
+    "allowedHosts": ["__APP_ALLOWED_HOST__"]
+  },
+  "auth": {
+    "authority": "__AUTH_AUTHORITY__",
+    "clientId": "angular-client",
+    "redirectUri": "__APP_BASE_URL__/callback",
+    "postLogoutRedirectUri": "__APP_BASE_URL__",
+    "responseType": "code",
+    "scopes": ["openid", "profile", "email", "roles", "api1"]
+  }
+}
