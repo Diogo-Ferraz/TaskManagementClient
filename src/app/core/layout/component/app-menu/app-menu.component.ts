@@ -85,7 +85,15 @@ export class AppMenuComponent {
         label: 'About',
         items: [
           { label: 'Documentation', icon: 'pi pi-fw pi-book', routerLink: ['/docs'] },
-          { label: 'View Source', icon: 'pi pi-fw pi-github', url: 'https://github.com/Diogo-Ferraz/TaskManagementClient', target: '_blank' }
+          {
+            label: 'Source Code',
+            icon: 'pi pi-fw pi-github',
+            items: [
+              { label: 'Client Source', icon: 'pi pi-fw pi-desktop', url: 'https://github.com/Diogo-Ferraz/TaskManagementClient', target: '_blank' },
+              { label: 'Server Source', icon: 'pi pi-fw pi-server', url: 'https://github.com/Diogo-Ferraz/TaskManagementServer', target: '_blank' },
+              { label: 'Stack Source', icon: 'pi pi-fw pi-sitemap', url: 'https://github.com/Diogo-Ferraz/TaskManagementStack', target: '_blank' }
+            ]
+          }
         ]
       }
     ];

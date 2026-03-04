@@ -1,6 +1,6 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, HostBinding, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, HostBinding, Input, OnInit, inject, ViewEncapsulation } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { RippleModule } from 'primeng/ripple';
@@ -31,6 +31,8 @@ import { RippleModule } from 'primeng/ripple';
   ]
 })
 export class AppMenuitemComponent implements OnInit {
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
+
   @Input() item!: MenuItem;
 
   @Input() index!: number;
@@ -47,6 +49,19 @@ export class AppMenuitemComponent implements OnInit {
     
   }
 
+  onItemClick(event: MouseEvent): void {
+    if (!this.item.items || this.item.items.length === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    this.active = !this.active;
+
+    if (this.active) {
+      this.scrollExpandedChildrenIntoView();
+    }
+  }
+
   @HostBinding('class.active-menuitem')
     get activeClass() {
         return this.active && !this.root;
@@ -54,5 +69,25 @@ export class AppMenuitemComponent implements OnInit {
 
   get submenuAnimation() {
     return this.root ? 'expanded' : this.active ? 'expanded' : 'collapsed';
+  }
+
+  private scrollExpandedChildrenIntoView(): void {
+    window.setTimeout(() => {
+      const lastChild = this.elementRef.nativeElement.querySelector('ul > li:last-child');
+      if (lastChild instanceof HTMLElement) {
+        lastChild.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+        return;
+      }
+
+      this.elementRef.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    }, 420);
   }
 }
